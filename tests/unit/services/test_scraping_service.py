@@ -59,8 +59,11 @@ class TestScrapingService:
         with pytest.raises(ValueError, match="The specified host is not allowed"):
             scraping_service.validate_url("http://10.0.0.1")
 
-    def test_validate_url_nonexistent_host(self, scraping_service):
+    def test_validate_url_nonexistent_host(self, scraping_service, mocker):
         """Test handling of non-existent host."""
+        import socket
+
+        mocker.patch("socket.getaddrinfo", side_effect=socket.gaierror)
         with pytest.raises(ValueError, match="could not be found"):
             scraping_service.validate_url("http://thishostdoesnotexist12345.com")
 

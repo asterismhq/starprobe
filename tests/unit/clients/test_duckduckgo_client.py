@@ -90,12 +90,10 @@ class TestDuckDuckGoClient:
         # Verify text() was called with default max_results=3
         mock_ddgs.text.assert_called_once_with("test query", max_results=3)
 
-    def test_search_handles_incomplete_results(self, mocker):
+    def test_search_handles_incomplete_results(self, mock_ddgs):
         """Test filtering of results with missing fields."""
-        mock_ddgs_instance = mocker.MagicMock()
-
         # Mock results with incomplete data
-        mock_ddgs_instance.text.return_value = [
+        mock_ddgs.text.return_value = [
             {
                 "href": "https://example.com/1",
                 "title": "Complete Result",
@@ -112,12 +110,6 @@ class TestDuckDuckGoClient:
             },
         ]
 
-        mock_ddgs_instance.__enter__.return_value = mock_ddgs_instance
-        mock_ddgs_instance.__exit__.return_value = None
-
-        mock_ddgs_class = mocker.patch("ddgs.DDGS")
-        mock_ddgs_class.return_value = mock_ddgs_instance
-
         client = DuckDuckGoClient()
         result = client.search("test query")
 
@@ -125,15 +117,9 @@ class TestDuckDuckGoClient:
         assert len(result["results"]) == 1
         assert result["results"][0]["title"] == "Complete Result"
 
-    def test_search_handles_exceptions(self, mocker):
+    def test_search_handles_exceptions(self, mock_ddgs):
         """Test graceful error handling when search fails."""
-        mock_ddgs_instance = mocker.MagicMock()
-        mock_ddgs_instance.text.side_effect = Exception("Network error")
-        mock_ddgs_instance.__enter__.return_value = mock_ddgs_instance
-        mock_ddgs_instance.__exit__.return_value = None
-
-        mock_ddgs_class = mocker.patch("ddgs.DDGS")
-        mock_ddgs_class.return_value = mock_ddgs_instance
+        mock_ddgs.text.side_effect = Exception("Network error")
 
         client = DuckDuckGoClient()
         result = client.search("test query")
@@ -141,15 +127,9 @@ class TestDuckDuckGoClient:
         # Should return empty results on error
         assert result == {"results": []}
 
-    def test_search_empty_results(self, mocker):
+    def test_search_empty_results(self, mock_ddgs):
         """Test handling of empty search results."""
-        mock_ddgs_instance = mocker.MagicMock()
-        mock_ddgs_instance.text.return_value = []
-        mock_ddgs_instance.__enter__.return_value = mock_ddgs_instance
-        mock_ddgs_instance.__exit__.return_value = None
-
-        mock_ddgs_class = mocker.patch("ddgs.DDGS")
-        mock_ddgs_class.return_value = mock_ddgs_instance
+        mock_ddgs.text.return_value = []
 
         client = DuckDuckGoClient()
         result = client.search("test query")

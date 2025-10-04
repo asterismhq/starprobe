@@ -1,5 +1,7 @@
 """Unit tests for TextProcessingService."""
 
+import tiktoken
+
 from ollama_deep_researcher.services.text_processing_service import (
     TextProcessingService,
 )
@@ -85,8 +87,6 @@ class TestTextProcessingService:
         """Test text exactly at max_tokens."""
         text = "word " * 5
         # Get actual token count for this text
-        import tiktoken
-
         encoding = tiktoken.get_encoding(TextProcessingService.DEFAULT_ENCODING)
         actual_tokens = len(encoding.encode(text))
         result = TextProcessingService.truncate_text_by_tokens(text, actual_tokens)

@@ -40,27 +40,24 @@ class TestSearchService:
         # Mock returns 3 results by default
         assert len(result["results"]) <= 3
 
-    def test_search_handles_empty_results(self, mocker):
+    def test_search_handles_empty_results(
+        self, search_service, mock_duckduckgo_client, mocker
+    ):
         """Test behavior with no search results."""
-        # Create a mock client that returns empty results
-        mock_client = mocker.Mock()
-        mock_client.search.return_value = {"results": []}
-
-        search_service = SearchService(search_client=mock_client)
+        mocker.patch.object(
+            mock_duckduckgo_client, "search", return_value={"results": []}
+        )
         result = search_service.search("test query")
-
         assert result == {"results": []}
 
-    def test_search_handles_exceptions(self, mocker):
+    def test_search_handles_exceptions(
+        self, search_service, mock_duckduckgo_client, mocker
+    ):
         """Test graceful error handling when search fails."""
-        # Create a mock client that raises an exception
-        mock_client = mocker.Mock()
-        mock_client.search.side_effect = Exception("Network error")
-
-        search_service = SearchService(search_client=mock_client)
+        mocker.patch.object(
+            mock_duckduckgo_client, "search", side_effect=Exception("Network error")
+        )
         result = search_service.search("test query")
-
-        # Should return empty results on error
         assert result == {"results": []}
 
     def test_search_delegates_to_client(self, mocker, mock_duckduckgo_client):

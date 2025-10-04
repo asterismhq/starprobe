@@ -14,28 +14,19 @@ class TestPromptService:
         """Create a PromptService instance for testing."""
         return PromptService(mock_settings)
 
-    def test_get_current_date(self):
+    def test_get_current_date(self, mocker):
         """Test current date formatting."""
+        from datetime import datetime
+
+        # Mock datetime.now() to return a fixed date
+        mock_datetime = mocker.patch(
+            "ollama_deep_researcher.services.prompt_service.datetime"
+        )
+        mock_now = datetime(2024, 7, 26)
+        mock_datetime.now.return_value = mock_now
+
         result = PromptService.get_current_date()
-        # Should return a string in format like "January 01, 2025"
-        assert isinstance(result, str)
-        assert len(result) > 0
-        # Check that it contains a month name
-        months = [
-            "January",
-            "February",
-            "March",
-            "April",
-            "May",
-            "June",
-            "July",
-            "August",
-            "September",
-            "October",
-            "November",
-            "December",
-        ]
-        assert any(month in result for month in months)
+        assert result == "July 26, 2024"
 
     def test_generate_query_prompt_returns_messages(self, prompt_service):
         """Test query prompt generation returns list of messages."""

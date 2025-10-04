@@ -183,7 +183,7 @@ class TestOllamaClient:
         assert call_kwargs["format"] == "json"
 
     def test_configure_none_values_ignored(self, mock_settings, mock_chat_ollama):
-        """Test configure ignores None parameters."""
+        """Test configure ignores None parameters but re-initializes client."""
         client = OllamaClient(
             mock_settings,
             base_url="http://original:11434/",
@@ -195,9 +195,19 @@ class TestOllamaClient:
         original_model = client.model
         original_temp = client.temperature
 
-        # Configure with all None - should not change anything
+        # Reset mock to check for re-initialization
+        mock_chat_ollama.reset_mock()
+
+        # Configure with all None - should not change attributes but should re-init client
         client.configure(base_url=None, model=None, temperature=None, format=None)
 
         assert client.base_url == original_base_url
         assert client.model == original_model
         assert client.temperature == original_temp
+
+        # Verify the client was re-initialized with the original parameters
+        mock_chat_ollama.assert_called_once_with(
+            base_url=original_base_url,
+            model=original_model,
+            temperature=original_temp,
+        )
