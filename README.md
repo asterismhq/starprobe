@@ -110,4 +110,32 @@ The application's behavior can be controlled via the following environment varia
 
 ## 🧪 Testing
 
-The project includes both mock tests and integration tests. You can run specific test suites using commands like `just mock-test` for mock tests and `just intg-test` for integration tests.
+The project includes comprehensive test coverage across multiple test types:
+
+### Test Organization
+
+- **Unit Tests** (`tests/unit/`): Test individual components in isolation
+  - `services/`: Tests for all service classes (PromptService, ResearchService, SearchService, ScrapingService, TextProcessingService)
+  - `clients/`: Tests for client classes (OllamaClient, DuckDuckGoClient)
+- **Mock Tests** (`tests/mock/`): Tests for mock implementations and dependency container
+- **Integration Tests** (`tests/intg/`): End-to-end tests with real workflows
+
+### Running Tests
+
+```shell
+# Run all tests (unit, mock, integration, and build)
+just test
+
+# Run only unit tests (no external dependencies required)
+just unit-test
+
+# Run only mock tests
+just mock-test
+
+# Run only integration tests (requires Ollama)
+just intg-test
+
+# Or use pytest directly for more control
+pytest tests/unit/ -v
+pytest tests/ --cov=src/ollama_deep_researcher --cov-report=html
+```
