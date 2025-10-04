@@ -20,7 +20,7 @@ class OllamaDeepResearcherSettings(BaseSettings):
         description="Number of research iterations to perform",
     )
     local_llm: str = Field(
-        default="qwen3:4b",
+        default="llama3.2:3b",
         validation_alias="LLM_MODEL",
         title="LLM Model Name",
         description="Name of the LLM model to use",
@@ -51,6 +51,16 @@ class OllamaDeepResearcherSettings(BaseSettings):
         default=1000,
         title="Max Tokens Per Source",
         description="Maximum number of tokens to include for each source's content",
+    )
+    scraping_timeout_connect: int = Field(
+        default=30,
+        title="Scraping Connect Timeout",
+        description="Timeout in seconds for establishing connection during scraping",
+    )
+    scraping_timeout_read: int = Field(
+        default=90,
+        title="Scraping Read Timeout",
+        description="Timeout in seconds for reading response during scraping",
     )
 
     @field_validator("debug", mode="before")

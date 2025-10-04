@@ -33,6 +33,7 @@ pip-log.txt
 .coverage
 .coverage.*
 htmlcov/
+demo/example.md
 
 # editor config
 .vscode/

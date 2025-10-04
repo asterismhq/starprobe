@@ -1,5 +1,5 @@
 from dev.mocks.mock_duckduckgo_client import MockDuckDuckGoClient
-from ollama_deep_researcher.clients.duckduckgo_client import DuckDuckGoClient
+from ollama_deep_researcher.clients import DuckDuckGoClient
 
 
 def test_real_client():

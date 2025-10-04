@@ -1,13 +1,17 @@
 import logging
 from typing import Any, Dict, List
 
-from ddgs import DDGS
-
 from ..protocols.duckduckgo_client_protocol import DuckDuckGoClientProtocol
 
 
 class DuckDuckGoClient(DuckDuckGoClientProtocol):
     """Client for performing web searches using DuckDuckGo."""
+
+    def __init__(self, settings=None):
+        self.settings = settings
+        from ddgs import DDGS
+
+        self._client = DDGS()
 
     def search(
         self, query: str, max_results: int = 3
@@ -30,7 +34,7 @@ class DuckDuckGoClient(DuckDuckGoClientProtocol):
                     - raw_content (str or None): Initially same as content, to be populated later
         """
         try:
-            with DDGS() as ddgs:
+            with self._client as ddgs:
                 results = []
                 search_results = list(ddgs.text(query, max_results=max_results))
 

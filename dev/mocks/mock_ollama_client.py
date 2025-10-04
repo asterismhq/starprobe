@@ -32,6 +32,9 @@ class MockOllamaClient(OllamaClientProtocol):
             **kwargs: Configuration parameters (ignored in mock)
         """
         self._bound_tools = []
+        self.base_url = kwargs.get("base_url", "http://localhost:11434/")
+        self.model = kwargs.get("model", "llama3.2:3b")
+        self.temperature = kwargs.get("temperature", 0)
         self.format = kwargs.get("format")
         print("[MockOllamaClient] Initialized - Using mock responses")
 
@@ -78,3 +81,28 @@ class MockOllamaClient(OllamaClientProtocol):
         self._bound_tools = tools
         print(f"[MockOllamaClient] Bound {len(tools)} tools (mock)")
         return self
+
+    def configure(
+        self,
+        base_url: Any = None,
+        model: Any = None,
+        temperature: Any = None,
+        format: Any = None,
+    ):
+        """Configure the mock client (for compatibility).
+
+        Args:
+            base_url: Base URL (ignored in mock)
+            model: Model name (ignored in mock)
+            temperature: Temperature (ignored in mock)
+            format: Format (ignored in mock)
+        """
+        if base_url is not None:
+            self.base_url = base_url
+        if model is not None:
+            self.model = model
+        if temperature is not None:
+            self.temperature = temperature
+        if format is not None:
+            self.format = format
+        print(f"[MockOllamaClient] Configured with model={model}, base_url={base_url}")

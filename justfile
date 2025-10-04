@@ -102,3 +102,11 @@ clean:
   @rm -rf .ruff_cache
   @rm -f test_db.sqlite3
   @echo "✅ Cleanup completed"
+
+# ==============================================================================
+# DEMO
+# ==============================================================================
+
+# Run demo script
+run-demo:
+    @uv run demo/example.py

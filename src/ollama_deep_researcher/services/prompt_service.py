@@ -1,4 +1,3 @@
-import json
 from datetime import datetime
 
 import jinja2
@@ -15,21 +14,17 @@ from ollama_deep_researcher.prompts.components import (
     tool_calling_query_instructions,
     tool_calling_reflection_instructions,
 )
-from ollama_deep_researcher.services.text_processing_service import (
-    TextProcessingService,
-)
 from ollama_deep_researcher.settings import (
     OllamaDeepResearcherSettings,
 )
 
 
-class LLMService:
-    """Service class for handling LLM interactions.
+class PromptService:
+    """Service class for generating LLM prompts.
 
     Dependencies:
-    - TextProcessingService: For stripping thinking tokens and text processing
-    - OllamaDeepResearcherSettings: For configuration and LLM client setup
-    - ollama_deep_researcher.prompts: For query generation and summarization prompts
+    - OllamaDeepResearcherSettings: For configuration
+    - ollama_deep_researcher.prompts: For prompt templates and instructions
     """
 
     @staticmethod
@@ -37,17 +32,16 @@ class LLMService:
         """Get current date in a readable format."""
         return datetime.now().strftime("%B %d, %Y")
 
-    def __init__(self, configurable: OllamaDeepResearcherSettings, llm_client):
+    def __init__(self, configurable: OllamaDeepResearcherSettings):
         self.configurable = configurable
-        self.llm = llm_client
         self.template_env = jinja2.Environment(
             loader=jinja2.FileSystemLoader(
                 "src/ollama_deep_researcher/prompts/templates"
             )
         )
 
-    def generate_search_query(self, research_topic: str) -> str:
-        """Generate a search query based on the research topic."""
+    def generate_query_prompt(self, research_topic: str) -> list:
+        """Generate messages for search query generation."""
         # Render the prompt using Jinja template
         template = self.template_env.get_template("query.jinja")
         formatted_prompt = template.render(
@@ -75,18 +69,12 @@ class LLMService:
             HumanMessage(content="Generate a query for web search:"),
         ]
 
-        return self._generate_search_query_with_structured_output(
-            messages=messages,
-            tool_class=Query,
-            fallback_query=f"Tell me more about {research_topic}",
-            tool_query_field="query",
-            json_query_field="query",
-        )
+        return messages
 
-    def summarize(
+    def generate_summarize_prompt(
         self, research_topic: str, existing_summary: str, new_context: str
-    ) -> str:
-        """Summarize web research results."""
+    ) -> list:
+        """Generate messages for summarization."""
         # Build the human message
         if existing_summary:
             human_message_content = (
@@ -104,27 +92,17 @@ class LLMService:
         template = self.template_env.get_template("summarize.jinja")
         prompt = template.render(summarizer_instructions=summarizer_instructions)
 
-        # Run the LLM
-        result = self.llm.invoke(
-            [
-                SystemMessage(content=prompt),
-                HumanMessage(content=human_message_content),
-            ]
-        )
+        messages = [
+            SystemMessage(content=prompt),
+            HumanMessage(content=human_message_content),
+        ]
 
-        # Strip thinking tokens if configured
-        running_summary = result.content
-        if self.configurable.strip_thinking_tokens:
-            running_summary = TextProcessingService.strip_thinking_tokens(
-                running_summary
-            )
+        return messages
 
-        return running_summary
-
-    def reflect_and_generate_follow_up_query(
+    def generate_reflect_prompt(
         self, research_topic: str, running_summary: str
-    ) -> str:
-        """Identify knowledge gaps and generate follow-up queries."""
+    ) -> list:
+        """Generate messages for reflection and follow-up query generation."""
         # Render the prompt using Jinja template
         template = self.template_env.get_template("reflect.jinja")
         formatted_prompt = template.render(
@@ -155,50 +133,4 @@ class LLMService:
             ),
         ]
 
-        return self._generate_search_query_with_structured_output(
-            messages=messages,
-            tool_class=FollowUpQuery,
-            fallback_query=f"Tell me more about {research_topic}",
-            tool_query_field="follow_up_query",
-            json_query_field="follow_up_query",
-        )
-
-    def _generate_search_query_with_structured_output(
-        self,
-        messages: list,
-        tool_class,
-        fallback_query: str,
-        tool_query_field: str,
-        json_query_field: str,
-    ):
-        """Helper function to generate search queries using either tool calling or JSON mode."""
-        if self.configurable.use_tool_calling:
-            llm = self.llm.bind_tools([tool_class])
-            result = llm.invoke(messages)
-
-            if not result.tool_calls:
-                return fallback_query
-
-            try:
-                tool_data = result.tool_calls[0]["args"]
-                search_query = tool_data.get(tool_query_field)
-                return search_query
-            except (IndexError, KeyError):
-                return fallback_query
-
-        else:
-            # Use JSON mode
-            result = self.llm.invoke(messages)
-            print(f"result: {result}")
-            content = result.content
-
-            try:
-                parsed_json = json.loads(content)
-                search_query = parsed_json.get(json_query_field)
-                if not search_query:
-                    return fallback_query
-                return search_query
-            except (json.JSONDecodeError, KeyError):
-                if self.configurable.strip_thinking_tokens:
-                    content = TextProcessingService.strip_thinking_tokens(content)
-                return fallback_query
+        return messages

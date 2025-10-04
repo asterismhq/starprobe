@@ -29,7 +29,7 @@ class OllamaClient(OllamaClientProtocol):
         self,
         settings: "OllamaDeepResearcherSettings",
         base_url: str = "http://localhost:11434/",
-        model: str = "llama3.2",
+        model: str = "llama3.2:3b",
         temperature: float = 0,
         format: Optional[str] = None,
     ):
@@ -44,29 +44,52 @@ class OllamaClient(OllamaClientProtocol):
             temperature: Temperature setting for generation
             format: Output format (e.g., "json" for JSON mode)
         """
-        if settings.debug:
-            # Import here to avoid dependency in production
-            from dev.mocks.mock_ollama_client import MockOllamaClient
+        self.settings = settings
+        self.base_url = base_url
+        self.model = model
+        self.temperature = temperature
+        self.format = format
 
-            print("[DEBUG MODE] Using MockOllamaClient")
-            self._client = MockOllamaClient(
-                base_url=base_url, model=model, temperature=temperature, format=format
-            )
-        else:
-            from langchain_ollama import ChatOllama
+        from langchain_ollama import ChatOllama
 
-            kwargs = {
-                "base_url": base_url,
-                "model": model,
-                "temperature": temperature,
-            }
-            if format is not None:
-                kwargs["format"] = format
+        kwargs = {
+            "base_url": self.base_url,
+            "model": self.model,
+            "temperature": self.temperature,
+        }
+        if self.format is not None:
+            kwargs["format"] = self.format
 
-            self._client = OllamaClientAdapter(ChatOllama(**kwargs))
+        self._client = OllamaClientAdapter(ChatOllama(**kwargs))
+
+    def configure(
+        self,
+        base_url: Optional[str] = None,
+        model: Optional[str] = None,
+        temperature: Optional[float] = None,
+        format: Optional[str] = None,
+    ):
+        """Configure the client with new parameters and recreate the internal client."""
+        if base_url is not None:
+            self.base_url = base_url
+        if model is not None:
+            self.model = model
+        if temperature is not None:
+            self.temperature = temperature
+        if format is not None:
+            self.format = format
+
+        from langchain_ollama import ChatOllama
+
+        kwargs = {
+            "base_url": self.base_url,
+            "model": self.model,
+            "temperature": self.temperature,
+        }
+        if self.format is not None:
+            kwargs["format"] = self.format
+
+        self._client = OllamaClientAdapter(ChatOllama(**kwargs))
 
     def invoke(self, messages: Any, **kwargs: Any) -> Any:
         return self._client.invoke(messages, **kwargs)
-
-    def bind_tools(self, tools: list[Any]) -> OllamaClientProtocol:
-        return self._client.bind_tools(tools)

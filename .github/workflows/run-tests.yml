@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        test_target: [mock-test]
+        test_target: [mock-test, intg-test]
       fail-fast: false
 
     steps:
