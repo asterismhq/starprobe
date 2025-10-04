@@ -21,7 +21,7 @@ async def main():
 
     # Build the configuration the same way as the API server
     # If environment variables are not set, default values will be used
-    local_llm = os.getenv("LLM_MODEL", "qwen3:4b")
+    local_llm = os.getenv("LLM_MODEL", "llama3.2:3b")
     ollama_base_url = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434/")
     config = {
         "configurable": {

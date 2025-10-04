@@ -29,7 +29,7 @@ class OllamaClient(OllamaClientProtocol):
         self,
         settings: "OllamaDeepResearcherSettings",
         base_url: str = "http://localhost:11434/",
-        model: str = "llama3.2",
+        model: str = "llama3.2:3b",
         temperature: float = 0,
         format: Optional[str] = None,
     ):
