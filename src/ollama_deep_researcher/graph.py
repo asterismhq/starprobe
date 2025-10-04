@@ -1,121 +1,40 @@
-import json
-
-from langchain_core.messages import HumanMessage, SystemMessage
 from langchain_core.runnables import RunnableConfig
-from langchain_core.tools import tool
-from langchain_ollama import ChatOllama
 from langgraph.graph import END, START, StateGraph
-from pydantic import BaseModel, Field
 from typing_extensions import Literal
 
-from ollama_deep_researcher.configuration import Configuration
-from ollama_deep_researcher.prompts import (
-    get_current_date,
-    json_mode_query_instructions,
-    json_mode_reflection_instructions,
-    query_writer_instructions,
-    reflection_instructions,
-    summarizer_instructions,
-    tool_calling_query_instructions,
-    tool_calling_reflection_instructions,
+from ollama_deep_researcher.services.llm_service import LLMService
+from ollama_deep_researcher.services.research_service import ResearchService
+from ollama_deep_researcher.services.search_service import SearchService
+from ollama_deep_researcher.clients.duckduckgo_client import DuckDuckGoClient
+from ollama_deep_researcher.models.scraping_model import ScrapingModel
+from ollama_deep_researcher.settings import (
+    OllamaDeepResearcherSettings,
+    OllamaClient,
 )
 from ollama_deep_researcher.state import (
     SummaryState,
     SummaryStateInput,
     SummaryStateOutput,
 )
-from ollama_deep_researcher.utils import (
-    ScrapingModel,
-    deduplicate_and_format_sources,
-    duckduckgo_search,
-    format_sources,
-    get_config_value,
-    perplexity_search,
-    searxng_search,
-    strip_thinking_tokens,
-    tavily_search,
-)
 
 # Constants
 MAX_TOKENS_PER_SOURCE = 1000
-CHARS_PER_TOKEN = 4
 
 
-def generate_search_query_with_structured_output(
-    configurable: Configuration,
-    messages: list,
-    tool_class,
-    fallback_query: str,
-    tool_query_field: str,
-    json_query_field: str,
-):
-    """Helper function to generate search queries using either tool calling or JSON mode.
-
-    Args:
-        configurable: Configuration object
-        messages: List of messages to send to LLM
-        tool_class: Tool class for tool calling mode
-        fallback_query: Fallback search query if extraction fails
-        tool_query_field: Field name in tool args containing the query
-        json_query_field: Field name in JSON response containing the query
-
-    Returns:
-        Dictionary with "search_query" key
-    """
-    if configurable.use_tool_calling:
-        llm = get_llm(configurable).bind_tools([tool_class])
-        result = llm.invoke(messages)
-
-        if not result.tool_calls:
-            return {"search_query": fallback_query}
-
-        try:
-            tool_data = result.tool_calls[0]["args"]
-            search_query = tool_data.get(tool_query_field)
-            return {"search_query": search_query}
-        except (IndexError, KeyError):
-            return {"search_query": fallback_query}
-
-    else:
-        # Use JSON mode
-        llm = get_llm(configurable)
-        result = llm.invoke(messages)
-        print(f"result: {result}")
-        content = result.content
-
-        try:
-            parsed_json = json.loads(content)
-            search_query = parsed_json.get(json_query_field)
-            if not search_query:
-                return {"search_query": fallback_query}
-            return {"search_query": search_query}
-        except (json.JSONDecodeError, KeyError):
-            if configurable.strip_thinking_tokens:
-                content = strip_thinking_tokens(content)
-            return {"search_query": fallback_query}
-
-
-def get_llm(configurable: Configuration):
-    """Initialize ChatOllama LLM based on configuration.
-
-    Uses JSON mode if use_tool_calling is False, otherwise regular mode.
-
-    Args:
-        configurable: Configuration object containing LLM settings
-
-    Returns:
-        Configured ChatOllama instance
-    """
-    if configurable.use_tool_calling:
-        return ChatOllama(
-            base_url=configurable.ollama_base_url,
-            model=configurable.local_llm,
+def get_llm(config: OllamaDeepResearcherSettings):
+    """Get an LLM client based on the configuration."""
+    if config.use_tool_calling:
+        return OllamaClient(
+            config,
+            base_url=config.ollama_base_url,
+            model=config.local_llm,
             temperature=0,
         )
     else:
-        return ChatOllama(
-            base_url=configurable.ollama_base_url,
-            model=configurable.local_llm,
+        return OllamaClient(
+            config,
+            base_url=config.ollama_base_url,
+            model=config.local_llm,
             temperature=0,
             format="json",
         )
@@ -126,7 +45,7 @@ def generate_query(state: SummaryState, config: RunnableConfig):
     """LangGraph node that generates a search query based on the research topic.
 
     Uses an LLM to create an optimized search query for web research based on
-    the user's research topic. Supports both LMStudio and Ollama as LLM providers.
+    the user's research topic. Uses Ollama as the LLM provider.
 
     Args:
         state: Current graph state containing the research topic
@@ -135,47 +54,10 @@ def generate_query(state: SummaryState, config: RunnableConfig):
     Returns:
         Dictionary with state update, including search_query key containing the generated query
     """
-
-    # Format the prompt
-    current_date = get_current_date()
-    formatted_prompt = query_writer_instructions.format(
-        current_date=current_date, research_topic=state.research_topic
-    )
-
-    # Generate a query
-    configurable = Configuration.from_runnable_config(config)
-
-    @tool
-    class Query(BaseModel):
-        """
-        This tool is used to generate a query for web search.
-        """
-
-        query: str = Field(description="The actual search query string")
-        rationale: str = Field(
-            description="Brief explanation of why this query is relevant"
-        )
-
-    messages = [
-        SystemMessage(
-            content=formatted_prompt
-            + (
-                tool_calling_query_instructions
-                if configurable.use_tool_calling
-                else json_mode_query_instructions
-            )
-        ),
-        HumanMessage(content="Generate a query for web search:"),
-    ]
-
-    return generate_search_query_with_structured_output(
-        configurable=configurable,
-        messages=messages,
-        tool_class=Query,
-        fallback_query=f"Tell me more about {state.research_topic}",
-        tool_query_field="query",
-        json_query_field="query",
-    )
+    configurable = OllamaDeepResearcherSettings.from_runnable_config(config)
+    service = LLMService(configurable)
+    search_query = service.generate_search_query(state.research_topic)
+    return {"search_query": search_query}
 
 
 def web_research(state: SummaryState, config: RunnableConfig):
@@ -188,83 +70,24 @@ def web_research(state: SummaryState, config: RunnableConfig):
 
     Args:
         state: Current graph state containing the search query and research loop count
-        config: Configuration for the runnable, including search API settings
+        config: OllamaDeepResearcherSettings for the runnable, including search API settings
 
     Returns:
         Dictionary with state update, including sources_gathered, research_loop_count, and web_research_results
     """
-
-    # Configure
-    configurable = Configuration.from_runnable_config(config)
-
-    # Get the search API
-    search_api = get_config_value(configurable.search_api)
-
-    try:
-        # Step 1: Search the web (without fetch_full_page parameter)
-        if search_api == "tavily":
-            search_results = tavily_search(
-                state.search_query,
-                max_results=1,
-            )
-        elif search_api == "perplexity":
-            search_results = perplexity_search(
-                state.search_query, state.research_loop_count
-            )
-        elif search_api == "duckduckgo":
-            search_results = duckduckgo_search(
-                state.search_query,
-                max_results=3,
-            )
-        elif search_api == "searxng":
-            search_results = searxng_search(
-                state.search_query,
-                max_results=3,
-            )
-        else:
-            raise ValueError(f"Unsupported search API: {configurable.search_api}")
-
-        # Step 2: Instantiate scraper
-        scraper = ScrapingModel()
-
-        # Step 3: Loop through results and scrape each URL
-        if "results" in search_results:
-            for result in search_results["results"]:
-                url = result.get("url")
-                if not url:
-                    continue
-
-                # Try to scrape full content
-                try:
-                    scraped_content = scraper.scrape(url)
-                    # Step 4: On success, update raw_content with scraped text
-                    if scraped_content:
-                        result["raw_content"] = scraped_content
-                except Exception as e:
-                    # On failure, log warning and keep snippet
-                    print(f"Warning: Scraping failed for {url}: {str(e)}")
-                    # Keep the existing content as fallback (snippet from search)
-                    continue
-
-        # Format results with scraped content
-        search_str = deduplicate_and_format_sources(
-            search_results,
-            max_tokens_per_source=MAX_TOKENS_PER_SOURCE,
-        )
-
-        return {
-            "sources_gathered": [format_sources(search_results)],
-            "research_loop_count": state.research_loop_count + 1,
-            "web_research_results": [search_str],
-        }
-    except Exception as e:
-        # Log error but continue with empty results
-        print(f"Web research error: {str(e)}")
-        return {
-            "sources_gathered": ["Error fetching sources"],
-            "research_loop_count": state.research_loop_count + 1,
-            "web_research_results": [f"Search failed: {str(e)}"],
-        }
+    configurable = OllamaDeepResearcherSettings.from_runnable_config(config)
+    search_client = DuckDuckGoClient()
+    search_service = SearchService(search_client)
+    scraper = ScrapingModel()
+    service = ResearchService(configurable, search_service, scraper)
+    results, sources = service.search_and_scrape(
+        query=state.search_query, loop_count=state.research_loop_count
+    )
+    return {
+        "web_research_results": state.web_research_results + [results],
+        "sources_gathered": state.sources_gathered + [sources],
+        "research_loop_count": state.research_loop_count + 1,
+    }
 
 
 def summarize_sources(state: SummaryState, config: RunnableConfig):
@@ -277,52 +100,19 @@ def summarize_sources(state: SummaryState, config: RunnableConfig):
     Args:
         state: Current graph state containing research topic, running summary,
               and web research results
-        config: Configuration for the runnable, including LLM provider settings
+        config: OllamaDeepResearcherSettings for the runnable, including LLM provider settings
 
     Returns:
         Dictionary with state update, including running_summary key containing the updated summary
     """
-
     try:
-        # Existing summary
-        existing_summary = state.running_summary
-
-        # Most recent web research
-        most_recent_web_research = state.web_research_results[-1]
-
-        # Build the human message
-        if existing_summary:
-            human_message_content = (
-                f"<Existing Summary> \n {existing_summary} \n <Existing Summary>\n\n"
-                f"<New Context> \n {most_recent_web_research} \n <New Context>"
-                f"Update the Existing Summary with the New Context on this topic: \n <User Input> \n {state.research_topic} \n <User Input>\n\n"
-            )
-        else:
-            human_message_content = (
-                f"<Context> \n {most_recent_web_research} \n <Context>"
-                f"Create a Summary using the Context on this topic: \n <User Input> \n {state.research_topic} \n <User Input>\n\n"
-            )
-
-        # Run the LLM
-        configurable = Configuration.from_runnable_config(config)
-        llm = ChatOllama(
-            base_url=configurable.ollama_base_url,
-            model=configurable.local_llm,
-            temperature=0,
+        configurable = OllamaDeepResearcherSettings.from_runnable_config(config)
+        service = LLMService(configurable)
+        running_summary = service.summarize(
+            research_topic=state.research_topic,
+            existing_summary=state.running_summary,
+            new_context=state.web_research_results[-1],
         )
-
-        result = llm.invoke(
-            [
-                SystemMessage(content=summarizer_instructions),
-                HumanMessage(content=human_message_content),
-            ]
-        )
-
-        # Strip thinking tokens if configured
-        running_summary = result.content
-        if configurable.strip_thinking_tokens:
-            running_summary = strip_thinking_tokens(running_summary)
-
         return {"running_summary": running_summary}
     except Exception as e:
         # Log error but preserve existing summary or return fallback
@@ -339,53 +129,17 @@ def reflect_on_summary(state: SummaryState, config: RunnableConfig):
 
     Args:
         state: Current graph state containing the running summary and research topic
-        config: Configuration for the runnable, including LLM provider settings
+        config: OllamaDeepResearcherSettings for the runnable, including LLM provider settings
 
     Returns:
         Dictionary with state update, including search_query key containing the generated follow-up query
     """
-
-    # Generate a query
-    configurable = Configuration.from_runnable_config(config)
-    formatted_prompt = reflection_instructions.format(
-        research_topic=state.research_topic
+    configurable = OllamaDeepResearcherSettings.from_runnable_config(config)
+    service = LLMService(configurable)
+    search_query = service.reflect_and_generate_follow_up_query(
+        research_topic=state.research_topic, running_summary=state.running_summary
     )
-
-    @tool
-    class FollowUpQuery(BaseModel):
-        """
-        This tool is used to generate a follow-up query to address a knowledge gap.
-        """
-
-        follow_up_query: str = Field(
-            description="Write a specific question to address this gap"
-        )
-        knowledge_gap: str = Field(
-            description="Describe what information is missing or needs clarification"
-        )
-
-    messages = [
-        SystemMessage(
-            content=formatted_prompt
-            + (
-                tool_calling_reflection_instructions
-                if configurable.use_tool_calling
-                else json_mode_reflection_instructions
-            )
-        ),
-        HumanMessage(
-            content=f"Reflect on our existing knowledge: \n === \n {state.running_summary}, \n === \n And now identify a knowledge gap and generate a follow-up web search query:"
-        ),
-    ]
-
-    return generate_search_query_with_structured_output(
-        configurable=configurable,
-        messages=messages,
-        tool_class=FollowUpQuery,
-        fallback_query=f"Tell me more about {state.research_topic}",
-        tool_query_field="follow_up_query",
-        json_query_field="follow_up_query",
-    )
+    return {"search_query": search_query}
 
 
 def finalize_summary(state: SummaryState):
@@ -459,13 +213,13 @@ def route_research(
 
     Args:
         state: Current graph state containing the research loop count
-        config: Configuration for the runnable, including max_web_research_loops setting
+        config: OllamaDeepResearcherSettings for the runnable, including max_web_research_loops setting
 
     Returns:
         String literal indicating the next node to visit ("web_research" or "finalize_summary")
     """
 
-    configurable = Configuration.from_runnable_config(config)
+    configurable = OllamaDeepResearcherSettings.from_runnable_config(config)
     if state.research_loop_count <= configurable.max_web_research_loops:
         return "web_research"
     else:
@@ -477,7 +231,7 @@ builder = StateGraph(
     SummaryState,
     input=SummaryStateInput,
     output=SummaryStateOutput,
-    config_schema=Configuration,
+    config_schema=OllamaDeepResearcherSettings,
 )
 builder.add_node("generate_query", generate_query)
 builder.add_node("web_research", web_research)
