@@ -1,6 +1,7 @@
 import asyncio
 import os
 from pprint import pprint
+
 from dotenv import load_dotenv
 
 from ollama_deep_researcher.graph import graph
@@ -22,9 +23,7 @@ async def main():
     config = {
         "configurable": {
             "local_llm": os.getenv("LLM_MODEL", "llama3.2"),
-            "ollama_base_url": os.getenv(
-                "OLLAMA_BASE_URL", "http://localhost:11434/"
-            ),
+            "ollama_base_url": os.getenv("OLLAMA_BASE_URL", "http://localhost:11434/"),
             # Other settings can be added as needed
             # "search_api": "duckduckgo",
             # "max_web_research_loops": 3,

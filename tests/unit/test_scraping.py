@@ -1,5 +1,5 @@
 import socket
-from unittest.mock import MagicMock, Mock, patch
+from unittest.mock import Mock, patch
 
 import pytest
 import requests
@@ -117,9 +117,18 @@ class TestScrapingModel:
         scraper = ScrapingModel()
 
         test_cases = [
-            ("http://127.0.0.1", [(socket.AF_INET, None, None, None, ("127.0.0.1", 0))]),
-            ("http://localhost", [(socket.AF_INET, None, None, None, ("127.0.0.1", 0))]),
-            ("http://192.168.1.1", [(socket.AF_INET, None, None, None, ("192.168.1.1", 0))]),
+            (
+                "http://127.0.0.1",
+                [(socket.AF_INET, None, None, None, ("127.0.0.1", 0))],
+            ),
+            (
+                "http://localhost",
+                [(socket.AF_INET, None, None, None, ("127.0.0.1", 0))],
+            ),
+            (
+                "http://192.168.1.1",
+                [(socket.AF_INET, None, None, None, ("192.168.1.1", 0))],
+            ),
             ("http://10.0.0.1", [(socket.AF_INET, None, None, None, ("10.0.0.1", 0))]),
         ]
 
@@ -179,7 +188,9 @@ class TestScrapingModel:
         """Verify network connection errors are handled"""
         scraper = ScrapingModel()
 
-        with patch("requests.get", side_effect=requests.ConnectionError("Network unreachable")):
+        with patch(
+            "requests.get", side_effect=requests.ConnectionError("Network unreachable")
+        ):
             with patch.object(scraper, "_is_private_host", return_value=False):
                 with pytest.raises(ValueError, match="取得に失敗"):
                     scraper.scrape("http://example.com")

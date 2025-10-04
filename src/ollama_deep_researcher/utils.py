@@ -1,16 +1,14 @@
 import ipaddress
 import os
 import socket
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Union
 from urllib.parse import urlparse
 
-import httpx
 import requests
 from bs4 import BeautifulSoup
 from ddgs import DDGS
 from langchain_community.utilities import SearxSearchWrapper
 from langsmith import traceable
-from markdownify import markdownify
 from tavily import TavilyClient
 
 # Constants
@@ -236,8 +234,6 @@ def format_sources(search_results: Dict[str, Any]) -> str:
     )
 
 
-
-
 @traceable
 def duckduckgo_search(
     query: str, max_results: int = 3
@@ -292,9 +288,7 @@ def duckduckgo_search(
 
 
 @traceable
-def searxng_search(
-    query: str, max_results: int = 3
-) -> Dict[str, List[Dict[str, Any]]]:
+def searxng_search(query: str, max_results: int = 3) -> Dict[str, List[Dict[str, Any]]]:
     """
     Search the web using SearXNG and return formatted results.
 
@@ -342,9 +336,7 @@ def searxng_search(
 
 
 @traceable
-def tavily_search(
-    query: str, max_results: int = 3
-) -> Dict[str, List[Dict[str, Any]]]:
+def tavily_search(query: str, max_results: int = 3) -> Dict[str, List[Dict[str, Any]]]:
     """
     Search the web using the Tavily API and return formatted results.
 
@@ -374,6 +366,7 @@ def tavily_search(
         result["raw_content"] = result.get("content")
 
     return search_response
+
 
 @traceable
 def perplexity_search(
