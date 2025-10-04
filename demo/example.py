@@ -22,7 +22,7 @@ async def main():
     # If environment variables are not set, default values will be used
     config = {
         "configurable": {
-            "local_llm": os.getenv("LLM_MODEL", "llama3.2"),
+            "local_llm": os.getenv("LLM_MODEL", "qwen3:4b"),
             "ollama_base_url": os.getenv("OLLAMA_BASE_URL", "http://localhost:11434/"),
             # Other settings can be added as needed
             # "search_api": "duckduckgo",

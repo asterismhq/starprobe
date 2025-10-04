@@ -109,7 +109,7 @@ class TestScrapingModel:
         ]
 
         for url in invalid_urls:
-            with pytest.raises(ValueError, match="http/https"):
+            with pytest.raises(ValueError, match="http or https"):
                 scraper.validate_url(url)
 
     def test_validate_url_rejects_private_ips(self):
@@ -134,14 +134,14 @@ class TestScrapingModel:
 
         for url, addr_info in test_cases:
             with patch("socket.getaddrinfo", return_value=addr_info):
-                with pytest.raises(ValueError, match="許可されていません"):
+                with pytest.raises(ValueError, match="not allowed"):
                     scraper.validate_url(url)
 
     def test_validate_url_rejects_invalid_hostnames(self):
         """Verify malformed URLs without hostname are rejected"""
         scraper = ScrapingModel()
 
-        with pytest.raises(ValueError, match="ホスト名が不正"):
+        with pytest.raises(ValueError, match="Invalid URL hostname"):
             scraper.validate_url("http://")
 
     def test_validate_url_rejects_unresolvable_hosts(self):
@@ -149,7 +149,7 @@ class TestScrapingModel:
         scraper = ScrapingModel()
 
         with patch("socket.getaddrinfo", side_effect=socket.gaierror):
-            with pytest.raises(ValueError, match="見つかりません"):
+            with pytest.raises(ValueError, match="could not be found"):
                 scraper.validate_url("http://nonexistent-domain-12345.com")
 
     # Error Handling Cases
@@ -159,11 +159,11 @@ class TestScrapingModel:
 
         with patch("requests.get", side_effect=requests.Timeout("Connection timeout")):
             with patch.object(scraper, "_is_private_host", return_value=False):
-                with pytest.raises(ValueError, match="取得に失敗"):
+                with pytest.raises(ValueError, match="Failed to retrieve content"):
                     scraper.scrape("http://example.com")
 
         assert scraper.last_error is not None
-        assert "取得に失敗" in scraper.last_error
+        assert "Failed to retrieve content" in scraper.last_error
         assert scraper.is_scraping is False
 
     def test_scrape_handles_http_errors(self):
@@ -192,7 +192,7 @@ class TestScrapingModel:
             "requests.get", side_effect=requests.ConnectionError("Network unreachable")
         ):
             with patch.object(scraper, "_is_private_host", return_value=False):
-                with pytest.raises(ValueError, match="取得に失敗"):
+                with pytest.raises(ValueError, match="Failed to retrieve content"):
                     scraper.scrape("http://example.com")
 
     # State Management Cases

@@ -24,11 +24,11 @@ class ScrapingModel:
     def validate_url(self, url: str) -> None:
         parsed = urlparse(url)
         if parsed.scheme not in ("http", "https"):
-            raise ValueError("URLは http/https のみ対応しています。")
+            raise ValueError("URL must use http or https scheme.")
         if not parsed.hostname:
-            raise ValueError("URLのホスト名が不正です。")
+            raise ValueError("Invalid URL hostname.")
         if self._is_private_host(parsed.hostname):
-            raise ValueError("指定のホストは許可されていません。")
+            raise ValueError("The specified host is not allowed.")
 
     def _is_private_host(self, host: str) -> bool:
         addrs = set()
@@ -39,10 +39,10 @@ class ScrapingModel:
             except socket.gaierror:
                 continue
 
-        # DNS解決できない場合（架空のホスト）
+        # If DNS resolution fails (fictional host)
         if not addrs:
             raise ValueError(
-                f"指定されたホスト '{host}' が見つかりません。URLを確認してください。"
+                f"The specified host '{host}' could not be found. Please check the URL."
             )
 
         for addr in addrs:
@@ -74,11 +74,11 @@ class ScrapingModel:
                 )
                 response.raise_for_status()
             except requests.RequestException as e:
-                error_msg = f"コンテンツ取得に失敗しました: {e}"
+                error_msg = f"Failed to retrieve content: {e}"
                 self.last_error = error_msg
                 raise ValueError(error_msg) from e
 
-            # 明らかに非 HTML のレスポンスは早期リターン
+            # Early return for obviously non-HTML responses
             ctype = (response.headers.get("Content-Type") or "").lower()
             if not ("html" in ctype or ctype.startswith("text/")):
                 self.content = ""
@@ -97,9 +97,9 @@ class ScrapingModel:
             self.content = content
             return content
         except Exception as e:
-            # 予期しないエラーの場合
+            # In case of unexpected error
             if not isinstance(e, ValueError):
-                error_msg = f"予期しないエラーが発生しました: {str(e)}"
+                error_msg = f"An unexpected error occurred: {str(e)}"
                 self.last_error = error_msg
                 raise ValueError(error_msg) from e
             raise
