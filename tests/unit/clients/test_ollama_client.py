@@ -2,7 +2,10 @@
 
 import pytest
 
-from ollama_deep_researcher.clients.ollama_client import OllamaClient, OllamaClientAdapter
+from ollama_deep_researcher.clients.ollama_client import (
+    OllamaClient,
+    OllamaClientAdapter,
+)
 
 
 class TestOllamaClientAdapter:
@@ -160,7 +163,7 @@ class TestOllamaClient:
 
     def test_format_none_excludes_format_kwarg(self, mock_settings, mock_chat_ollama):
         """Test that format kwarg is excluded when format is None."""
-        client = OllamaClient(mock_settings, format=None)
+        OllamaClient(mock_settings, format=None)
 
         # Get the kwargs passed to ChatOllama
         call_kwargs = mock_chat_ollama.call_args.kwargs
@@ -170,7 +173,7 @@ class TestOllamaClient:
 
     def test_format_set_includes_format_kwarg(self, mock_settings, mock_chat_ollama):
         """Test that format kwarg is included when format is set."""
-        client = OllamaClient(mock_settings, format="json")
+        OllamaClient(mock_settings, format="json")
 
         # Get the kwargs passed to ChatOllama
         call_kwargs = mock_chat_ollama.call_args.kwargs

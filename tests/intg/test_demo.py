@@ -1,7 +1,5 @@
-import asyncio
 import os
 import tempfile
-from pathlib import Path
 
 import pytest
 
@@ -15,7 +13,9 @@ class TestDemo:
     async def test_demo_execution(self):
         """Test that the demo runs successfully and produces output."""
         # Create a temporary file for output
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.md', delete=False) as temp_file:
+        with tempfile.NamedTemporaryFile(
+            mode="w", suffix=".md", delete=False
+        ) as temp_file:
             temp_path = temp_file.name
 
         try:
@@ -24,12 +24,15 @@ class TestDemo:
 
             # Check that the file was created and has content
             assert os.path.exists(temp_path)
-            with open(temp_path, 'r', encoding='utf-8') as f:
+            with open(temp_path, "r", encoding="utf-8") as f:
                 content = f.read()
 
             # Check basic structure
             assert "# Research Results" in content
-            assert "**Topic:** Current state of AI technology in Japan and future prospects" in content
+            assert (
+                "**Topic:** Current state of AI technology in Japan and future prospects"
+                in content
+            )
             assert "## Summary" in content
             assert "**Success:** True" in content
 
@@ -42,27 +45,29 @@ class TestDemo:
     async def test_demo_with_debug_mode(self):
         """Test demo execution in debug mode."""
         # Set DEBUG environment variable
-        original_debug = os.environ.get('DEBUG')
-        os.environ['DEBUG'] = 'true'
+        original_debug = os.environ.get("DEBUG")
+        os.environ["DEBUG"] = "true"
 
         try:
-            with tempfile.NamedTemporaryFile(mode='w', suffix='.md', delete=False) as temp_file:
+            with tempfile.NamedTemporaryFile(
+                mode="w", suffix=".md", delete=False
+            ) as temp_file:
                 temp_path = temp_file.name
 
             await main(output_file=temp_path)
 
             assert os.path.exists(temp_path)
-            with open(temp_path, 'r', encoding='utf-8') as f:
+            with open(temp_path, "r", encoding="utf-8") as f:
                 content = f.read()
 
             assert "# Research Results" in content
             assert "**Success:** True" in content
 
         finally:
-            if 'DEBUG' in os.environ:
+            if "DEBUG" in os.environ:
                 if original_debug is not None:
-                    os.environ['DEBUG'] = original_debug
+                    os.environ["DEBUG"] = original_debug
                 else:
-                    del os.environ['DEBUG']
+                    del os.environ["DEBUG"]
             if os.path.exists(temp_path):
                 os.unlink(temp_path)

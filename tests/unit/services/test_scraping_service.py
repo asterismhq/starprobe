@@ -2,7 +2,6 @@
 
 import pytest
 import requests
-from bs4 import BeautifulSoup
 
 from ollama_deep_researcher.services.scraping_service import ScrapingService
 
@@ -85,7 +84,9 @@ class TestScrapingService:
         mock_response = mocker.Mock()
         mock_response.status_code = 200
         mock_response.headers = {"Content-Type": "text/html"}
-        mock_response.content = b"<html><body><p>Visible</p><script>alert('hidden')</script></body></html>"
+        mock_response.content = (
+            b"<html><body><p>Visible</p><script>alert('hidden')</script></body></html>"
+        )
 
         mocker.patch("requests.get", return_value=mock_response)
 

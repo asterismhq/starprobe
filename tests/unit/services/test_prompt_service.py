@@ -135,5 +135,7 @@ class TestPromptService:
         assert len(summarize_messages[0].content) > 0
 
         # Reflect prompt
-        reflect_messages = prompt_service.generate_reflect_prompt("test topic", "summary")
+        reflect_messages = prompt_service.generate_reflect_prompt(
+            "test topic", "summary"
+        )
         assert len(reflect_messages[0].content) > 0

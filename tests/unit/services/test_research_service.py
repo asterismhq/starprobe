@@ -35,15 +35,21 @@ class TestResearchService:
 
     def test_search_and_scrape_success(self, research_service):
         """Test successful search and scrape workflow."""
-        search_str, sources = research_service.search_and_scrape("test query", loop_count=1)
+        search_str, sources = research_service.search_and_scrape(
+            "test query", loop_count=1
+        )
 
         # Should return tuple of strings
         assert isinstance(search_str, str)
         assert isinstance(sources, str)
 
         # Should contain URLs
-        assert "https://example.com/1" in search_str or "https://example.com/1" in sources
-        assert "https://example.com/2" in search_str or "https://example.com/2" in sources
+        assert (
+            "https://example.com/1" in search_str or "https://example.com/1" in sources
+        )
+        assert (
+            "https://example.com/2" in search_str or "https://example.com/2" in sources
+        )
 
     def test_search_and_scrape_with_scraping(
         self, mock_settings, mock_scraping_service, mocker
@@ -106,7 +112,9 @@ class TestResearchService:
             scraper=mock_scraper,
         )
 
-        search_str, sources = research_service.search_and_scrape("test query", loop_count=1)
+        search_str, sources = research_service.search_and_scrape(
+            "test query", loop_count=1
+        )
 
         # Should still return results despite scraping failure
         assert isinstance(search_str, str)
@@ -116,7 +124,9 @@ class TestResearchService:
         captured = capsys.readouterr()
         assert "Scraping failed" in captured.out or "Network error" in captured.out
 
-    def test_search_and_scrape_empty_results(self, mock_settings, mock_scraping_service, mocker):
+    def test_search_and_scrape_empty_results(
+        self, mock_settings, mock_scraping_service, mocker
+    ):
         """Test behavior with no search results."""
         mock_search_client = mocker.Mock()
         mock_search_client.search.return_value = {"results": []}
@@ -127,7 +137,9 @@ class TestResearchService:
             scraper=mock_scraping_service,
         )
 
-        search_str, sources = research_service.search_and_scrape("test query", loop_count=1)
+        search_str, sources = research_service.search_and_scrape(
+            "test query", loop_count=1
+        )
 
         # Should return empty strings or defaults
         assert isinstance(search_str, str)
@@ -174,7 +186,9 @@ class TestResearchService:
         )
 
         # Should not raise error with missing URL
-        search_str, sources = research_service.search_and_scrape("test query", loop_count=1)
+        search_str, sources = research_service.search_and_scrape(
+            "test query", loop_count=1
+        )
 
         assert isinstance(search_str, str)
         assert isinstance(sources, str)
@@ -192,7 +206,9 @@ class TestResearchService:
             scraper=mock_scraping_service,
         )
 
-        search_str, sources = research_service.search_and_scrape("test query", loop_count=1)
+        search_str, sources = research_service.search_and_scrape(
+            "test query", loop_count=1
+        )
 
         # Should return error messages instead of raising
         assert "Search failed" in search_str or "error" in search_str.lower()
@@ -225,7 +241,9 @@ class TestResearchService:
             scraper=mock_scraper,
         )
 
-        search_str, sources = research_service.search_and_scrape("test query", loop_count=1)
+        search_str, sources = research_service.search_and_scrape(
+            "test query", loop_count=1
+        )
 
         # Should contain the scraped content
         assert "Full scraped content" in search_str

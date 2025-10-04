@@ -1,7 +1,5 @@
 """Unit tests for TextProcessingService."""
 
-import pytest
-
 from ollama_deep_researcher.services.text_processing_service import (
     TextProcessingService,
 )
