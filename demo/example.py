@@ -4,8 +4,7 @@ from pprint import pprint
 
 from dotenv import load_dotenv
 
-from ollama_deep_researcher.clients.ollama_client import OllamaClient
-from ollama_deep_researcher.graph import graph
+from ollama_deep_researcher.graph import build_graph
 from ollama_deep_researcher.settings import OllamaDeepResearcherSettings
 
 load_dotenv()
@@ -33,17 +32,11 @@ async def main():
             # "max_web_research_loops": 3,
         }
     }
-    # Add LLM client to config
-    # For simplicity, assume not using tool calling in demo
-    config["llm_client"] = OllamaClient(
-        OllamaDeepResearcherSettings.from_runnable_config(config),
-        base_url=ollama_base_url,
-        model=local_llm,
-        temperature=0,
-        format="json",  # Assuming JSON mode for demo
-    )
 
     try:
+        # Build graph
+        graph = build_graph()
+
         # Execute the graph (research process) asynchronously
         result = await graph.ainvoke({"research_topic": research_topic}, config=config)
 

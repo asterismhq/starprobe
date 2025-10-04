@@ -1,4 +1,4 @@
-from ollama_deep_researcher.graph.state import SummaryState
+from ollama_deep_researcher.state import SummaryState
 
 
 def finalize_summary(state: SummaryState):

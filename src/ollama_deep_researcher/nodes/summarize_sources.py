@@ -1,11 +1,10 @@
-from langchain_core.runnables import RunnableConfig
+from ollama_deep_researcher.protocols.ollama_client_protocol import OllamaClientProtocol
+from ollama_deep_researcher.services.prompt_service import PromptService
+from ollama_deep_researcher.services.text_processing_service import TextProcessingService
+from ollama_deep_researcher.state import SummaryState
 
-from ollama_deep_researcher.graph.state import SummaryState
-from ollama_deep_researcher.services.llm_service import LLMService
-from ollama_deep_researcher.settings import OllamaDeepResearcherSettings
 
-
-def summarize_sources(state: SummaryState, config: RunnableConfig):
+def summarize_sources(state: SummaryState, prompt_service: PromptService, ollama_client: OllamaClientProtocol):
     """LangGraph node that summarizes web research results.
 
     Uses an LLM to create or update a running summary based on the newest web research
@@ -15,22 +14,27 @@ def summarize_sources(state: SummaryState, config: RunnableConfig):
     Args:
         state: Current graph state containing research topic, running summary,
               and web research results
-        config: OllamaDeepResearcherSettings for the runnable, including LLM provider settings
+        prompt_service: Service for generating prompts
+        ollama_client: Client for LLM interactions
 
     Returns:
         Dictionary with state update, including running_summary key containing the updated summary
     """
     try:
-        configurable = OllamaDeepResearcherSettings.from_runnable_config(config)
-        llm_client = config.get("llm_client")
-        if not llm_client:
-            raise ValueError("llm_client not provided in config")
-        service = LLMService(configurable, llm_client)
-        running_summary = service.summarize(
+        messages = prompt_service.generate_summarize_prompt(
             research_topic=state.research_topic,
             existing_summary=state.running_summary,
             new_context=state.web_research_results[-1],
         )
+        result = ollama_client.invoke(messages)
+
+        # Strip thinking tokens if configured
+        running_summary = result.content
+        if prompt_service.configurable.strip_thinking_tokens:
+            running_summary = TextProcessingService.strip_thinking_tokens(
+                running_summary
+            )
+
         return {"running_summary": running_summary}
     except Exception as e:
         # Log error but preserve existing summary or return fallback
