@@ -39,7 +39,8 @@ demo/example.md
 # Editor config
 .vscode/
 .idea/
-.claude/
+
+.claude/settings.local.json
 
 # Sublime Text
 *.sublime-project
