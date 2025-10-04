@@ -10,11 +10,18 @@ jobs:
   run-linters:
     runs-on: self-hosted
     steps:
-      - name: Checkout code
+      - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Ensure toolcache dir
+        run: mkdir -p "${{ runner.temp }}/_tool"
 
       - name: Set up Python
         uses: actions/setup-python@v5
+        env:
+          RUNNER_TOOL_CACHE: ${{ runner.temp }}/_tool
+          AGENT_TOOLSDIRECTORY: ${{ runner.temp }}/_tool
+          RUNNER_TEMP: ${{ runner.temp }}
         with:
           python-version: '3.12.7'
 
@@ -32,4 +39,6 @@ jobs:
 
       - name: Clean up workspace
         if: always()
-        run: rm -rf "$GITHUB_WORKSPACE"/*
+        run: |
+          rm -rf "$GITHUB_WORKSPACE"/*
+          rm -rf "${{ runner.temp }}/_tool"
