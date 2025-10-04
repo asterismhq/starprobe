@@ -1,5 +1,6 @@
 """Unit tests for LangGraph node functions."""
 
+import pytest
 from unittest.mock import MagicMock, patch
 
 from langchain_core.messages import AIMessage
@@ -179,12 +180,14 @@ class TestWebResearch:
     @patch("ollama_deep_researcher.graph.deduplicate_and_format_sources")
     @patch("ollama_deep_researcher.graph.format_sources")
     def test_web_research_success(
-        self, mock_format, mock_dedupe, mock_search, mock_config
+        self, mock_format, mock_dedupe, mock_search, mock_config, mock_scraping_model
     ):
-        """Test successful web research execution."""
-        mock_search.return_value = [
-            {"url": "https://example.com/1", "content": "Test content"}
-        ]
+        """Test successful web research execution with scraping."""
+        mock_search.return_value = {
+            "results": [
+                {"url": "https://example.com/1", "content": "Test content", "raw_content": "Test content"}
+            ]
+        }
         mock_dedupe.return_value = "Formatted search results"
         mock_format.return_value = "https://example.com/1"
 
@@ -196,6 +199,9 @@ class TestWebResearch:
 
         result = web_research(state, mock_config)
 
+        mock_search.assert_called_once_with(query="test query", max_results=3)
+        mock_scraping_model.scrape.assert_called_once_with(url="https://example.com/1")
+        mock_dedupe.assert_called_once()
         assert "sources_gathered" in result
         assert "research_loop_count" in result
         assert "web_research_results" in result
@@ -214,15 +220,132 @@ class TestWebResearch:
 
         result = web_research(state, mock_config)
 
-        # Should return error state instead of raising exception
         assert "sources_gathered" in result
         assert "research_loop_count" in result
         assert result["research_loop_count"] == 2
-        # Error should be logged but execution continues
-        assert (
-            "Error" in result["sources_gathered"][0]
-            or "Search failed" in result["web_research_results"][0]
+        assert "Error during web research" in result["web_research_results"]
+
+    @patch("ollama_deep_researcher.graph.duckduckgo_search")
+    def test_web_research_with_successful_scraping(
+        self, mock_search, mock_config, mock_scraping_model
+    ):
+        """Test web_research with successful scraping of all URLs."""
+        from tests.fixtures.mock_responses import MOCK_SEARCH_RESULTS_WITHOUT_RAW_CONTENT
+        mock_search.return_value = MOCK_SEARCH_RESULTS_WITHOUT_RAW_CONTENT
+        mock_scraping_model.scrape.return_value = "Scraped content"
+
+        state = SummaryState(
+            research_topic="Test topic",
+            search_query="test query",
+            research_loop_count=0,
         )
+
+        result = web_research(state, mock_config)
+
+        assert result["research_loop_count"] == 1
+        for r in result["web_research_results"]["results"]:
+            assert r["raw_content"] == "Scraped content"
+
+    @patch("ollama_deep_researcher.graph.duckduckgo_search")
+    def test_web_research_fallback_to_snippet_on_scrape_failure(
+        self, mock_search, mock_config, mock_scraping_model_with_failures, caplog
+    ):
+        """Test fallback to snippet when scraping fails for some URLs."""
+        mock_search.return_value = {
+            "results": [
+                {"url": "http://success.com", "content": "Snippet 1", "raw_content": "Snippet 1"},
+                {"url": "http://fail.com", "content": "Snippet 2", "raw_content": "Snippet 2"},
+                {"url": "http://success.com/2", "content": "Snippet 3", "raw_content": "Snippet 3"},
+            ]
+        }
+
+        state = SummaryState(
+            research_topic="Test topic",
+            search_query="test query",
+            research_loop_count=0,
+        )
+
+        result = web_research(state, mock_config)
+        
+        results = result["web_research_results"]["results"]
+        assert results[0]["raw_content"] == "Scraped content from http://success.com"
+        assert results[1]["raw_content"] == "Snippet 2"
+        assert results[2]["raw_content"] == "Scraped content from http://success.com/2"
+        assert "Scraping failed for http://fail.com" in caplog.text
+
+    @patch("ollama_deep_researcher.graph.duckduckgo_search")
+    def test_web_research_all_scrapes_fail_uses_all_snippets(
+        self, mock_search, mock_config, mock_scraping_model_with_failures, caplog
+    ):
+        """Test that all snippets are used when all scrapes fail."""
+        mock_search.return_value = {
+            "results": [
+                {"url": "http://fail.com/1", "content": "Snippet 1", "raw_content": "Snippet 1"},
+                {"url": "http://fail.com/2", "content": "Snippet 2", "raw_content": "Snippet 2"},
+            ]
+        }
+
+        state = SummaryState(
+            research_topic="Test topic",
+            search_query="test query",
+            research_loop_count=0,
+        )
+
+        result = web_research(state, mock_config)
+
+        results = result["web_research_results"]["results"]
+        assert results[0]["raw_content"] == "Snippet 1"
+        assert results[1]["raw_content"] == "Snippet 2"
+        assert "Scraping failed for http://fail.com/1" in caplog.text
+        assert "Scraping failed for http://fail.com/2" in caplog.text
+
+    @patch("ollama_deep_researcher.graph.tavily_search")
+    def test_web_research_tavily_api(
+        self, mock_search, mock_config, mock_scraping_model
+    ):
+        """Test web_research with Tavily API and scraping."""
+        mock_config["configurable"]["search_api"] = "tavily"
+        mock_search.return_value = {
+            "results": [
+                {"url": "https://example.com/tavily", "content": "Tavily snippet", "raw_content": "Tavily snippet"}
+            ]
+        }
+        mock_scraping_model.scrape.return_value = "Scraped from Tavily"
+
+        state = SummaryState(
+            research_topic="Test topic",
+            search_query="test query",
+            research_loop_count=0,
+        )
+
+        result = web_research(state, mock_config)
+
+        mock_search.assert_called_once_with(query="test query", max_results=3)
+        assert result["web_research_results"]["results"][0]["raw_content"] == "Scraped from Tavily"
+
+    @patch("ollama_deep_researcher.graph.perplexity_search")
+    def test_web_research_perplexity_api(
+        self, mock_search, mock_config, mock_scraping_model
+    ):
+        """Test web_research with Perplexity API (no scraping)."""
+        mock_config["configurable"]["search_api"] = "perplexity"
+        mock_search.return_value = {
+            "results": [
+                {"url": "https://perplexity.ai/1", "content": "Perplexity answer", "raw_content": "Perplexity answer"}
+            ]
+        }
+
+        state = SummaryState(
+            research_topic="Test topic",
+            search_query="test query",
+            research_loop_count=0,
+        )
+
+        result = web_research(state, mock_config)
+
+        mock_search.assert_called_once_with(query="test query", perplexity_search_loop_count=0)
+        mock_scraping_model.scrape.assert_not_called()
+        assert result["web_research_results"]["results"][0]["raw_content"] == "Perplexity answer"
 
 
 class TestSummarizeSources:
