@@ -22,44 +22,35 @@ MAX_TOKENS_PER_SOURCE = 1000
 
 
 class ResearchGraph:
-    def __init__(self):
-        # Instantiate all clients and services here
-        self.settings = OllamaDeepResearcherSettings()
-        self.container = DependencyContainer(self.settings)
-
+    def __init__(self, container: DependencyContainer):
         # Assign services from container
+        self.container = container
+        self.settings = self.container.settings
         self.prompt_service = self.container.prompt_service
         self.research_service = self.container.research_service
         self.ollama_client = self.container.ollama_client
 
-    def generate_query(self, state: SummaryState, config: RunnableConfig):
-        # Configure the client dynamically
+    def _configure_ollama_client(self, config: RunnableConfig):
+        """Helper method to configure the Ollama client dynamically."""
         configurable = config.get("configurable", {})
         model = configurable.get("local_llm")
         base_url = configurable.get("ollama_base_url")
         if model or base_url:
             self.ollama_client.configure(model=model, base_url=base_url)
+
+    def generate_query(self, state: SummaryState, config: RunnableConfig):
+        self._configure_ollama_client(config)
         return generate_query(state, self.prompt_service, self.ollama_client)
 
     def web_research(self, state: SummaryState, config: RunnableConfig):
         return web_research(state, self.research_service)
 
     def summarize_sources(self, state: SummaryState, config: RunnableConfig):
-        # Configure the client dynamically
-        configurable = config.get("configurable", {})
-        model = configurable.get("local_llm")
-        base_url = configurable.get("ollama_base_url")
-        if model or base_url:
-            self.ollama_client.configure(model=model, base_url=base_url)
+        self._configure_ollama_client(config)
         return summarize_sources(state, self.prompt_service, self.ollama_client)
 
     def reflect_on_summary(self, state: SummaryState, config: RunnableConfig):
-        # Configure the client dynamically
-        configurable = config.get("configurable", {})
-        model = configurable.get("local_llm")
-        base_url = configurable.get("ollama_base_url")
-        if model or base_url:
-            self.ollama_client.configure(model=model, base_url=base_url)
+        self._configure_ollama_client(config)
         return reflect_on_summary(state, self.prompt_service, self.ollama_client)
 
     def route_research(self, state: SummaryState, config: RunnableConfig):
@@ -73,9 +64,9 @@ class ResearchGraph:
         # Add nodes and edges
         builder = StateGraph(
             SummaryState,
-            input=SummaryStateInput,
-            output=SummaryStateOutput,
-            config_schema=OllamaDeepResearcherSettings,
+            input_schema=SummaryStateInput,
+            output_schema=SummaryStateOutput,
+            context_schema=OllamaDeepResearcherSettings,
         )
 
         builder.add_node("generate_query", self.generate_query)
@@ -96,5 +87,7 @@ class ResearchGraph:
 
 
 def build_graph():
-    research_graph = ResearchGraph()
+    settings = OllamaDeepResearcherSettings()
+    container = DependencyContainer(settings)
+    research_graph = ResearchGraph(container)
     return research_graph.build()

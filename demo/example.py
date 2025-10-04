@@ -9,7 +9,7 @@ from ollama_deep_researcher.graph import build_graph
 load_dotenv()
 
 
-async def main():
+async def main(output_file: str = "demo/example.md"):
     """
     Main function to perform deep research locally.
     """
@@ -45,16 +45,12 @@ async def main():
         print("====================")
 
         # Save results to markdown file
-        output_file = "demo/example.md"
         with open(output_file, "w", encoding="utf-8") as f:
             f.write("# Research Results\n\n")
             f.write(f"**Topic:** {research_topic}\n\n")
-            f.write("## Summary\n\n")
-            f.write(result.get("running_summary", "No summary available"))
-            f.write("\n\n## Sources\n\n")
-            for source in result.get("sources", []):
-                f.write(f"- {source}\n")
-            f.write(f"\n**Success:** {result.get('success', False)}\n")
+            running_summary = result.get("running_summary", "No summary available")
+            f.write(running_summary)
+            f.write(f"\n\n**Success:** {result.get('success', False)}\n")
             if result.get("error_message"):
                 f.write(f"\n**Error:** {result['error_message']}\n")
 

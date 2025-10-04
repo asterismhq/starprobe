@@ -1,6 +1,6 @@
 from typing import Any, Dict, List
 
-from src.ollama_deep_researcher.protocols.duckduckgo_client_protocol import (
+from ollama_deep_researcher.protocols.duckduckgo_client_protocol import (
     DuckDuckGoClientProtocol,
 )
 

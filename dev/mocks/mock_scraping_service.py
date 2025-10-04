@@ -1,4 +1,4 @@
-from src.ollama_deep_researcher.protocols.scraping_service_protocol import (
+from ollama_deep_researcher.protocols.scraping_service_protocol import (
     ScrapingServiceProtocol,
 )
 

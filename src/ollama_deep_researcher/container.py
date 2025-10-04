@@ -33,9 +33,12 @@ class DependencyContainer:
             mocks_path = os.path.join(dev_path, "mocks")
             if mocks_path not in sys.path:
                 sys.path.insert(0, mocks_path)
-            from mock_duckduckgo_client import MockDuckDuckGoClient
-            from mock_ollama_client import MockOllamaClient
-            from mock_scraping_service import MockScrapingService
+            try:
+                MockDuckDuckGoClient = __import__("mock_duckduckgo_client", fromlist=["MockDuckDuckGoClient"]).MockDuckDuckGoClient  # type: ignore
+                MockOllamaClient = __import__("mock_ollama_client", fromlist=["MockOllamaClient"]).MockOllamaClient  # type: ignore
+                MockScrapingService = __import__("mock_scraping_service", fromlist=["MockScrapingService"]).MockScrapingService  # type: ignore
+            except ImportError as e:
+                raise ImportError(f"Failed to import mock modules: {e}") from e
 
             self.ollama_client: OllamaClientProtocol = MockOllamaClient()
             self.duckduckgo_client: DuckDuckGoClientProtocol = MockDuckDuckGoClient()
