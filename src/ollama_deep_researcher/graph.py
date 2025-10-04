@@ -3,10 +3,7 @@ from langgraph.graph import END, START, StateGraph
 from typing_extensions import Literal
 
 from ollama_deep_researcher.clients.duckduckgo_client import DuckDuckGoClient
-from ollama_deep_researcher.models.scraping_model import ScrapingModel
-from ollama_deep_researcher.services.llm_service import LLMService
-from ollama_deep_researcher.services.research_service import ResearchService
-from ollama_deep_researcher.services.search_service import SearchService
+from ollama_deep_researcher.services import LLMService, ResearchService, SearchService, ScrapingService
 from ollama_deep_researcher.settings import (
     OllamaClient,
     OllamaDeepResearcherSettings,
@@ -78,7 +75,7 @@ def web_research(state: SummaryState, config: RunnableConfig):
     configurable = OllamaDeepResearcherSettings.from_runnable_config(config)
     search_client = DuckDuckGoClient()
     search_service = SearchService(search_client)
-    scraper = ScrapingModel()
+    scraper = ScrapingService()
     service = ResearchService(configurable, search_service, scraper)
     results, sources = service.search_and_scrape(
         query=state.search_query, loop_count=state.research_loop_count

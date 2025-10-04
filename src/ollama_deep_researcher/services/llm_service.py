@@ -18,11 +18,17 @@ from ollama_deep_researcher.settings import (
     OllamaClient,
     OllamaDeepResearcherSettings,
 )
-from ollama_deep_researcher.text_processing import strip_thinking_tokens
+from ollama_deep_researcher.services import TextProcessingService
 
 
 class LLMService:
-    """Service class for handling LLM interactions."""
+    """Service class for handling LLM interactions.
+
+    Dependencies:
+    - TextProcessingService: For stripping thinking tokens and text processing
+    - OllamaDeepResearcherSettings: For configuration and LLM client setup
+    - ollama_deep_researcher.prompts: For query generation and summarization prompts
+    """
 
     def __init__(self, configurable: OllamaDeepResearcherSettings):
         self.configurable = configurable
@@ -101,7 +107,7 @@ class LLMService:
         # Strip thinking tokens if configured
         running_summary = result.content
         if self.configurable.strip_thinking_tokens:
-            running_summary = strip_thinking_tokens(running_summary)
+            running_summary = TextProcessingService.strip_thinking_tokens(running_summary)
 
         return running_summary
 
@@ -184,7 +190,7 @@ class LLMService:
                 return search_query
             except (json.JSONDecodeError, KeyError):
                 if self.configurable.strip_thinking_tokens:
-                    content = strip_thinking_tokens(content)
+                    content = TextProcessingService.strip_thinking_tokens(content)
                 return fallback_query
 
     def _get_llm(self):

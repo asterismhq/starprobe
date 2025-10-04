@@ -7,7 +7,11 @@ from ollama_deep_researcher.settings import OllamaDeepResearcherSettings
 
 
 class TextProcessingService:
-    """A service class for text processing utilities."""
+    """A service class for text processing utilities.
+
+    Dependencies:
+    - OllamaDeepResearcherSettings: For configuration of token limits
+    """
 
     # gpt-3.5-turbo や gpt-4 で使われているエンコーディングをデフォルトに設定
     DEFAULT_ENCODING = "cl100k_base"

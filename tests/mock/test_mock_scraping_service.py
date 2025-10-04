@@ -5,7 +5,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../..", "src"))
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../.."))
 
 from dev.mocks.mock_scraping_service import MockScrapingService
-from ollama_deep_researcher.services.scraping_service import ScrapingService
+from ollama_deep_researcher.services import ScrapingService
 
 
 def test_validate_url():

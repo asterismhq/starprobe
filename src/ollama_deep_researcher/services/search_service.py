@@ -7,7 +7,11 @@ from ..protocols.duckduckgo_client_protocol import DuckDuckGoClientProtocol
 
 
 class SearchService:
-    """Service for performing web searches using a search client."""
+    """Service for performing web searches using a search client.
+
+    Dependencies:
+    - DuckDuckGoClientProtocol: For executing web searches
+    """
 
     def __init__(self, search_client: DuckDuckGoClientProtocol):
         self.search_client = search_client
