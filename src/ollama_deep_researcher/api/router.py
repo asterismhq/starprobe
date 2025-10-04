@@ -4,8 +4,12 @@ import asyncio
 
 from fastapi import APIRouter
 
-from ollama_deep_researcher.api.schemas import HealthResponse, ResearchRequest, ResearchResponse
 from ollama_deep_researcher.api.logger import logger
+from ollama_deep_researcher.api.schemas import (
+    HealthResponse,
+    ResearchRequest,
+    ResearchResponse,
+)
 from ollama_deep_researcher.graph import graph
 from ollama_deep_researcher.settings import OllamaDeepResearcherSettings
 

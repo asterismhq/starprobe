@@ -15,8 +15,8 @@ from ollama_deep_researcher.prompts import (
     tool_calling_reflection_instructions,
 )
 from ollama_deep_researcher.settings import (
-    OllamaDeepResearcherSettings,
     OllamaClient,
+    OllamaDeepResearcherSettings,
 )
 from ollama_deep_researcher.text_processing import strip_thinking_tokens
 

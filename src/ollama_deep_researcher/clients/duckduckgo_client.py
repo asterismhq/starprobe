@@ -9,7 +9,9 @@ from ..protocols.duckduckgo_client_protocol import DuckDuckGoClientProtocol
 class DuckDuckGoClient(DuckDuckGoClientProtocol):
     """Client for performing web searches using DuckDuckGo."""
 
-    def search(self, query: str, max_results: int = 3) -> Dict[str, List[Dict[str, Any]]]:
+    def search(
+        self, query: str, max_results: int = 3
+    ) -> Dict[str, List[Dict[str, Any]]]:
         """
         Search the web using DuckDuckGo and return formatted results.
 

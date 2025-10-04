@@ -1,6 +1,8 @@
 from typing import Any, Dict, List
 
-from src.ollama_deep_researcher.protocols.duckduckgo_client_protocol import DuckDuckGoClientProtocol
+from src.ollama_deep_researcher.protocols.duckduckgo_client_protocol import (
+    DuckDuckGoClientProtocol,
+)
 
 
 class MockDuckDuckGoClient(DuckDuckGoClientProtocol):
@@ -14,25 +16,27 @@ class MockDuckDuckGoClient(DuckDuckGoClientProtocol):
                     "title": "Mock Result 1",
                     "url": "https://example.com/mock1",
                     "content": "This is mock content for result 1.",
-                    "raw_content": "This is mock content for result 1."
+                    "raw_content": "This is mock content for result 1.",
                 },
                 {
                     "title": "Mock Result 2",
                     "url": "https://example.com/mock2",
                     "content": "This is mock content for result 2.",
-                    "raw_content": "This is mock content for result 2."
+                    "raw_content": "This is mock content for result 2.",
                 },
                 {
                     "title": "Mock Result 3",
                     "url": "https://example.com/mock3",
                     "content": "This is mock content for result 3.",
-                    "raw_content": "This is mock content for result 3."
-                }
+                    "raw_content": "This is mock content for result 3.",
+                },
             ]
         else:
             self.mock_results = mock_results
 
-    def search(self, query: str, max_results: int = 3) -> Dict[str, List[Dict[str, Any]]]:
+    def search(
+        self, query: str, max_results: int = 3
+    ) -> Dict[str, List[Dict[str, Any]]]:
         """
         Mock search method that returns predefined results.
 

@@ -1,5 +1,9 @@
-from ollama_deep_researcher.protocols.duckduckgo_client_protocol import DuckDuckGoClientProtocol
-from ollama_deep_researcher.protocols.scraping_model_protocol import ScrapingModelProtocol
+from ollama_deep_researcher.protocols.duckduckgo_client_protocol import (
+    DuckDuckGoClientProtocol,
+)
+from ollama_deep_researcher.protocols.scraping_model_protocol import (
+    ScrapingModelProtocol,
+)
 from ollama_deep_researcher.services.text_processing_service import (
     TextProcessingService,
 )

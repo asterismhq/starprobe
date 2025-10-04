@@ -4,11 +4,8 @@ from langchain_core.runnables import RunnableConfig
 from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-from ollama_deep_researcher.clients.ollama_client import OllamaClient
-
 if TYPE_CHECKING:
-    from ollama_deep_researcher.clients.ollama_client import OllamaClient
-    from ollama_deep_researcher.protocols.ollama_client_protocol import OllamaClientProtocol
+    pass
 
 
 class OllamaDeepResearcherSettings(BaseSettings):
@@ -98,5 +95,3 @@ def get_config_value(value: Any) -> str:
         'tavily'
     """
     return value if isinstance(value, str) else value.value
-
-

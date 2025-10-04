@@ -46,7 +46,7 @@ testpaths = ["tests"]
 python_files = "test_*.py"
 asyncio_mode = "auto"
 addopts = "-v -s --tb=short"
-pythonpath = ["src", "tests"]
+pythonpath = ["src", "."]
 
 [tool.black]
 target-version = ['py312']

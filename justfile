@@ -76,6 +76,11 @@ intg-test:
     @echo "🚀 Running integration tests (requires Ollama)..."
     @uv run pytest tests/intg
 
+# Run mock tests (requires Ollama)
+mock-test:
+    @echo "🚀 Running mock tests (requires Ollama)..."
+    @uv run pytest tests/mock
+
 # Build Docker image for testing without leaving artifacts
 build-test:
     @echo "Building Docker image for testing..."

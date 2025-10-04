@@ -2,14 +2,14 @@ from langchain_core.runnables import RunnableConfig
 from langgraph.graph import END, START, StateGraph
 from typing_extensions import Literal
 
+from ollama_deep_researcher.clients.duckduckgo_client import DuckDuckGoClient
+from ollama_deep_researcher.models.scraping_model import ScrapingModel
 from ollama_deep_researcher.services.llm_service import LLMService
 from ollama_deep_researcher.services.research_service import ResearchService
 from ollama_deep_researcher.services.search_service import SearchService
-from ollama_deep_researcher.clients.duckduckgo_client import DuckDuckGoClient
-from ollama_deep_researcher.models.scraping_model import ScrapingModel
 from ollama_deep_researcher.settings import (
-    OllamaDeepResearcherSettings,
     OllamaClient,
+    OllamaDeepResearcherSettings,
 )
 from ollama_deep_researcher.state import (
     SummaryState,
