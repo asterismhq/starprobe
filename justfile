@@ -63,7 +63,7 @@ lint:
 # ==============================================================================
 
 # Run all tests
-test: mock-test
+test: unit-test mock-test intg-test build-test
     @echo "✅ All tests passed!"
 
 # Run unit tests locally (no external dependencies)
