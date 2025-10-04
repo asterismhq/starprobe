@@ -1,0 +1,7 @@
+{{ reflection_instructions.format(research_topic=research_topic) }}
+
+{% if use_tool_calling %}
+{{ tool_calling_reflection_instructions }}
+{% else %}
+{{ json_mode_reflection_instructions }}
+{% endif %}
