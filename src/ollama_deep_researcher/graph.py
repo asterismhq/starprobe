@@ -25,6 +25,7 @@ from ollama_deep_researcher.state import (
     SummaryStateOutput,
 )
 from ollama_deep_researcher.utils import (
+    ScrapingModel,
     deduplicate_and_format_sources,
     duckduckgo_search,
     format_sources,
@@ -182,6 +183,7 @@ def web_research(state: SummaryState, config: RunnableConfig):
 
     Executes a web search using the configured search API (tavily, perplexity,
     duckduckgo, or searxng) and formats the results for further processing.
+    Uses ScrapingModel to fetch full page content from search result URLs.
     Includes comprehensive error handling to ensure graceful degradation.
 
     Args:
@@ -199,51 +201,56 @@ def web_research(state: SummaryState, config: RunnableConfig):
     search_api = get_config_value(configurable.search_api)
 
     try:
-        # Search the web
+        # Step 1: Search the web (without fetch_full_page parameter)
         if search_api == "tavily":
             search_results = tavily_search(
                 state.search_query,
-                fetch_full_page=configurable.fetch_full_page,
                 max_results=1,
-            )
-            search_str = deduplicate_and_format_sources(
-                search_results,
-                max_tokens_per_source=MAX_TOKENS_PER_SOURCE,
-                fetch_full_page=configurable.fetch_full_page,
             )
         elif search_api == "perplexity":
             search_results = perplexity_search(
                 state.search_query, state.research_loop_count
             )
-            search_str = deduplicate_and_format_sources(
-                search_results,
-                max_tokens_per_source=MAX_TOKENS_PER_SOURCE,
-                fetch_full_page=configurable.fetch_full_page,
-            )
         elif search_api == "duckduckgo":
             search_results = duckduckgo_search(
                 state.search_query,
                 max_results=3,
-                fetch_full_page=configurable.fetch_full_page,
-            )
-            search_str = deduplicate_and_format_sources(
-                search_results,
-                max_tokens_per_source=MAX_TOKENS_PER_SOURCE,
-                fetch_full_page=configurable.fetch_full_page,
             )
         elif search_api == "searxng":
             search_results = searxng_search(
                 state.search_query,
                 max_results=3,
-                fetch_full_page=configurable.fetch_full_page,
-            )
-            search_str = deduplicate_and_format_sources(
-                search_results,
-                max_tokens_per_source=MAX_TOKENS_PER_SOURCE,
-                fetch_full_page=configurable.fetch_full_page,
             )
         else:
             raise ValueError(f"Unsupported search API: {configurable.search_api}")
+
+        # Step 2: Instantiate scraper
+        scraper = ScrapingModel()
+
+        # Step 3: Loop through results and scrape each URL
+        if "results" in search_results:
+            for result in search_results["results"]:
+                url = result.get("url")
+                if not url:
+                    continue
+
+                # Try to scrape full content
+                try:
+                    scraped_content = scraper.scrape(url)
+                    # Step 4: On success, update raw_content with scraped text
+                    if scraped_content:
+                        result["raw_content"] = scraped_content
+                except Exception as e:
+                    # On failure, log warning and keep snippet
+                    print(f"Warning: Scraping failed for {url}: {str(e)}")
+                    # Keep the existing content as fallback (snippet from search)
+                    continue
+
+        # Format results with scraped content
+        search_str = deduplicate_and_format_sources(
+            search_results,
+            max_tokens_per_source=MAX_TOKENS_PER_SOURCE,
+        )
 
         return {
             "sources_gathered": [format_sources(search_results)],
