@@ -3,7 +3,7 @@ from typing import Any, Dict, List, Optional, Union
 
 import httpx
 import requests
-from duckduckgo_search import DDGS
+from ddgs import DDGS
 from langchain_community.utilities import SearxSearchWrapper
 from langsmith import traceable
 from markdownify import markdownify
