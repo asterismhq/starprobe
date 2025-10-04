@@ -63,7 +63,7 @@ lint:
 # ==============================================================================
 
 # Run all tests
-test: unit-test build-test intg-test
+test: mock-test
     @echo "✅ All tests passed!"
 
 # Run unit tests locally (no external dependencies)
@@ -75,6 +75,11 @@ unit-test:
 intg-test:
     @echo "🚀 Running integration tests (requires Ollama)..."
     @uv run pytest tests/intg
+
+# Run mock tests (requires Ollama)
+mock-test:
+    @echo "🚀 Running mock tests (requires Ollama)..."
+    @uv run pytest tests/mock
 
 # Build Docker image for testing without leaving artifacts
 build-test:

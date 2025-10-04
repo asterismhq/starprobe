@@ -4,7 +4,9 @@ from pprint import pprint
 
 from dotenv import load_dotenv
 
+from ollama_deep_researcher.clients.ollama_client import OllamaClient
 from ollama_deep_researcher.graph import graph
+from ollama_deep_researcher.settings import OllamaDeepResearcherSettings
 
 load_dotenv()
 
@@ -20,15 +22,26 @@ async def main():
 
     # Build the configuration the same way as the API server
     # If environment variables are not set, default values will be used
+    local_llm = os.getenv("LLM_MODEL", "qwen3:4b")
+    ollama_base_url = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434/")
     config = {
         "configurable": {
-            "local_llm": os.getenv("LLM_MODEL", "qwen3:4b"),
-            "ollama_base_url": os.getenv("OLLAMA_BASE_URL", "http://localhost:11434/"),
+            "local_llm": local_llm,
+            "ollama_base_url": ollama_base_url,
             # Other settings can be added as needed
             # "search_api": "duckduckgo",
             # "max_web_research_loops": 3,
         }
     }
+    # Add LLM client to config
+    # For simplicity, assume not using tool calling in demo
+    config["llm_client"] = OllamaClient(
+        OllamaDeepResearcherSettings.from_runnable_config(config),
+        base_url=ollama_base_url,
+        model=local_llm,
+        temperature=0,
+        format="json",  # Assuming JSON mode for demo
+    )
 
     try:
         # Execute the graph (research process) asynchronously

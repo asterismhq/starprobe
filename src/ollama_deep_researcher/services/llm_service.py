@@ -1,11 +1,12 @@
 import json
+from datetime import datetime
 
+import jinja2
 from langchain_core.messages import HumanMessage, SystemMessage
 from langchain_core.tools import tool
 from pydantic import BaseModel, Field
 
-from ollama_deep_researcher.prompts import (
-    get_current_date,
+from ollama_deep_researcher.prompts.components import (
     json_mode_query_instructions,
     json_mode_reflection_instructions,
     query_writer_instructions,
@@ -14,25 +15,48 @@ from ollama_deep_researcher.prompts import (
     tool_calling_query_instructions,
     tool_calling_reflection_instructions,
 )
+from ollama_deep_researcher.services.text_processing_service import (
+    TextProcessingService,
+)
 from ollama_deep_researcher.settings import (
     OllamaDeepResearcherSettings,
-    OllamaClient,
 )
-from ollama_deep_researcher.text_processing import strip_thinking_tokens
 
 
 class LLMService:
-    """Service class for handling LLM interactions."""
+    """Service class for handling LLM interactions.
 
-    def __init__(self, configurable: OllamaDeepResearcherSettings):
+    Dependencies:
+    - TextProcessingService: For stripping thinking tokens and text processing
+    - OllamaDeepResearcherSettings: For configuration and LLM client setup
+    - ollama_deep_researcher.prompts: For query generation and summarization prompts
+    """
+
+    @staticmethod
+    def get_current_date():
+        """Get current date in a readable format."""
+        return datetime.now().strftime("%B %d, %Y")
+
+    def __init__(self, configurable: OllamaDeepResearcherSettings, llm_client):
         self.configurable = configurable
+        self.llm = llm_client
+        self.template_env = jinja2.Environment(
+            loader=jinja2.FileSystemLoader(
+                "src/ollama_deep_researcher/prompts/templates"
+            )
+        )
 
     def generate_search_query(self, research_topic: str) -> str:
         """Generate a search query based on the research topic."""
-        # Format the prompt
-        current_date = get_current_date()
-        formatted_prompt = query_writer_instructions.format(
-            current_date=current_date, research_topic=research_topic
+        # Render the prompt using Jinja template
+        template = self.template_env.get_template("query.jinja")
+        formatted_prompt = template.render(
+            query_writer_instructions=query_writer_instructions,
+            tool_calling_query_instructions=tool_calling_query_instructions,
+            json_mode_query_instructions=json_mode_query_instructions,
+            use_tool_calling=self.configurable.use_tool_calling,
+            current_date=self.get_current_date(),
+            research_topic=research_topic,
         )
 
         @tool
@@ -47,14 +71,7 @@ class LLMService:
             )
 
         messages = [
-            SystemMessage(
-                content=formatted_prompt
-                + (
-                    tool_calling_query_instructions
-                    if self.configurable.use_tool_calling
-                    else json_mode_query_instructions
-                )
-            ),
+            SystemMessage(content=formatted_prompt),
             HumanMessage(content="Generate a query for web search:"),
         ]
 
@@ -83,17 +100,14 @@ class LLMService:
                 f"Create a Summary using the Context on this topic: \n <User Input> \n {research_topic} \n <User Input>\n\n"
             )
 
-        # Run the LLM
-        llm = OllamaClient(
-            self.configurable,
-            base_url=self.configurable.ollama_base_url,
-            model=self.configurable.local_llm,
-            temperature=0,
-        )
+        # Render the prompt using Jinja template
+        template = self.template_env.get_template("summarize.jinja")
+        prompt = template.render(summarizer_instructions=summarizer_instructions)
 
-        result = llm.invoke(
+        # Run the LLM
+        result = self.llm.invoke(
             [
-                SystemMessage(content=summarizer_instructions),
+                SystemMessage(content=prompt),
                 HumanMessage(content=human_message_content),
             ]
         )
@@ -101,7 +115,9 @@ class LLMService:
         # Strip thinking tokens if configured
         running_summary = result.content
         if self.configurable.strip_thinking_tokens:
-            running_summary = strip_thinking_tokens(running_summary)
+            running_summary = TextProcessingService.strip_thinking_tokens(
+                running_summary
+            )
 
         return running_summary
 
@@ -109,7 +125,15 @@ class LLMService:
         self, research_topic: str, running_summary: str
     ) -> str:
         """Identify knowledge gaps and generate follow-up queries."""
-        formatted_prompt = reflection_instructions.format(research_topic=research_topic)
+        # Render the prompt using Jinja template
+        template = self.template_env.get_template("reflect.jinja")
+        formatted_prompt = template.render(
+            reflection_instructions=reflection_instructions,
+            tool_calling_reflection_instructions=tool_calling_reflection_instructions,
+            json_mode_reflection_instructions=json_mode_reflection_instructions,
+            use_tool_calling=self.configurable.use_tool_calling,
+            research_topic=research_topic,
+        )
 
         @tool
         class FollowUpQuery(BaseModel):
@@ -125,14 +149,7 @@ class LLMService:
             )
 
         messages = [
-            SystemMessage(
-                content=formatted_prompt
-                + (
-                    tool_calling_reflection_instructions
-                    if self.configurable.use_tool_calling
-                    else json_mode_reflection_instructions
-                )
-            ),
+            SystemMessage(content=formatted_prompt),
             HumanMessage(
                 content=f"Reflect on our existing knowledge: \n === \n {running_summary}, \n === \n And now identify a knowledge gap and generate a follow-up web search query:"
             ),
@@ -156,7 +173,7 @@ class LLMService:
     ):
         """Helper function to generate search queries using either tool calling or JSON mode."""
         if self.configurable.use_tool_calling:
-            llm = self._get_llm().bind_tools([tool_class])
+            llm = self.llm.bind_tools([tool_class])
             result = llm.invoke(messages)
 
             if not result.tool_calls:
@@ -171,8 +188,7 @@ class LLMService:
 
         else:
             # Use JSON mode
-            llm = self._get_llm()
-            result = llm.invoke(messages)
+            result = self.llm.invoke(messages)
             print(f"result: {result}")
             content = result.content
 
@@ -184,23 +200,5 @@ class LLMService:
                 return search_query
             except (json.JSONDecodeError, KeyError):
                 if self.configurable.strip_thinking_tokens:
-                    content = strip_thinking_tokens(content)
+                    content = TextProcessingService.strip_thinking_tokens(content)
                 return fallback_query
-
-    def _get_llm(self):
-        """Initialize Ollama LLM client based on configuration."""
-        if self.configurable.use_tool_calling:
-            return OllamaClient(
-                self.configurable,
-                base_url=self.configurable.ollama_base_url,
-                model=self.configurable.local_llm,
-                temperature=0,
-            )
-        else:
-            return OllamaClient(
-                self.configurable,
-                base_url=self.configurable.ollama_base_url,
-                model=self.configurable.local_llm,
-                temperature=0,
-                format="json",
-            )

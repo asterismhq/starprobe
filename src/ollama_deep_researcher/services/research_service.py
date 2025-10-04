@@ -1,5 +1,9 @@
-from ollama_deep_researcher.protocols.duckduckgo_client_protocol import DuckDuckGoClientProtocol
-from ollama_deep_researcher.protocols.scraping_model_protocol import ScrapingModelProtocol
+from ollama_deep_researcher.protocols.duckduckgo_client_protocol import (
+    DuckDuckGoClientProtocol,
+)
+from ollama_deep_researcher.protocols.scraping_service_protocol import (
+    ScrapingServiceProtocol,
+)
 from ollama_deep_researcher.services.text_processing_service import (
     TextProcessingService,
 )
@@ -7,13 +11,20 @@ from ollama_deep_researcher.settings import OllamaDeepResearcherSettings
 
 
 class ResearchService:
-    """Service class for handling web research operations."""
+    """Service class for handling web research operations.
+
+    Dependencies:
+    - TextProcessingService: For formatting and deduplicating search results
+    - DuckDuckGoClientProtocol: For web search functionality
+    - ScrapingServiceProtocol: For web scraping functionality
+    - OllamaDeepResearcherSettings: For configuration
+    """
 
     def __init__(
         self,
         settings: OllamaDeepResearcherSettings,
         search_client: DuckDuckGoClientProtocol,
-        scraper: ScrapingModelProtocol,
+        scraper: ScrapingServiceProtocol,
     ):
         self.settings = settings
         self.search_client = search_client

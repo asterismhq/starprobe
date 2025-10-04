@@ -53,7 +53,6 @@ class OllamaClient(OllamaClientProtocol):
                 base_url=base_url, model=model, temperature=temperature, format=format
             )
         else:
-            # Import here for normal operation
             from langchain_ollama import ChatOllama
 
             kwargs = {

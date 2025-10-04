@@ -4,8 +4,13 @@ import asyncio
 
 from fastapi import APIRouter
 
-from ollama_deep_researcher.api.schemas import HealthResponse, ResearchRequest, ResearchResponse
 from ollama_deep_researcher.api.logger import logger
+from ollama_deep_researcher.api.schemas import (
+    HealthResponse,
+    ResearchRequest,
+    ResearchResponse,
+)
+from ollama_deep_researcher.clients.ollama_client import OllamaClient
 from ollama_deep_researcher.graph import graph
 from ollama_deep_researcher.settings import OllamaDeepResearcherSettings
 
@@ -32,6 +37,7 @@ async def run_research(request: ResearchRequest):
                 "ollama_base_url": settings.ollama_base_url,
             }
         }
+        config["llm_client"] = OllamaClient(settings)
 
         # Execute graph with timeout
         result = await asyncio.wait_for(

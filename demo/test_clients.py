@@ -1,5 +1,5 @@
-from src.ollama_deep_researcher.clients.duckduckgo_client import DuckDuckGoClient
 from dev.mocks.mock_duckduckgo_client import MockDuckDuckGoClient
+from src.ollama_deep_researcher.clients.duckduckgo_client import DuckDuckGoClient
 
 # Test real client
 print("Testing real DuckDuckGoClient:")
@@ -7,7 +7,10 @@ real_client = DuckDuckGoClient()
 real_result = real_client.search("Python programming", max_results=2)
 print("Real result structure:")
 print(real_result)
-print("Keys in first result:", list(real_result["results"][0].keys()) if real_result["results"] else "No results")
+print(
+    "Keys in first result:",
+    list(real_result["results"][0].keys()) if real_result["results"] else "No results",
+)
 
 # Test mock client
 print("\nTesting MockDuckDuckGoClient:")

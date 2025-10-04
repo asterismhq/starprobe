@@ -22,6 +22,7 @@ dependencies = [
     "requests",
     "beautifulsoup4",
     "tiktoken>=0.7.0",
+    "jinja2>=3.1.0",
 ]
 
 [dependency-groups]
@@ -46,7 +47,7 @@ testpaths = ["tests"]
 python_files = "test_*.py"
 asyncio_mode = "auto"
 addopts = "-v -s --tb=short"
-pythonpath = ["src", "tests"]
+pythonpath = ["src", "."]
 
 [tool.black]
 target-version = ['py312']

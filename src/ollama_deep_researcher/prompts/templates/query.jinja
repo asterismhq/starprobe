@@ -1,0 +1,7 @@
+{{ query_writer_instructions.format(current_date=current_date, research_topic=research_topic) }}
+
+{% if use_tool_calling %}
+{{ tool_calling_query_instructions }}
+{% else %}
+{{ json_mode_query_instructions }}
+{% endif %}
