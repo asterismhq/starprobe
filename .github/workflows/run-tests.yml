@@ -15,18 +15,18 @@ jobs:
       fail-fast: false
 
     steps:
-      - name: Checkout
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Ensure toolcache dir
-        run: mkdir -p "${{ runner.temp }}/_tool"
+      - name: Prepare toolcache env
+        run: |
+          echo "RUNNER_TOOL_CACHE=${{ runner.temp }}/_tool" >> $GITHUB_ENV
+          echo "AGENT_TOOLSDIRECTORY=${{ runner.temp }}/_tool" >> $GITHUB_ENV
+          echo "RUNNER_TEMP=${{ runner.temp }}" >> $GITHUB_ENV
+          mkdir -p "${{ runner.temp }}/_tool"
 
       - name: Set up Python
         uses: actions/setup-python@v5
-        env:
-          RUNNER_TOOL_CACHE: ${{ runner.temp }}/_tool
-          AGENT_TOOLSDIRECTORY: ${{ runner.temp }}/_tool
-          RUNNER_TEMP: ${{ runner.temp }}
         with:
           python-version: '3.12.7'
 
