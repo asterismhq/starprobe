@@ -95,4 +95,3 @@ class TextProcessingService:
                 all_content.append(f"Source: {url}\nContent: {truncated_content}\n---")
 
         return "\n".join(all_content)
-        return "\n".join(all_content)

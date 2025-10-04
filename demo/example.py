@@ -4,8 +4,9 @@ from pprint import pprint
 
 from dotenv import load_dotenv
 
+from ollama_deep_researcher.clients.ollama_client import OllamaClient
 from ollama_deep_researcher.graph import graph
-from ollama_deep_researcher.settings import OllamaClient
+from ollama_deep_researcher.settings import OllamaDeepResearcherSettings
 
 load_dotenv()
 
@@ -35,7 +36,7 @@ async def main():
     # Add LLM client to config
     # For simplicity, assume not using tool calling in demo
     config["llm_client"] = OllamaClient(
-        config["configurable"],
+        OllamaDeepResearcherSettings.from_runnable_config(config),
         base_url=ollama_base_url,
         model=local_llm,
         temperature=0,

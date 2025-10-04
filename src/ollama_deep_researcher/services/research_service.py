@@ -4,7 +4,9 @@ from ollama_deep_researcher.protocols.duckduckgo_client_protocol import (
 from ollama_deep_researcher.protocols.scraping_service_protocol import (
     ScrapingServiceProtocol,
 )
-from ollama_deep_researcher.services import TextProcessingService
+from ollama_deep_researcher.services.text_processing_service import (
+    TextProcessingService,
+)
 from ollama_deep_researcher.settings import OllamaDeepResearcherSettings
 
 
