@@ -1573,6 +1573,7 @@ name = "ollama-deep-researcher"
 version = "0.0.1"
 source = { editable = "." }
 dependencies = [
+    { name = "beautifulsoup4" },
     { name = "ddgs" },
     { name = "fastapi" },
     { name = "httpx" },
@@ -1582,6 +1583,7 @@ dependencies = [
     { name = "markdownify" },
     { name = "python-dotenv" },
     { name = "python-json-logger" },
+    { name = "requests" },
     { name = "tavily-python" },
     { name = "uvicorn", extra = ["standard"] },
 ]
@@ -1597,6 +1599,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
+    { name = "beautifulsoup4" },
     { name = "ddgs", specifier = ">=7.3.0" },
     { name = "fastapi", specifier = ">=0.115.0" },
     { name = "httpx", specifier = ">=0.28.1" },
@@ -1606,6 +1609,7 @@ requires-dist = [
     { name = "markdownify", specifier = ">=0.11.0" },
     { name = "python-dotenv", specifier = "==1.0.1" },
     { name = "python-json-logger", specifier = ">=2.0.0" },
+    { name = "requests" },
     { name = "tavily-python", specifier = ">=0.5.0" },
     { name = "uvicorn", extras = ["standard"], specifier = ">=0.32.0" },
 ]
