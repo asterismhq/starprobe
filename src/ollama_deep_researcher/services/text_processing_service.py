@@ -13,7 +13,7 @@ class TextProcessingService:
     - OllamaDeepResearcherSettings: For configuration of token limits
     """
 
-    # gpt-3.5-turbo や gpt-4 で使われているエンコーディングをデフォルトに設定
+    # Set the encoding used by gpt-3.5-turbo or gpt-4 as default
     DEFAULT_ENCODING = "cl100k_base"
 
     @staticmethod
@@ -36,37 +36,36 @@ class TextProcessingService:
     @staticmethod
     def truncate_text_by_tokens(text: str, max_tokens: int) -> str:
         """
-        指定された最大トークン数に基づいてテキストを切り詰めます。
+        Truncate text based on the specified maximum number of tokens.
 
         Args:
-            text (str): 切り詰める対象のテキスト
-            max_tokens (int): 許容される最大のトークン数
+            text (str): The text to truncate
+            max_tokens (int): The maximum number of tokens allowed
 
         Returns:
-            str: 最大トークン数を超えないように切り詰められたテキスト
+            str: The text truncated to not exceed the maximum number of tokens
         """
         if not text:
             return ""
 
         try:
-            # 指定されたエンコーディングでTokenizerを読み込む
+            # Load the tokenizer with the specified encoding
             encoding = tiktoken.get_encoding(TextProcessingService.DEFAULT_ENCODING)
         except Exception:
-            # エンコーディングの読み込みに失敗した場合は、フォールバックとして
-            # モデル名を指定して読み込む
+            # If loading the encoding fails, fall back to loading by model name
             encoding = tiktoken.encoding_for_model("gpt-3.5-turbo")
 
-        # テキストをトークンにエンコード
+        # Encode the text into tokens
         tokens = encoding.encode(text)
 
-        # トークン数が最大値を超えていなければ、元のテキストをそのまま返す
+        # If the number of tokens does not exceed the maximum, return the original text
         if len(tokens) <= max_tokens:
             return text
 
-        # トークン数が最大値を超えている場合は、最大トークン数までで切り詰める
+        # If the number of tokens exceeds the maximum, truncate to the maximum number of tokens
         truncated_tokens = tokens[:max_tokens]
 
-        # 切り詰めたトークンをデコードしてテキストに戻す
+        # Decode the truncated tokens back to text
         return encoding.decode(truncated_tokens)
 
     @staticmethod
@@ -89,10 +88,11 @@ class TextProcessingService:
 
             content = r.get("raw_content", r.get("content", ""))
             if content:
-                # 設定された最大トークン数でコンテンツを切り詰める
+                # Truncate the content to the configured maximum number of tokens
                 truncated_content = TextProcessingService.truncate_text_by_tokens(
                     content, settings.max_tokens_per_source
                 )
                 all_content.append(f"Source: {url}\nContent: {truncated_content}\n---")
 
+        return "\n".join(all_content)
         return "\n".join(all_content)

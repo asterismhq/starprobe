@@ -1,9 +1,3 @@
-import os
-import sys
-
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-
 from dev.mocks.mock_duckduckgo_client import MockDuckDuckGoClient
 from ollama_deep_researcher.clients.duckduckgo_client import DuckDuckGoClient
 

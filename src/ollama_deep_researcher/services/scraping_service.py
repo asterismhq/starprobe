@@ -12,6 +12,7 @@ class ScrapingService:
     Dependencies:
     - None (standalone service using requests and BeautifulSoup)
     """
+
     def validate_url(self, url: str) -> None:
         parsed = urlparse(url)
         if parsed.scheme not in ("http", "https"):
