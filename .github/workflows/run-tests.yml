@@ -9,6 +9,8 @@ permissions:
 jobs:
   test:
     runs-on: self-hosted
+    env:
+      UV_CACHE_DIR: ./.uv-cache
     strategy:
       matrix:
         test_target: [unit-test, mock-test, intg-test, build-test]
