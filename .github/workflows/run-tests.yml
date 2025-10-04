@@ -3,9 +3,12 @@ name: Run Tests
 on:
   workflow_call:
 
+permissions:
+  contents: read
+
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     strategy:
       matrix:
         test_target: [unit-test, mock-test, intg-test, build-test]
