@@ -8,7 +8,11 @@ from ollama_deep_researcher.services.prompt_service import PromptService
 from ollama_deep_researcher.state import SummaryState
 
 
-def generate_query(state: SummaryState, prompt_service: PromptService, ollama_client: OllamaClientProtocol):
+def generate_query(
+    state: SummaryState,
+    prompt_service: PromptService,
+    ollama_client: OllamaClientProtocol,
+):
     """LangGraph node that generates a search query based on the research topic.
 
     Uses an LLM to create an optimized search query for web research based on

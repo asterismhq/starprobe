@@ -8,7 +8,11 @@ from ollama_deep_researcher.services.prompt_service import PromptService
 from ollama_deep_researcher.state import SummaryState
 
 
-def reflect_on_summary(state: SummaryState, prompt_service: PromptService, ollama_client: OllamaClientProtocol):
+def reflect_on_summary(
+    state: SummaryState,
+    prompt_service: PromptService,
+    ollama_client: OllamaClientProtocol,
+):
     """LangGraph node that identifies knowledge gaps and generates follow-up queries.
 
     Analyzes the current summary to identify areas for further research and generates

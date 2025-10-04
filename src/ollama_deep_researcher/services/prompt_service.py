@@ -1,4 +1,3 @@
-import json
 from datetime import datetime
 
 import jinja2
@@ -100,7 +99,9 @@ class PromptService:
 
         return messages
 
-    def generate_reflect_prompt(self, research_topic: str, running_summary: str) -> list:
+    def generate_reflect_prompt(
+        self, research_topic: str, running_summary: str
+    ) -> list:
         """Generate messages for reflection and follow-up query generation."""
         # Render the prompt using Jinja template
         template = self.template_env.get_template("reflect.jinja")
@@ -133,5 +134,3 @@ class PromptService:
         ]
 
         return messages
-
-

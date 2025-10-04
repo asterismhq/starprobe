@@ -1,4 +1,9 @@
-class MockScrapingService:
+from src.ollama_deep_researcher.protocols.scraping_service_protocol import (
+    ScrapingServiceProtocol,
+)
+
+
+class MockScrapingService(ScrapingServiceProtocol):
     def __init__(self, mock_content: str = "Mock scraped content"):
         self.mock_content = mock_content
         self.scraped_urls: list[str] = []

@@ -13,6 +13,9 @@ class ScrapingService:
     - None (standalone service using requests and BeautifulSoup)
     """
 
+    def __init__(self, settings=None):
+        self.settings = settings
+
     def validate_url(self, url: str) -> None:
         parsed = urlparse(url)
         if parsed.scheme not in ("http", "https"):
@@ -50,8 +53,17 @@ class ScrapingService:
                 return True
         return False
 
-    def scrape(self, url: str, timeout=(30, 90)) -> str:
+    def scrape(self, url: str, timeout=None) -> str:
         self.validate_url(url)
+
+        if timeout is None:
+            if self.settings:
+                timeout = (
+                    self.settings.scraping_timeout_connect,
+                    self.settings.scraping_timeout_read,
+                )
+            else:
+                timeout = (30, 90)
 
         headers = {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"

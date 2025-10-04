@@ -5,7 +5,6 @@ from pprint import pprint
 from dotenv import load_dotenv
 
 from ollama_deep_researcher.graph import build_graph
-from ollama_deep_researcher.settings import OllamaDeepResearcherSettings
 
 load_dotenv()
 
@@ -45,8 +44,27 @@ async def main():
         pprint(result)
         print("====================")
 
+        # Save results to markdown file
+        output_file = "demo/example.md"
+        with open(output_file, "w", encoding="utf-8") as f:
+            f.write("# Research Results\n\n")
+            f.write(f"**Topic:** {research_topic}\n\n")
+            f.write("## Summary\n\n")
+            f.write(result.get("running_summary", "No summary available"))
+            f.write("\n\n## Sources\n\n")
+            for source in result.get("sources", []):
+                f.write(f"- {source}\n")
+            f.write(f"\n**Success:** {result.get('success', False)}\n")
+            if result.get("error_message"):
+                f.write(f"\n**Error:** {result['error_message']}\n")
+
+        print(f"Results saved to {output_file}")
+
     except Exception as e:
+        import traceback
+
         print(f"\nAn error occurred: {e}")
+        traceback.print_exc()
 
 
 if __name__ == "__main__":

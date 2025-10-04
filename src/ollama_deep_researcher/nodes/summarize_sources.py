@@ -1,10 +1,16 @@
 from ollama_deep_researcher.protocols.ollama_client_protocol import OllamaClientProtocol
 from ollama_deep_researcher.services.prompt_service import PromptService
-from ollama_deep_researcher.services.text_processing_service import TextProcessingService
+from ollama_deep_researcher.services.text_processing_service import (
+    TextProcessingService,
+)
 from ollama_deep_researcher.state import SummaryState
 
 
-def summarize_sources(state: SummaryState, prompt_service: PromptService, ollama_client: OllamaClientProtocol):
+def summarize_sources(
+    state: SummaryState,
+    prompt_service: PromptService,
+    ollama_client: OllamaClientProtocol,
+):
     """LangGraph node that summarizes web research results.
 
     Uses an LLM to create or update a running summary based on the newest web research

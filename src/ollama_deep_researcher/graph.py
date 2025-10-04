@@ -1,19 +1,7 @@
-from functools import partial
 from langchain_core.runnables import RunnableConfig
 from langgraph.graph import END, START, StateGraph
 
-from ollama_deep_researcher.clients.duckduckgo_client import DuckDuckGoClient
-from ollama_deep_researcher.clients.ollama_client import OllamaClient
-from ollama_deep_researcher.services.prompt_service import PromptService
-from ollama_deep_researcher.services.research_service import ResearchService
-from ollama_deep_researcher.services.scraping_service import ScrapingService
-from ollama_deep_researcher.services.search_service import SearchService
-from ollama_deep_researcher.settings import OllamaDeepResearcherSettings
-from ollama_deep_researcher.state import (
-    SummaryState,
-    SummaryStateInput,
-    SummaryStateOutput,
-)
+from ollama_deep_researcher.container import DependencyContainer
 from ollama_deep_researcher.nodes import (
     finalize_summary,
     generate_query,
@@ -21,6 +9,12 @@ from ollama_deep_researcher.nodes import (
     route_research,
     summarize_sources,
     web_research,
+)
+from ollama_deep_researcher.settings import OllamaDeepResearcherSettings
+from ollama_deep_researcher.state import (
+    SummaryState,
+    SummaryStateInput,
+    SummaryStateOutput,
 )
 
 # Constants
@@ -31,12 +25,12 @@ class ResearchGraph:
     def __init__(self):
         # Instantiate all clients and services here
         self.settings = OllamaDeepResearcherSettings()
-        self.ollama_client = OllamaClient(self.settings)
-        self.duckduckgo_client = DuckDuckGoClient()
-        self.prompt_service = PromptService(self.settings)
-        self.search_service = SearchService(self.duckduckgo_client)
-        self.scraping_service = ScrapingService()
-        self.research_service = ResearchService(self.settings, self.search_service, self.scraping_service)
+        self.container = DependencyContainer(self.settings)
+
+        # Assign services from container
+        self.prompt_service = self.container.prompt_service
+        self.research_service = self.container.research_service
+        self.ollama_client = self.container.ollama_client
 
     def generate_query(self, state: SummaryState, config: RunnableConfig):
         # Configure the client dynamically
