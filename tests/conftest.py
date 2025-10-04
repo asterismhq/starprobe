@@ -110,3 +110,50 @@ def mock_config():
             "max_web_research_loops": 3,
         }
     }
+
+
+@pytest.fixture
+def mock_scraping_model():
+    """Mock ScrapingModel for testing."""
+    with patch("ollama_deep_researcher.graph.ScrapingModel") as mock:
+        instance = MagicMock()
+        instance.scrape.return_value = "Scraped body text without headers or footers."
+        mock.return_value = instance
+        yield instance
+
+
+@pytest.fixture
+def mock_scraping_model_with_failures():
+    """Mock ScrapingModel that fails on specific URLs."""
+    with patch("ollama_deep_researcher.graph.ScrapingModel") as mock:
+        instance = MagicMock()
+
+        def scrape_side_effect(url):
+            if "fail" in url or "timeout" in url:
+                raise ValueError(f"Scraping failed for {url}")
+            return f"Scraped content from {url}"
+
+        instance.scrape.side_effect = scrape_side_effect
+        mock.return_value = instance
+        yield instance
+
+
+@pytest.fixture
+def mock_html_response():
+    """Mock HTML response for ScrapingModel tests."""
+    return """
+    <html>
+        <head><title>Test Page</title></head>
+        <body>
+            <header>Header content</header>
+            <nav>Navigation</nav>
+            <script>console.log('test');</script>
+            <style>.test { color: red; }</style>
+            <main>
+                <article>This is the main article content.</article>
+            </main>
+            <aside>Sidebar content</aside>
+            <footer>Footer content</footer>
+        </body>
+    </html>
+    """

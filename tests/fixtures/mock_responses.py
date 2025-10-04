@@ -74,3 +74,41 @@ MOCK_SUMMARY_STATE_DICT = {
     "running_summary": "Quantum computing has made significant progress in recent years. "
     * 20,
 }
+
+MOCK_SEARCH_RESULTS_WITHOUT_RAW_CONTENT = {
+    "results": [
+        {
+            "url": "https://example.com/article1",
+            "title": "Article 1",
+            "content": "Short snippet about topic...",
+            "raw_content": "Short snippet about topic...",  # Initially same as content
+        },
+        {
+            "url": "https://example.com/article2",
+            "title": "Article 2",
+            "content": "Another snippet...",
+            "raw_content": "Another snippet...",
+        },
+        {
+            "url": "https://example.com/article3",
+            "title": "Article 3",
+            "content": "Third snippet...",
+            "raw_content": "Third snippet...",
+        },
+    ]
+}
+
+MOCK_PRIVATE_IP_URLS = [
+    "http://127.0.0.1/admin",
+    "http://localhost:8080",
+    "http://192.168.1.1",
+    "http://10.0.0.1/internal",
+    "http://[::1]/loopback",
+]
+
+MOCK_INVALID_URLS = [
+    "ftp://example.com",
+    "file:///etc/passwd",
+    "javascript:alert(1)",
+    "data:text/html,<script>alert('XSS')</script>",
+]
