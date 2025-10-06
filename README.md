@@ -55,6 +55,7 @@ Once the service is running, the following endpoints are available.
       "topic": "YOUR_RESEARCH_TOPIC"
     }
     ```
+    - `topic` (string, required): The research topic to investigate. Must be at least 1 character long.
   * **Example using `curl`:**
     ```shell
     curl -X POST http://localhost:8000/api/v1/research \
@@ -73,6 +74,10 @@ Once the service is running, the following endpoints are available.
       "error_message": null
     }
     ```
+    - `success` (boolean): Indicates whether the research completed successfully.
+    - `summary` (string or null): The generated research summary in Markdown format.
+    - `sources` (array of strings): List of source URLs used in the research.
+    - `error_message` (string or null): Error details if the research failed.
   * **Response (on failure/timeout):**
     ```json
     {
@@ -97,6 +102,7 @@ Once the service is running, the following endpoints are available.
       "status": "ok"
     }
     ```
+    - `status` (string): The health status of the service, typically "ok".
 
 ## 🛠️ Configuration via Environment Variables
 
