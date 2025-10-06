@@ -1,6 +1,7 @@
 """API routes for the application."""
 
 import asyncio
+import time
 
 from fastapi import APIRouter
 
@@ -25,6 +26,7 @@ async def health_check():
 @router.post("/api/v1/research", response_model=ResearchResponse)
 async def run_research(request: ResearchRequest):
     """Execute deep research on a given topic."""
+    start_time = time.time()
     logger.info("Research request received", extra={"topic": request.topic})
 
     try:
@@ -52,6 +54,7 @@ async def run_research(request: ResearchRequest):
             summary=result.get("running_summary"),
             sources=result.get("sources", []),
             error_message=result.get("error_message"),
+            processing_time=time.time() - start_time,
         )
 
         logger.info(
@@ -72,6 +75,7 @@ async def run_research(request: ResearchRequest):
             summary=None,
             sources=[],
             error_message="Research request exceeded 5-minute timeout",
+            processing_time=time.time() - start_time,
         )
     except Exception as e:
         logger.error("Research failed", extra={"topic": request.topic, "error": str(e)})
@@ -80,4 +84,5 @@ async def run_research(request: ResearchRequest):
             summary=None,
             sources=[],
             error_message=f"Internal error: {str(e)}",
+            processing_time=time.time() - start_time,
         )

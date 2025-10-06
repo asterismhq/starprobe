@@ -1,7 +1,7 @@
 [project]
 name = "ollama-deep-researcher"
 version = "0.0.1"
-description = "Fully local web research and summarization assistant with Ollama and LangGraph."
+description = "A FastAPI service for web research and summarization using ollama."
 authors = [
     { name = "Lance Martin" }
 ]
