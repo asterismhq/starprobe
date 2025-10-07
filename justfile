@@ -40,9 +40,13 @@ setup:
 # Development Environment Commands
 # ==============================================================================
 
-# Start development server with uvicorn
-dev:
-  @uv run uvicorn api.main:app --host ${API_HOST_BIND_IP} --port ${API_HOST_PORT} --reload
+# Start development environment with Docker Compose
+up:
+  @docker-compose -f docker-compose.yml -f docker-compose.dev.override.yml up -d
+
+# Stop development environment
+down:
+  @docker-compose down
 
 # ==============================================================================
 # CODE QUALITY
@@ -62,32 +66,9 @@ lint:
 # TESTING
 # ==============================================================================
 
-# Run all tests
-test: unit-test mock-test intg-test build-test
-    @echo "✅ All tests passed!"
-
-# Run unit tests locally (no external dependencies)
-unit-test:
-    @echo "🚀 Running unit tests (local)..."
-    @uv run pytest tests/unit
-
-# Run integration tests (requires Ollama)
-intg-test:
-    @echo "🚀 Running integration tests (requires Ollama)..."
-    @uv run pytest tests/intg
-
-# Run mock tests (requires Ollama)
-mock-test:
-    @echo "🚀 Running mock tests (requires Ollama)..."
-    @uv run pytest tests/mock
-
-# Build Docker image for testing without leaving artifacts
-build-test:
-    @echo "Building Docker image for testing..."
-    @TEMP_IMAGE_TAG=$(date +%s)-build-test; \
-    @docker build --tag temp-build-test:$TEMP_IMAGE_TAG -f api/Dockerfile . && \
-    @echo "Build successful. Cleaning up temporary image..." && \
-    @docker rmi temp-build-test:$TEMP_IMAGE_TAG || true
+# Run all tests in isolated Docker environment
+test:
+  @docker-compose -f docker-compose.yml -f docker-compose.test.override.yml run --rm research-api
 
 # ==============================================================================
 # CLEANUP

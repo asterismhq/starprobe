@@ -1,0 +1,8 @@
+version: "3.9"
+
+services:
+  research-api:
+    command: ["uv", "run", "pytest"]
+    build:
+      context: .
+      dockerfile: Dockerfile
