@@ -4,10 +4,13 @@
 
 set dotenv-load 
 
-PROJECT_NAME := env("PROJECT_NAME", "fastapi-sandbox")
+PROJECT_NAME := env("RESEARCH_API_PROJECT_NAME", "ollama-deep-researcher")
 
 DEV_PROJECT_NAME := PROJECT_NAME + "-dev"
 TEST_PROJECT_NAME := PROJECT_NAME + "-test"
+
+DEV_COMPOSE := "docker compose -f docker-compose.yml -f docker-compose.dev.override.yml --project-name " + DEV_PROJECT_NAME
+TEST_COMPOSE := "docker compose -f docker-compose.yml -f docker-compose.test.override.yml --project-name " + TEST_PROJECT_NAME
 
 # default target
 default: help
@@ -42,11 +45,11 @@ setup:
 
 # Start development environment with Docker Compose
 up:
-  @docker-compose -f docker-compose.yml -f docker-compose.dev.override.yml up -d
+  @{{DEV_COMPOSE}} up -d
 
 # Stop development environment
 down:
-  @docker-compose down
+  @{{DEV_COMPOSE}} down --remove-orphans
 
 # ==============================================================================
 # CODE QUALITY
@@ -66,9 +69,32 @@ lint:
 # TESTING
 # ==============================================================================
 
-# Run all tests in isolated Docker environment
-test:
-  @docker-compose -f docker-compose.yml -f docker-compose.test.override.yml run --rm research-api
+# Run all tests
+test: unit-test mock-test intg-test build-test
+    @echo "✅ All tests passed!"
+
+# Run unit tests locally (no external dependencies)
+unit-test:
+    @echo "🚀 Running unit tests (local)..."
+    @uv run pytest tests/unit
+
+# Run integration tests (requires Ollama)
+intg-test:
+    @echo "🚀 Running integration tests (requires Ollama)..."
+    @uv run pytest tests/intg
+
+# Run mock tests (requires Ollama)
+mock-test:
+    @echo "🚀 Running mock tests (requires Ollama)..."
+    @uv run pytest tests/mock
+
+# Build Docker image for testing without leaving artifacts
+build-test:
+    @echo "Building Docker image for testing (clean build)..."
+    @TEMP_IMAGE_TAG=$(date +%s)-build-test; \
+    docker build --target production --tag temp-build-test:$TEMP_IMAGE_TAG . && \
+    echo "Build successful. Cleaning up temporary image..." && \
+    docker rmi temp-build-test:$TEMP_IMAGE_TAG || true
 
 # ==============================================================================
 # CLEANUP

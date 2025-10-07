@@ -1,34 +1,132 @@
-FROM --platform=$BUILDPLATFORM python:3.11-slim
+# syntax=docker/dockerfile:1.7-labs
+# ==============================================================================
+# Stage 1: Base
+# - Base stage with uv setup and dependency files
+# ==============================================================================
+FROM python:3.11-slim as base
 
 WORKDIR /app
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    curl \
-    ca-certificates \
-    build-essential \
-    python3-dev \
-    libssl-dev \
-    libffi-dev \
-    rustc \
-    cargo \
-    && rm -rf /var/lib/apt/lists/*
+# Install uv
+RUN --mount=type=cache,target=/root/.cache \
+    pip install uv
 
-# Install uv package manager (use pip for safer cross-arch install)
-RUN pip install uv
-ENV PATH="/root/.local/bin:${PATH}"
+# Copy dependency definition files
+COPY pyproject.toml uv.lock README.md ./
 
-# Copy the repository content
-COPY . /app
 
-# Install dependencies using uv
-RUN uv sync
+# ==============================================================================
+# Stage 2: Dev Dependencies
+# - Installs ALL dependencies (including development) to create a cached layer
+#   that can be leveraged by CI/CD for linting, testing, etc.
+# ==============================================================================
+FROM base as dev-deps
 
-# Provide default environment variables
-ENV OLLAMA_BASE_URL="http://localhost:11434/"
-ENV LLM_MODEL="llama3.2"
+# Install system dependencies required for the application
+# - curl: used for Ollama healthcheck and debugging
+RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
 
-# Expose the port for FastAPI service
+# Install all dependencies, including development ones
+RUN --mount=type=cache,target=/root/.cache \
+    uv sync
+
+
+# ==============================================================================
+# Stage 3: Production Dependencies
+# - Creates a lean virtual environment with only production dependencies.
+# ==============================================================================
+FROM base as prod-deps
+
+# Install only production dependencies
+RUN --mount=type=cache,target=/root/.cache \
+    uv sync --no-dev
+
+
+
+# ==============================================================================
+# Stage 4: Development
+# - Development environment with all dependencies and debugging tools
+# - Includes curl and other development utilities
+# ==============================================================================
+FROM python:3.11-slim AS development
+
+# Install development tools
+RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
+
+# Create a non-root user for development
+RUN groupadd -r appgroup && useradd -r -g appgroup -d /home/appuser -m appuser
+
+WORKDIR /app
+RUN chown appuser:appgroup /app
+
+# Copy the development virtual environment from dev-deps stage
+COPY --from=dev-deps /app/.venv ./.venv
+
+# Set the PATH to include the venv's bin directory
+ENV PATH="/app/.venv/bin:${PATH}"
+
+# Copy application code
+COPY --chown=appuser:appgroup src/ ./src
+COPY --chown=appuser:appgroup pyproject.toml .
+COPY --chown=appuser:appgroup entrypoint.sh .
+
+RUN chmod +x entrypoint.sh
+
+# Switch to non-root user
+USER appuser
+
 EXPOSE 8000
 
-# Launch the FastAPI application with uvicorn
-CMD ["uv", "run", "uvicorn", "ollama_deep_researcher.api.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Development healthcheck
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD curl -fsS http://localhost:8000/health || exit 1
+
+ENTRYPOINT ["/app/entrypoint.sh"]
+
+
+
+# ==============================================================================
+# Stage 5: Production
+# - Creates the final, lightweight production image.
+# - Copies the lean venv and only necessary application files.
+# ==============================================================================
+FROM python:3.11-slim AS production
+
+# Install curl for healthcheck
+RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
+
+# Create a non-root user and group for security
+RUN groupadd -r appgroup && useradd -r -g appgroup -d /home/appuser -m appuser
+
+# Set the working directory
+WORKDIR /app
+
+# Grant ownership of the working directory to the non-root user
+RUN chown appuser:appgroup /app
+
+# Copy the lean virtual environment from the prod-deps stage
+COPY --from=prod-deps /app/.venv ./.venv
+
+# Set the PATH to include the venv's bin directory for simpler command execution
+ENV PATH="/app/.venv/bin:${PATH}"
+
+# Copy only the necessary application code and configuration, excluding tests
+COPY --chown=appuser:appgroup src/ ./src
+COPY --chown=appuser:appgroup pyproject.toml .
+COPY --chown=appuser:appgroup entrypoint.sh .
+
+# Grant execute permissions to the entrypoint script
+RUN chmod +x entrypoint.sh
+
+# Switch to the non-root user
+USER appuser
+
+# Expose the port the app runs on (will be mapped by Docker Compose)
+EXPOSE 8000
+
+# Healthcheck
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD curl -fsS http://localhost:8000/health || exit 1
+
+# Set the entrypoint script to be executed when the container starts
+ENTRYPOINT ["/app/entrypoint.sh"]

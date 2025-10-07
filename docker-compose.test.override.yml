@@ -2,7 +2,30 @@ version: "3.9"
 
 services:
   research-api:
-    command: ["uv", "run", "pytest"]
     build:
-      context: .
-      dockerfile: Dockerfile
+      target: development
+    environment:
+      - OLLAMA_BASE_URL=http://ollama:11434/
+    depends_on:
+      ollama:
+        condition: service_healthy
+
+  ollama:
+    build:
+      context: ./ollama
+      args:
+        BUILT_IN_OLLAMA_MODELS: "qwen3:0.6b"
+    volumes:
+      - ollama-data:/root/.ollama
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:11434/api/tags" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+volumes:
+  ollama-data:
+    driver: local
+    name: ${RESEARCH_API_PROJECT_NAME:-ollama-deep-researcher}-ollama-data
+    external: false
