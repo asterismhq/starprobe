@@ -26,7 +26,7 @@ class OllamaDeepResearcherSettings(BaseSettings):
         description="Name of the LLM model to use",
     )
     ollama_base_url: str = Field(
-        default="http://localhost:11434/",
+        default="http://ollama:11434/",
         validation_alias="OLLAMA_BASE_URL",
         title="Ollama Base URL",
         description="Base URL for Ollama API",

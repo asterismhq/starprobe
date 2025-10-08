@@ -4,10 +4,13 @@
 
 set dotenv-load 
 
-PROJECT_NAME := env("PROJECT_NAME", "fastapi-sandbox")
+PROJECT_NAME := env("RESEARCH_API_PROJECT_NAME", "ollama-deep-researcher")
 
 DEV_PROJECT_NAME := PROJECT_NAME + "-dev"
 TEST_PROJECT_NAME := PROJECT_NAME + "-test"
+
+DEV_COMPOSE := "docker compose -f docker-compose.yml -f docker-compose.dev.override.yml --project-name " + DEV_PROJECT_NAME
+TEST_COMPOSE := "docker compose -f docker-compose.yml -f docker-compose.test.override.yml --project-name " + TEST_PROJECT_NAME
 
 # default target
 default: help
@@ -40,9 +43,13 @@ setup:
 # Development Environment Commands
 # ==============================================================================
 
-# Start development server with uvicorn
-dev:
-  @uv run uvicorn api.main:app --host ${API_HOST_BIND_IP} --port ${API_HOST_PORT} --reload
+# Start development environment with Docker Compose
+up:
+  @{{DEV_COMPOSE}} up -d
+
+# Stop development environment
+down:
+  @{{DEV_COMPOSE}} down --remove-orphans
 
 # ==============================================================================
 # CODE QUALITY
@@ -83,11 +90,11 @@ mock-test:
 
 # Build Docker image for testing without leaving artifacts
 build-test:
-    @echo "Building Docker image for testing..."
+    @echo "Building Docker image for testing (clean build)..."
     @TEMP_IMAGE_TAG=$(date +%s)-build-test; \
-    @docker build --tag temp-build-test:$TEMP_IMAGE_TAG -f api/Dockerfile . && \
-    @echo "Build successful. Cleaning up temporary image..." && \
-    @docker rmi temp-build-test:$TEMP_IMAGE_TAG || true
+    docker build --target production --tag temp-build-test:$TEMP_IMAGE_TAG . && \
+    echo "Build successful. Cleaning up temporary image..." && \
+    docker rmi temp-build-test:$TEMP_IMAGE_TAG || true
 
 # ==============================================================================
 # CLEANUP
