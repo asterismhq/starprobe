@@ -17,7 +17,7 @@ class SearchService:
         self.search_client = search_client
 
     @traceable
-    def search(
+    async def search(
         self, query: str, max_results: int = 3
     ) -> Dict[str, List[Dict[str, Any]]]:
         """
@@ -36,7 +36,7 @@ class SearchService:
                     - raw_content (str or None): Initially same as content, to be populated later
         """
         try:
-            return self.search_client.search(query, max_results)
+            return await self.search_client.search(query, max_results)
         except Exception as e:
             logging.error(f"Error in search: {str(e)}")
             logging.error(f"Full error details: {type(e).__name__}")

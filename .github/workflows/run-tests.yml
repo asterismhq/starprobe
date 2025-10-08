@@ -6,6 +6,8 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    env:
+      OLLAMA_HOST: ${{ secrets.OLLAMA_HOST }}
     strategy:
       matrix:
         test_target: [unit-test, intg-test, build-test, e2e-test]

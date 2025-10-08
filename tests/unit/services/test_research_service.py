@@ -9,9 +9,9 @@ class TestResearchService:
     """Test cases for ResearchService."""
 
     @pytest.fixture
-    def research_service(self, mock_settings, mock_scraping_service, mocker):
+    async def research_service(self, mock_settings, mock_scraping_service, mocker):
         """Create a ResearchService instance with mocked dependencies."""
-        mock_search_client = mocker.Mock()
+        mock_search_client = mocker.AsyncMock()
         mock_search_client.search.return_value = {
             "results": [
                 {
@@ -33,9 +33,10 @@ class TestResearchService:
             scraper=mock_scraping_service,
         )
 
-    def test_search_and_scrape_success(self, research_service):
+    @pytest.mark.asyncio
+    async def test_search_and_scrape_success(self, research_service):
         """Test successful search and scrape workflow."""
-        search_str, sources = research_service.search_and_scrape(
+        search_str, sources = await research_service.search_and_scrape(
             "test query", loop_count=1
         )
 
@@ -51,11 +52,12 @@ class TestResearchService:
             "https://example.com/2" in search_str or "https://example.com/2" in sources
         )
 
-    def test_search_and_scrape_with_scraping(
+    @pytest.mark.asyncio
+    async def test_search_and_scrape_with_scraping(
         self, mock_settings, mock_scraping_service, mocker
     ):
         """Test that scraping is called for each URL."""
-        mock_search_client = mocker.Mock()
+        mock_search_client = mocker.AsyncMock()
         mock_search_client.search.return_value = {
             "results": [
                 {
@@ -74,16 +76,17 @@ class TestResearchService:
 
         spy = mocker.spy(mock_scraping_service, "scrape")
 
-        research_service.search_and_scrape("test query", loop_count=1)
+        await research_service.search_and_scrape("test query", loop_count=1)
 
         # Verify scraping was called
         spy.assert_called()
 
-    def test_search_and_scrape_with_failed_scraping(
+    @pytest.mark.asyncio
+    async def test_search_and_scrape_with_failed_scraping(
         self, mock_settings, mocker, capsys
     ):
         """Test behavior when some URLs fail to scrape."""
-        mock_search_client = mocker.Mock()
+        mock_search_client = mocker.AsyncMock()
         mock_search_client.search.return_value = {
             "results": [
                 {
@@ -112,7 +115,7 @@ class TestResearchService:
             scraper=mock_scraper,
         )
 
-        search_str, sources = research_service.search_and_scrape(
+        search_str, sources = await research_service.search_and_scrape(
             "test query", loop_count=1
         )
 
@@ -124,11 +127,12 @@ class TestResearchService:
         captured = capsys.readouterr()
         assert "Scraping failed" in captured.out or "Network error" in captured.out
 
-    def test_search_and_scrape_empty_results(
+    @pytest.mark.asyncio
+    async def test_search_and_scrape_empty_results(
         self, mock_settings, mock_scraping_service, mocker
     ):
         """Test behavior with no search results."""
-        mock_search_client = mocker.Mock()
+        mock_search_client = mocker.AsyncMock()
         mock_search_client.search.return_value = {"results": []}
 
         research_service = ResearchService(
@@ -137,7 +141,7 @@ class TestResearchService:
             scraper=mock_scraping_service,
         )
 
-        search_str, sources = research_service.search_and_scrape(
+        search_str, sources = await research_service.search_and_scrape(
             "test query", loop_count=1
         )
 
@@ -145,11 +149,12 @@ class TestResearchService:
         assert isinstance(search_str, str)
         assert isinstance(sources, str)
 
-    def test_search_and_scrape_respects_max_results(
+    @pytest.mark.asyncio
+    async def test_search_and_scrape_respects_max_results(
         self, mock_settings, mock_scraping_service, mocker
     ):
         """Test that search is called with max_results=3."""
-        mock_search_client = mocker.Mock()
+        mock_search_client = mocker.AsyncMock()
         mock_search_client.search.return_value = {"results": []}
 
         research_service = ResearchService(
@@ -158,16 +163,17 @@ class TestResearchService:
             scraper=mock_scraping_service,
         )
 
-        research_service.search_and_scrape("test query", loop_count=1)
+        await research_service.search_and_scrape("test query", loop_count=1)
 
         # Verify search was called with max_results=3
         mock_search_client.search.assert_called_with("test query", max_results=3)
 
-    def test_search_and_scrape_handles_missing_url(
+    @pytest.mark.asyncio
+    async def test_search_and_scrape_handles_missing_url(
         self, mock_settings, mock_scraping_service, mocker
     ):
         """Test handling of search results without URLs."""
-        mock_search_client = mocker.Mock()
+        mock_search_client = mocker.AsyncMock()
         mock_search_client.search.return_value = {
             "results": [
                 {"title": "Result without URL", "content": "Some content"},
@@ -186,18 +192,19 @@ class TestResearchService:
         )
 
         # Should not raise error with missing URL
-        search_str, sources = research_service.search_and_scrape(
+        search_str, sources = await research_service.search_and_scrape(
             "test query", loop_count=1
         )
 
         assert isinstance(search_str, str)
         assert isinstance(sources, str)
 
-    def test_search_and_scrape_handles_search_exception(
+    @pytest.mark.asyncio
+    async def test_search_and_scrape_handles_search_exception(
         self, mock_settings, mock_scraping_service, mocker, capsys
     ):
         """Test graceful error handling when search fails."""
-        mock_search_client = mocker.Mock()
+        mock_search_client = mocker.AsyncMock()
         mock_search_client.search.side_effect = Exception("Search API error")
 
         research_service = ResearchService(
@@ -206,7 +213,7 @@ class TestResearchService:
             scraper=mock_scraping_service,
         )
 
-        search_str, sources = research_service.search_and_scrape(
+        search_str, sources = await research_service.search_and_scrape(
             "test query", loop_count=1
         )
 
@@ -214,7 +221,8 @@ class TestResearchService:
         assert "Search failed" in search_str or "error" in search_str.lower()
         assert isinstance(sources, str)
 
-    def test_search_and_scrape_updates_raw_content(
+    @pytest.mark.asyncio
+    async def test_search_and_scrape_updates_raw_content(
         self, mock_settings, mock_scraping_service, mocker
     ):
         """Test that raw_content is updated with scraped content."""
@@ -228,7 +236,7 @@ class TestResearchService:
             ]
         }
 
-        mock_search_client = mocker.Mock()
+        mock_search_client = mocker.AsyncMock()
         mock_search_client.search.return_value = search_results
 
         # Mock scraper to return specific content
@@ -241,18 +249,19 @@ class TestResearchService:
             scraper=mock_scraper,
         )
 
-        search_str, sources = research_service.search_and_scrape(
+        search_str, sources = await research_service.search_and_scrape(
             "test query", loop_count=1
         )
 
         # Should contain the scraped content
         assert "Full scraped content" in search_str
 
-    def test_perform_search_delegates_to_client(
+    @pytest.mark.asyncio
+    async def test_perform_search_delegates_to_client(
         self, mock_settings, mock_scraping_service, mocker
     ):
         """Test _perform_search delegates to search client."""
-        mock_search_client = mocker.Mock()
+        mock_search_client = mocker.AsyncMock()
         mock_search_client.search.return_value = {"results": []}
 
         research_service = ResearchService(
@@ -261,7 +270,7 @@ class TestResearchService:
             scraper=mock_scraping_service,
         )
 
-        result = research_service._perform_search("test query", loop_count=1)
+        result = await research_service._perform_search("test query", loop_count=1)
 
         # Should call search client with correct parameters
         mock_search_client.search.assert_called_once_with("test query", max_results=3)
