@@ -38,8 +38,8 @@ class ResearchGraph:
         self._configure_ollama_client(config)
         return await generate_query(state, self.prompt_service, self.ollama_client)
 
-    def web_research(self, state: SummaryState, config: RunnableConfig):
-        return web_research(state, self.research_service)
+    async def web_research(self, state: SummaryState, config: RunnableConfig):
+        return await web_research(state, self.research_service)
 
     async def summarize_sources(self, state: SummaryState, config: RunnableConfig):
         self._configure_ollama_client(config)

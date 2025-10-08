@@ -98,8 +98,7 @@ ENTRYPOINT ["/app/entrypoint.sh"]
 # ==============================================================================
 FROM python:3.12-slim AS production
 
-# Install curl for healthcheck and uv for running commands
-RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
+# Install uv for running commands
 RUN pip install uv
 
 # Create a non-root user and group for security

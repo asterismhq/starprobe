@@ -30,11 +30,11 @@ class ResearchService:
         self.search_client = search_client
         self.scraper = scraper
 
-    def search_and_scrape(self, query: str, loop_count: int) -> tuple[str, str]:
+    async def search_and_scrape(self, query: str, loop_count: int) -> tuple[str, str]:
         """Perform web search and scraping, return formatted results and sources."""
         try:
             # Step 1: Search the web
-            search_results = self._perform_search(query, loop_count)
+            search_results = await self._perform_search(query, loop_count)
 
             # Step 2: Instantiate scraper
             scraper = self.scraper
@@ -72,6 +72,6 @@ class ResearchService:
             print(f"Web research error: {str(e)}")
             return f"Search failed: {str(e)}", "Error fetching sources"
 
-    def _perform_search(self, query: str, loop_count: int):
+    async def _perform_search(self, query: str, loop_count: int):
         """Perform the actual search using the configured search backend."""
-        return self.search_client.search(query, max_results=3)
+        return await self.search_client.search(query, max_results=3)

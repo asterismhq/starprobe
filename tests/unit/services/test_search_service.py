@@ -13,52 +13,59 @@ class TestSearchService:
         """Create a SearchService instance with mock client."""
         return SearchService(search_client=mock_search_client)
 
-    def test_search_returns_results(self, search_service):
+    @pytest.mark.asyncio
+    async def test_search_returns_results(self, search_service):
         """Test search returns list of results."""
-        result = search_service.search("test query")
+        result = await search_service.search("test query")
         assert isinstance(result, dict)
         assert "results" in result
         assert isinstance(result["results"], list)
         assert len(result["results"]) > 0
 
-    def test_search_result_structure(self, search_service):
+    @pytest.mark.asyncio
+    async def test_search_result_structure(self, search_service):
         """Test each search result has required fields."""
-        result = search_service.search("test query")
+        result = await search_service.search("test query")
         for item in result["results"]:
             assert "title" in item
             assert "url" in item
             assert "content" in item or "raw_content" in item
 
-    def test_search_with_max_results(self, search_service, mock_search_client):
+    @pytest.mark.asyncio
+    async def test_search_with_max_results(self, search_service, mock_search_client):
         """Test max_results parameter limits returned results."""
-        result = search_service.search("test query", max_results=2)
+        result = await search_service.search("test query", max_results=2)
         assert len(result["results"]) <= 2
 
-    def test_search_with_max_results_default(self, search_service):
+    @pytest.mark.asyncio
+    async def test_search_with_max_results_default(self, search_service):
         """Test default max_results is 3."""
-        result = search_service.search("test query")
+        result = await search_service.search("test query")
         # Mock returns 3 results by default
         assert len(result["results"]) <= 3
 
-    def test_search_handles_empty_results(
+    @pytest.mark.asyncio
+    async def test_search_handles_empty_results(
         self, search_service, mock_search_client, mocker
     ):
         """Test behavior with no search results."""
         mocker.patch.object(mock_search_client, "search", return_value={"results": []})
-        result = search_service.search("test query")
+        result = await search_service.search("test query")
         assert result == {"results": []}
 
-    def test_search_handles_exceptions(
+    @pytest.mark.asyncio
+    async def test_search_handles_exceptions(
         self, search_service, mock_search_client, mocker
     ):
         """Test graceful error handling when search fails."""
         mocker.patch.object(
             mock_search_client, "search", side_effect=Exception("Network error")
         )
-        result = search_service.search("test query")
+        result = await search_service.search("test query")
         assert result == {"results": []}
 
-    def test_search_delegates_to_client(self, mocker, mock_search_client):
+    @pytest.mark.asyncio
+    async def test_search_delegates_to_client(self, mocker, mock_search_client):
         """Test search delegates to the injected client."""
         search_service = SearchService(search_client=mock_search_client)
 
@@ -67,14 +74,15 @@ class TestSearchService:
 
         query = "test query"
         max_results = 5
-        search_service.search(query, max_results)
+        await search_service.search(query, max_results)
 
         # Verify client was called with correct parameters
         spy.assert_called_once_with(query, max_results)
 
-    def test_search_returns_urls(self, search_service):
+    @pytest.mark.asyncio
+    async def test_search_returns_urls(self, search_service):
         """Test search returns valid URLs in results."""
-        result = search_service.search("test query")
+        result = await search_service.search("test query")
         for item in result["results"]:
             url = item.get("url", "")
             assert url.startswith("http://") or url.startswith("https://")

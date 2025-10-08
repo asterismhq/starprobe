@@ -15,17 +15,17 @@ class SearXNGClient(SearchClientProtocol):
     def __init__(
         self,
         settings: OllamaDeepResearcherSettings,
-        client: Optional[httpx.Client] = None,
+        client: Optional[httpx.AsyncClient] = None,
     ) -> None:
         self.settings = settings
         base_url = settings.searxng_url.rstrip("/")
         timeout = httpx.Timeout(connect=5.0, read=15.0, write=5.0, pool=5.0)
         headers = {"User-Agent": "Mozilla/5.0 (compatible; OllamaDeepResearcher/1.0)"}
-        self._client = client or httpx.Client(
+        self._client = client or httpx.AsyncClient(
             base_url=base_url, timeout=timeout, headers=headers
         )
 
-    def search(
+    async def search(
         self, query: str, max_results: int = 3
     ) -> Dict[str, List[Dict[str, Any]]]:
         """Search the web using SearXNG and return formatted results."""
@@ -37,7 +37,7 @@ class SearXNGClient(SearchClientProtocol):
         }
 
         try:
-            response = self._client.get("/search", params=params)
+            response = await self._client.get("/search", params=params)
             response.raise_for_status()
         except Exception as exc:  # pragma: no cover - logged for observability
             logger.error("Error querying SearXNG: %s", exc)
@@ -70,9 +70,9 @@ class SearXNGClient(SearchClientProtocol):
 
         return {"results": formatted_results}
 
-    def close(self) -> None:
+    async def close(self) -> None:
         """Close the underlying HTTP client."""
-        self._client.close()
+        await self._client.aclose()
 
     def __del__(self) -> None:  # pragma: no cover - best effort cleanup
         try:

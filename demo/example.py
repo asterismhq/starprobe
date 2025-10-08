@@ -23,15 +23,17 @@ async def main(output_file: str = "demo/example.md", use_debug: bool | None = No
     # If environment variables are not set, default values will be used
     local_llm = os.getenv("RESEARCH_API_OLLAMA_MODEL", "llama3.2:3b")
     ollama_host = os.getenv("OLLAMA_HOST", "http://localhost:11434/")
-    debug_env = os.getenv("DEBUG")
+    # Let Pydantic handle parsing the DEBUG env var from the environment
+    settings = OllamaDeepResearcherSettings()
+    debug = settings.debug
+
+    # For the demo, default to debug=True if DEBUG is not set, and allow override via function arg
     if use_debug is not None:
         debug = use_debug
-    elif debug_env is None:
+    elif os.getenv("DEBUG") is None:
         debug = True
-    else:
-        debug = debug_env.lower() in {"true", "1", "yes", "on"}
-    base_settings = OllamaDeepResearcherSettings()
-    settings = base_settings.model_copy(
+
+    settings = settings.model_copy(
         update={
             "local_llm": local_llm,
             "ollama_host": ollama_host,

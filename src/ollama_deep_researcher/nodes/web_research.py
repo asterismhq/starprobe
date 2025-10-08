@@ -2,7 +2,7 @@ from ollama_deep_researcher.services.research_service import ResearchService
 from ollama_deep_researcher.state import SummaryState
 
 
-def web_research(state: SummaryState, research_service: ResearchService):
+async def web_research(state: SummaryState, research_service: ResearchService):
     """LangGraph node that performs web research using the generated search query.
 
     Executes a web search using the configured search API (tavily, perplexity,
@@ -17,7 +17,7 @@ def web_research(state: SummaryState, research_service: ResearchService):
     Returns:
         Dictionary with state update, including sources_gathered, research_loop_count, and web_research_results
     """
-    results, sources = research_service.search_and_scrape(
+    results, sources = await research_service.search_and_scrape(
         query=state.search_query, loop_count=state.research_loop_count
     )
     return {

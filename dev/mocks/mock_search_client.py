@@ -33,7 +33,10 @@ class MockSearchClient(SearchClientProtocol):
         else:
             self.mock_results = mock_results
 
-    def search(
+    async def search(
         self, query: str, max_results: int = 3
     ) -> Dict[str, List[Dict[str, Any]]]:
         return {"results": self.mock_results[:max_results]}
+
+    async def close(self) -> None:
+        pass

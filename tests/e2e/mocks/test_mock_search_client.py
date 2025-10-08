@@ -5,7 +5,7 @@ from ollama_deep_researcher.clients.searxng_client import SearXNGClient
 from ollama_deep_researcher.settings import OllamaDeepResearcherSettings
 
 
-def test_real_client_with_mock_transport():
+async def test_real_client_with_mock_transport():
     payload = {
         "results": [
             {
@@ -26,21 +26,21 @@ def test_real_client_with_mock_transport():
 
     transport = httpx.MockTransport(handler)
     settings = OllamaDeepResearcherSettings(searxng_url="http://searxng:8080")
-    client = httpx.Client(
+    client = httpx.AsyncClient(
         base_url=settings.searxng_url.rstrip("/"), transport=transport
     )
     search_client = SearXNGClient(settings, client=client)
 
-    results = search_client.search("python", max_results=2)
+    results = await search_client.search("python", max_results=2)
 
     assert len(results["results"]) == 2
     assert results["results"][0]["title"] == "Example Result 1"
     assert results["results"][1]["content"] == "Snippet 2"
 
 
-def test_mock_client_structure_matches():
+async def test_mock_client_structure_matches():
     mock_client = MockSearchClient()
-    results = mock_client.search("python", max_results=2)
+    results = await mock_client.search("python", max_results=2)
 
     assert len(results["results"]) == 2
     keys = set(results["results"][0].keys())
