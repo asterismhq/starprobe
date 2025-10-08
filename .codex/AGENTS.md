@@ -43,10 +43,10 @@ The agent's logic is built as a state machine using **LangGraph**. It repeats th
 
 ### Running via API
 
--   Start the server with `just start-dev-server`.
--   Send a POST request to the `/research` endpoint with the following JSON body:
+-   Start the Dockerized stack with `just up`.
+-   Send a POST request to the `/api/v1/research` endpoint with the following JSON body:
     ```json
-    {"research_topic": "your topic to research"}
+    {"topic": "your topic to research"}
     ```
 
 **Docker & Ollama Configuration**

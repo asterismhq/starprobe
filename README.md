@@ -13,8 +13,8 @@ This service is designed to run as a Docker container.
 1. **Clone the repository:**
 
     ```shell
-    git clone https://github.com/langchain-ai/local-deep-researcher.git
-    cd local-deep-researcher
+    git clone https://github.com/langchain-ai/ollama-deep-researcher.git
+    cd ollama-deep-researcher
     ```
 
 2. **Build the Docker image:**
@@ -30,12 +30,12 @@ This service is designed to run as a Docker container.
     ```shell
     docker run --rm -it -p 8000:8000 \
       -e OLLAMA_HOST="http://host.docker.internal:11434" \
-      -e LLM_MODEL="llama3.2" \
+      -e RESEARCH_API_OLLAMA_MODEL="tinyllama:1.1b" \
       ollama-deep-researcher-api
     ```
 
       * `OLLAMA_HOST`: Specifies the endpoint of the Ollama service.
-      * `LLM_MODEL`: Specifies the model name to use.
+      * `RESEARCH_API_OLLAMA_MODEL`: Specifies the model name to use.
 
 4. **Verify the service is running:**
 
@@ -72,7 +72,7 @@ Once the service is running, the following endpoints are available.
     - `topic` (string, required): The research topic to investigate. Must be at least 1 character long.
   * **Example using `curl`:**
     ```shell
-    curl -X POST http://localhost:8001/api/v1/research \
+    curl -X POST http://localhost:8000/api/v1/research \
     -H "Content-Type: application/json" \
     -d '{"topic": "The future of renewable energy"}'
     ```
@@ -123,9 +123,9 @@ Once the service is running, the following endpoints are available.
 The application's behavior can be controlled via the following environment variables at container startup.
 
   * `OLLAMA_HOST`: (Required) The endpoint URL for the Ollama API. Default is `http://localhost:11434/`.
-  * `LLM_MODEL`: (Required) The name of the Ollama model to use for research. Default is `llama3.2:3b`.
-  * `SCRAPING_TIMEOUT_CONNECT`: Timeout for connecting to scraping targets. Default is 10 seconds.
-  * `SCRAPING_TIMEOUT_READ`: Timeout for reading from scraping targets. Default is 30 seconds.
+  * `RESEARCH_API_OLLAMA_MODEL`: The name of the Ollama model to use for research. Default is `tinyllama:1.1b`.
+  * `SCRAPING_TIMEOUT_CONNECT`: Timeout for connecting to scraping targets. Default is 30 seconds.
+  * `SCRAPING_TIMEOUT_READ`: Timeout for reading from scraping targets. Default is 90 seconds.
   * `DEBUG`: If set to `true`, the application will use mock objects instead of connecting to external services like Ollama server, allowing for testing without actual dependencies.
 
 ## 🧪 Testing
