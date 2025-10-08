@@ -39,7 +39,7 @@ class OllamaDeepResearcherSettings(BaseSettings):
         description="Use tool calling instead of JSON mode for structured output",
     )
     debug: bool = Field(
-        default=True,
+        default=False,
         title="Debug Mode",
         description="Enable mock client mode for development and testing",
     )
