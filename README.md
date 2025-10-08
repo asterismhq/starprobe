@@ -29,12 +29,12 @@ This service is designed to run as a Docker container.
 
     ```shell
     docker run --rm -it -p 8000:8000 \
-      -e OLLAMA_BASE_URL="http://host.docker.internal:11434" \
+      -e OLLAMA_HOST="http://host.docker.internal:11434" \
       -e LLM_MODEL="llama3.2" \
       ollama-deep-researcher-api
     ```
 
-      * `OLLAMA_BASE_URL`: Specifies the endpoint of the Ollama service.
+      * `OLLAMA_HOST`: Specifies the endpoint of the Ollama service.
       * `LLM_MODEL`: Specifies the model name to use.
 
 ## 🎯 Running the Demo
@@ -108,7 +108,7 @@ Once the service is running, the following endpoints are available.
 
 The application's behavior can be controlled via the following environment variables at container startup.
 
-  * `OLLAMA_BASE_URL`: (Required) The endpoint URL for the Ollama API. Default is `http://localhost:11434/`.
+  * `OLLAMA_HOST`: (Required) The endpoint URL for the Ollama API. Default is `http://localhost:11434/`.
   * `LLM_MODEL`: (Required) The name of the Ollama model to use for research. Default is `llama3.2:3b`.
   * `SCRAPING_TIMEOUT_CONNECT`: Timeout for connecting to scraping targets. Default is 10 seconds.
   * `SCRAPING_TIMEOUT_READ`: Timeout for reading from scraping targets. Default is 30 seconds.

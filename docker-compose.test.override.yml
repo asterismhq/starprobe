@@ -5,16 +5,14 @@ services:
     build:
       target: development
     environment:
-      - OLLAMA_BASE_URL=http://ollama:11434/
+      - OLLAMA_HOST=http://ollama:11434/
+      - CONTAINER_ENV=development
     depends_on:
       ollama:
         condition: service_healthy
 
   ollama:
-    build:
-      context: ./ollama
-      args:
-        BUILT_IN_OLLAMA_MODELS: "qwen3:0.6b"
+    image: ghcr.io/famiclone/ol-ci-img:tinyllama-v1
     volumes:
       - ollama-data:/root/.ollama
     healthcheck:

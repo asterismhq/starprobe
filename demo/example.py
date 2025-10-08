@@ -21,11 +21,11 @@ async def main(output_file: str = "demo/example.md"):
     # Build the configuration the same way as the API server
     # If environment variables are not set, default values will be used
     local_llm = os.getenv("LLM_MODEL", "llama3.2:3b")
-    ollama_base_url = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434/")
+    ollama_host = os.getenv("OLLAMA_HOST", "http://localhost:11434/")
     config = {
         "configurable": {
             "local_llm": local_llm,
-            "ollama_base_url": ollama_base_url,
+            "ollama_host": ollama_host,
             # Other settings can be added as needed
             # "search_api": "duckduckgo",
             # "max_web_research_loops": 3,

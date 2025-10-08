@@ -43,3 +43,9 @@ The agent's logic is a state machine built with **LangGraph**. It transitions th
 * **Execute via API**:
     * Start the server with `just start-dev-server`.
     * Send a POST request to `/research` with the JSON body: `{"research_topic": "your topic to research"}`.
+
+### Docker & Ollama Configuration
+
+- Ollama container: CI only. Otherwise run `ollama serve` locally.
+- Never add Ollama service to `docker-compose.yml`; use override files only.
+- `OLLAMA_HOST`: `http://ollama:11434/` (container) or `http://host.docker.internal:11434` (local).

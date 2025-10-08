@@ -34,7 +34,7 @@ class ResearchGraph:
         """Helper method to configure the Ollama client dynamically."""
         configurable = config.get("configurable", {})
         model = configurable.get("local_llm")
-        base_url = configurable.get("ollama_base_url")
+        base_url = configurable.get("ollama_host")
         if model or base_url:
             self.ollama_client.configure(model=model, base_url=base_url)
 

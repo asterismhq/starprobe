@@ -5,7 +5,6 @@ description = "A FastAPI service for web research and summarization using ollama
 authors = [
     { name = "Lance Martin" }
 ]
-readme = "README.md"
 license = { text = "MIT" }
 requires-python = ">=3.9"
 dependencies = [
