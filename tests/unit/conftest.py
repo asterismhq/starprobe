@@ -5,17 +5,16 @@ import pytest
 from dev.mocks.mock_duckduckgo_client import MockDuckDuckGoClient
 from dev.mocks.mock_ollama_client import MockOllamaClient
 from dev.mocks.mock_scraping_service import MockScrapingService
-from ollama_deep_researcher.settings import OllamaDeepResearcherSettings
 
 
 @pytest.fixture
-def mock_settings():
+def mock_settings(default_settings):
     """Provide test-specific settings.
 
     Returns:
         OllamaDeepResearcherSettings: Settings instance for unit tests
     """
-    return OllamaDeepResearcherSettings()
+    return default_settings
 
 
 @pytest.fixture

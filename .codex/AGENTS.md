@@ -1,51 +1,64 @@
-# Ollama Deep Researcher
+# Ollama Deep Researcher Agent
 
-## 1. Persona
+## Overview
 
-**Ollama Deep Researcher** is an autonomous AI agent that performs in-depth research on a given topic and generates a comprehensive report. It starts with an initial investigation, identifies knowledge gaps, and iteratively refines its summary through further research. This agent is optimized for local LLMs running on **Ollama** to minimize reliance on paid APIs.
-
----
-
-## 2. Core Architecture & Logic Flow
-
-The agent's logic is a state machine built with **LangGraph**. It transitions through the following states:
-
-1.  **`generate_query`**: Creates the initial search query from the user's `research_topic`.
-2.  **`web_research`**: Executes the search query using `DuckDuckGoClient` and scrapes the content of the resulting URLs with `ScrapingService`.
-3.  **`summarize_sources`**: Updates the `running_summary` with the new `web_research_results`.
-4.  **`reflect_on_summary`**: Evaluates the current summary for knowledge gaps and generates a new search query if necessary.
-5.  **`route_research`**: Decides whether to continue research (up to `MAX_WEB_RESEARCH_LOOPS`) or finalize the summary.
-6.  **`finalize_summary`**: Completes the final `running_summary` and ends the process.
+**Ollama Deep Researcher** is an AI agent that autonomously conducts detailed research on a specified topic and generates a comprehensive report. It starts with initial research, identifies knowledge gaps, and iteratively refines the summary through additional investigations. It is optimized for local LLMs running on **Ollama**, minimizing dependence on paid APIs.
 
 ---
 
-## 3. Key Components & Dependencies
+## Architecture and Workflow
 
-* **Dependency Container (`container.py`)**: Manages dependencies and switches between real and mock services based on the `DEBUG` environment variable.
-* **Services (`services/`)**:
-    * **`ResearchService`**: Manages the search and scraping process.
-    * **`PromptService`**: Generates prompts for the LLM.
-    * **`ScrapingService`**: Extracts content from URLs.
-* **Clients (`clients/`)**:
-    * **`OllamaClient`**: Communicates with the Ollama LLM.
-    * **`DuckDuckGoClient`**: Executes web searches.
-* **State (`state.py`)**:
-    * The `SummaryState` class shares information (topic, query, summary, etc.) between states.
+The agent's logic is built as a state machine using **LangGraph**. It repeats the following cycle:
+
+1.  **Query Generation**: Creates initial search queries from the user's topic.
+2.  **Web Research**: Performs searches using `DuckDuckGo` and extracts content with `ScrapingService`.
+3.  **Summarization**: Integrates research results into the existing summary.
+4.  **Evaluation and Reflection**: Assesses knowledge gaps in the summary and generates new search queries if necessary.
+5.  **Completion Decision**: Decides whether to continue research (up to the maximum loop count) or generate the final report and end the process.
 
 ---
 
-## 4. How to Interact
+## Main Components
 
-* **Run the demo script**:
-    * Execute `just run-demo` to test the agent locally.
-    * Modify the `research_topic` in `demo/example.py` to research any topic.
-    * Results are saved in `demo/example.md`.
-* **Execute via API**:
-    * Start the server with `just start-dev-server`.
-    * Send a POST request to `/research` with the JSON body: `{"research_topic": "your topic to research"}`.
+-   **`container.py`**: A dependency container that switches between production and mock services based on the `DEBUG` environment variable.
+-   **Services (`services/`)**:
+    -   `ResearchService`: Manages searching and scraping.
+    -   `PromptService`: Generates LLM prompts.
+    -   `ScrapingService`: Extracts content from URLs.
+-   **Clients (`clients/`)**:
+    -   `OllamaClient`: Communicates with the Ollama LLM.
+    -   `DuckDuckGoClient`: Performs web searches.
+-   **State (`state.py`)**:
+    -   `SummaryState`: Shares information such as topics, queries, and summaries between states.
 
-### Docker & Ollama Configuration
+---
 
-- Ollama container: CI only. Otherwise run `ollama serve` locally.
-- Never add Ollama service to `docker-compose.yml`; use override files only.
-- `OLLAMA_HOST`: `http://ollama:11434/` (container) or `http://host.docker.internal:11434` (local).
+## Usage
+
+### Running Demo Locally
+
+-   Run `just run-demo`.
+-   Change `research_topic` in `demo/example.py` to research any topic.
+-   Results are saved to `demo/example.md`.
+
+### Running via API
+
+-   Start the server with `just start-dev-server`.
+-   Send a POST request to the `/research` endpoint with the following JSON body:
+    ```json
+    {"research_topic": "your topic to research"}
+    ```
+
+**Docker & Ollama Configuration**
+-   The Ollama container is used only in CI. For local use, run `ollama serve`.
+-   `OLLAMA_HOST` is `http://ollama:11434/` inside the container and `http://host.docker.internal:11434` locally.
+
+---
+
+## Configuration Management
+
+To prevent unintended overwrites, non-sensitive configuration values are defined as defaults in `settings.py`. Only environment-specific values like API keys or port numbers should be described in the `.env` file.
+
+-   **Application & Deployment**: `.env` (ports, project names, etc.)
+-   **Application & Testing**: `settings.py` (model names, timeouts, etc.)
+-   **Infrastructure**: Docker Compose files (environment sections, etc.)

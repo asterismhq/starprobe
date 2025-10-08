@@ -15,19 +15,16 @@ class OllamaDeepResearcherSettings(BaseSettings):
 
     max_web_research_loops: int = Field(
         default=3,
-        validation_alias="MAX_WEB_RESEARCH_LOOPS",
         title="Research Depth",
         description="Number of research iterations to perform",
     )
     local_llm: str = Field(
         default="llama3.2:3b",
-        validation_alias="LLM_MODEL",
         title="LLM Model Name",
         description="Name of the LLM model to use",
     )
     ollama_host: str = Field(
         default="http://ollama:11434/",
-        validation_alias="OLLAMA_HOST",
         title="Ollama Base URL",
         description="Base URL for Ollama API",
     )
@@ -42,8 +39,7 @@ class OllamaDeepResearcherSettings(BaseSettings):
         description="Use tool calling instead of JSON mode for structured output",
     )
     debug: bool = Field(
-        default=False,
-        validation_alias="DEBUG",
+        default=True,
         title="Debug Mode",
         description="Enable mock client mode for development and testing",
     )

@@ -10,9 +10,9 @@ class TestPromptService:
     """Test cases for PromptService."""
 
     @pytest.fixture
-    def prompt_service(self, mock_settings):
+    def prompt_service(self, default_settings):
         """Create a PromptService instance for testing."""
-        return PromptService(mock_settings)
+        return PromptService(default_settings)
 
     def test_get_current_date(self, mocker):
         """Test current date formatting."""
