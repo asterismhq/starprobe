@@ -7,6 +7,7 @@ services:
     environment:
       - CONTAINER_ENV=development
       - DEBUG=False
+      - OLLAMA_HOST=${OLLAMA_HOST-http://ollama:11434}
       - RESEARCH_API_OLLAMA_MODEL=tinyllama:1.1b
     depends_on:
       ollama:
