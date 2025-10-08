@@ -27,6 +27,7 @@ class OllamaDeepResearcherSettings(BaseSettings):
         default="http://ollama:11434/",
         title="Ollama Base URL",
         description="Base URL for Ollama API",
+        alias="OLLAMA_HOST",
     )
     strip_thinking_tokens: bool = Field(
         default=True,

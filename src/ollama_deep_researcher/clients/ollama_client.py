@@ -1,6 +1,6 @@
 """Ollama client with automatic switching between real and mock implementations."""
 
-from typing import TYPE_CHECKING, Any, Optional
+from typing import TYPE_CHECKING, Any
 
 from ollama_deep_researcher.protocols.ollama_client_protocol import OllamaClientProtocol
 
@@ -28,10 +28,6 @@ class OllamaClient(OllamaClientProtocol):
     def __init__(
         self,
         settings: "OllamaDeepResearcherSettings",
-        base_url: str = "http://localhost:11434/",
-        model: str = "llama3.2:3b",
-        temperature: float = 0,
-        format: Optional[str] = None,
     ):
         """Initialize the Ollama client.
 
@@ -39,16 +35,12 @@ class OllamaClient(OllamaClientProtocol):
 
         Args:
             settings: OllamaDeepResearcherSettings instance
-            base_url: Base URL for the Ollama API
-            model: Name of the LLM model to use
-            temperature: Temperature setting for generation
-            format: Output format (e.g., "json" for JSON mode)
         """
         self.settings = settings
-        self.base_url = base_url
-        self.model = model
-        self.temperature = temperature
-        self.format = format
+        self.base_url = settings.ollama_host
+        self.model = settings.local_llm
+        self.temperature = 0
+        self.format = None
 
         from langchain_ollama import ChatOllama
 
@@ -64,20 +56,14 @@ class OllamaClient(OllamaClientProtocol):
 
     def configure(
         self,
-        base_url: Optional[str] = None,
-        model: Optional[str] = None,
-        temperature: Optional[float] = None,
-        format: Optional[str] = None,
+        settings: "OllamaDeepResearcherSettings",
     ):
-        """Configure the client with new parameters and recreate the internal client."""
-        if base_url is not None:
-            self.base_url = base_url
-        if model is not None:
-            self.model = model
-        if temperature is not None:
-            self.temperature = temperature
-        if format is not None:
-            self.format = format
+        """Configure the client with new settings and recreate the internal client."""
+        self.settings = settings
+        self.base_url = settings.ollama_host
+        self.model = settings.local_llm
+        self.temperature = 0
+        self.format = None
 
         from langchain_ollama import ChatOllama
 

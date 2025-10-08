@@ -7,7 +7,6 @@ services:
     volumes:
       - ./src:/app/src
     environment:
-      - OLLAMA_HOST=http://ollama:11434/
       - CONTAINER_ENV=development
     depends_on:
       ollama:
@@ -29,5 +28,5 @@ services:
 volumes:
   ollama-data:
     driver: local
-    name: ${RESEARCH_API_PROJECT_NAME:-ollama-deep-researcher}-ollama-data
+    name: ollama-data
     external: false

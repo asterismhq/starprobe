@@ -25,5 +25,5 @@ services:
 volumes:
   ollama-data:
     driver: local
-    name: ${RESEARCH_API_PROJECT_NAME:-ollama-deep-researcher}-ollama-data
+    name: ollama-data
     external: false

@@ -17,9 +17,6 @@ from ollama_deep_researcher.state import (
     SummaryStateOutput,
 )
 
-# Constants
-MAX_TOKENS_PER_SOURCE = 1000
-
 
 class ResearchGraph:
     def __init__(self, container: DependencyContainer):
@@ -32,11 +29,8 @@ class ResearchGraph:
 
     def _configure_ollama_client(self, config: RunnableConfig):
         """Helper method to configure the Ollama client dynamically."""
-        configurable = config.get("configurable", {})
-        model = configurable.get("local_llm")
-        base_url = configurable.get("ollama_host")
-        if model or base_url:
-            self.ollama_client.configure(model=model, base_url=base_url)
+        settings = OllamaDeepResearcherSettings.from_runnable_config(config)
+        self.ollama_client.configure(settings)
 
     def generate_query(self, state: SummaryState, config: RunnableConfig):
         self._configure_ollama_client(config)

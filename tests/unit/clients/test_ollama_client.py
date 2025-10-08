@@ -52,39 +52,16 @@ class TestOllamaClient:
         client = OllamaClient(mock_settings)
 
         assert client.settings == mock_settings
-        assert client.base_url == "http://localhost:11434/"
-        assert client.model == "llama3.2:3b"
+        assert client.base_url == "http://ollama:11434/"
+        assert client.model == "tinyllama:1.1b"
         assert client.temperature == 0
         assert client.format is None
 
         # Verify ChatOllama was called with correct parameters
         mock_chat_ollama.assert_called_once_with(
-            base_url="http://localhost:11434/",
-            model="llama3.2:3b",
+            base_url="http://ollama:11434/",
+            model="tinyllama:1.1b",
             temperature=0,
-        )
-
-    def test_init_with_custom_settings(self, mock_settings, mock_chat_ollama):
-        """Test client initialization with custom parameters."""
-        client = OllamaClient(
-            mock_settings,
-            base_url="http://custom:11434/",
-            model="llama3.1",
-            temperature=0.7,
-            format="json",
-        )
-
-        assert client.base_url == "http://custom:11434/"
-        assert client.model == "llama3.1"
-        assert client.temperature == 0.7
-        assert client.format == "json"
-
-        # Verify ChatOllama was called with custom parameters
-        mock_chat_ollama.assert_called_once_with(
-            base_url="http://custom:11434/",
-            model="llama3.1",
-            temperature=0.7,
-            format="json",
         )
 
     def test_init_creates_adapter(self, mock_settings, mock_chat_ollama):
@@ -94,57 +71,25 @@ class TestOllamaClient:
         assert hasattr(client, "_client")
         assert isinstance(client._client, OllamaClientAdapter)
 
-    def test_configure_updates_client(self, mock_settings, mock_chat_ollama):
-        """Test configure updates internal client."""
-        client = OllamaClient(mock_settings)
-
-        # Reset mock to clear initialization call
-        mock_chat_ollama.reset_mock()
-
-        client.configure(
-            base_url="http://new:11434/", model="new-model", temperature=0.5
-        )
-
-        # Verify settings were updated
-        assert client.base_url == "http://new:11434/"
-        assert client.model == "new-model"
-        assert client.temperature == 0.5
-
-        # Verify ChatOllama was called again with new settings
-        mock_chat_ollama.assert_called_once_with(
-            base_url="http://new:11434/", model="new-model", temperature=0.5
-        )
-
-    def test_configure_with_json_format(self, mock_settings, mock_chat_ollama):
-        """Test configure with JSON format."""
-        client = OllamaClient(mock_settings)
-        mock_chat_ollama.reset_mock()
-
-        client.configure(format="json")
-
-        # Verify format was updated and passed to ChatOllama
-        assert client.format == "json"
-        mock_chat_ollama.assert_called_once_with(
-            base_url="http://localhost:11434/",
-            model="llama3.2:3b",
-            temperature=0,
-            format="json",
-        )
-
     def test_configure_partial_update(self, mock_settings, mock_chat_ollama):
         """Test configure with partial parameter update."""
-        client = OllamaClient(mock_settings, model="original-model")
+        from ollama_deep_researcher.settings import OllamaDeepResearcherSettings
+
+        client = OllamaClient(mock_settings)
         mock_chat_ollama.reset_mock()
 
-        # Only update model, keep other settings
-        client.configure(model="new-model")
+        # Create new settings with updated model
+        new_settings = OllamaDeepResearcherSettings(
+            local_llm="new-model",
+        )
+        client.configure(new_settings)
 
         assert client.model == "new-model"
-        assert client.base_url == "http://localhost:11434/"  # Unchanged
+        assert client.base_url == "http://ollama:11434/"  # Unchanged
         assert client.temperature == 0  # Unchanged
 
         mock_chat_ollama.assert_called_once_with(
-            base_url="http://localhost:11434/", model="new-model", temperature=0
+            base_url="http://ollama:11434/", model="new-model", temperature=0
         )
 
     def test_invoke_delegates_to_adapter(self, mock_settings, mock_chat_ollama, mocker):
@@ -161,53 +106,28 @@ class TestOllamaClient:
         mock_chat_instance.invoke.assert_called_once_with(messages, extra_param="value")
         assert result == mock_response
 
-    def test_format_none_excludes_format_kwarg(self, mock_settings, mock_chat_ollama):
-        """Test that format kwarg is excluded when format is None."""
-        OllamaClient(mock_settings, format=None)
-
-        # Get the kwargs passed to ChatOllama
-        call_kwargs = mock_chat_ollama.call_args.kwargs
-
-        # format should not be in kwargs
-        assert "format" not in call_kwargs
-
-    def test_format_set_includes_format_kwarg(self, mock_settings, mock_chat_ollama):
-        """Test that format kwarg is included when format is set."""
-        OllamaClient(mock_settings, format="json")
-
-        # Get the kwargs passed to ChatOllama
-        call_kwargs = mock_chat_ollama.call_args.kwargs
-
-        # format should be in kwargs
-        assert "format" in call_kwargs
-        assert call_kwargs["format"] == "json"
-
-    def test_configure_none_values_ignored(self, mock_settings, mock_chat_ollama):
-        """Test configure ignores None parameters but re-initializes client."""
-        client = OllamaClient(
-            mock_settings,
-            base_url="http://original:11434/",
-            model="original-model",
-            temperature=0.5,
-        )
-
-        original_base_url = client.base_url
-        original_model = client.model
-        original_temp = client.temperature
+    def test_configure_none_values_ignored(
+        self, mock_settings, mock_chat_ollama
+    ):
+        """Test configure with new settings."""
+        client = OllamaClient(mock_settings)
 
         # Reset mock to check for re-initialization
         mock_chat_ollama.reset_mock()
 
-        # Configure with all None - should not change attributes but should re-init client
-        client.configure(base_url=None, model=None, temperature=None, format=None)
+        # Create new settings by copying mock_settings and updating values
+        new_settings = mock_settings.model_copy()
+        new_settings.ollama_host = "http://updated:11434/"
+        new_settings.local_llm = "updated-model"
+        client.configure(new_settings)
 
-        assert client.base_url == original_base_url
-        assert client.model == original_model
-        assert client.temperature == original_temp
+        assert client.base_url == "http://updated:11434/"
+        assert client.model == "updated-model"
+        assert client.temperature == 0
 
-        # Verify the client was re-initialized with the original parameters
+        # Verify the client was re-initialized with the new parameters
         mock_chat_ollama.assert_called_once_with(
-            base_url=original_base_url,
-            model=original_model,
-            temperature=original_temp,
+            base_url="http://updated:11434/",
+            model="updated-model",
+            temperature=0,
         )

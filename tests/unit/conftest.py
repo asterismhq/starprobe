@@ -14,6 +14,8 @@ def mock_settings(default_settings):
     Returns:
         OllamaDeepResearcherSettings: Settings instance for unit tests
     """
+    # Override ollama_host for tests
+    default_settings.ollama_host = "http://ollama:11434/"
     return default_settings
 
 
