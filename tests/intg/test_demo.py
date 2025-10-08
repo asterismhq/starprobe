@@ -20,7 +20,7 @@ class TestDemo:
 
         try:
             # Run the demo with the temporary file
-            await main(output_file=temp_path)
+            await main(output_file=temp_path, use_debug=True)
 
             # Check that the file was created and has content
             assert os.path.exists(temp_path)

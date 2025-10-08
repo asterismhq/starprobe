@@ -5,11 +5,12 @@ from pprint import pprint
 from dotenv import load_dotenv
 
 from ollama_deep_researcher.graph import build_graph
+from ollama_deep_researcher.settings import OllamaDeepResearcherSettings
 
 load_dotenv()
 
 
-async def main(output_file: str = "demo/example.md"):
+async def main(output_file: str = "demo/example.md", use_debug: bool | None = None):
     """
     Main function to perform deep research locally.
     """
@@ -20,21 +21,35 @@ async def main(output_file: str = "demo/example.md"):
 
     # Build the configuration the same way as the API server
     # If environment variables are not set, default values will be used
-    local_llm = os.getenv("LLM_MODEL", "llama3.2:3b")
-    ollama_base_url = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434/")
+    local_llm = os.getenv("RESEARCH_API_OLLAMA_MODEL", "llama3.2:3b")
+    ollama_host = os.getenv("OLLAMA_HOST", "http://localhost:11434/")
+    debug_env = os.getenv("DEBUG")
+    if use_debug is not None:
+        debug = use_debug
+    elif debug_env is None:
+        debug = True
+    else:
+        debug = debug_env.lower() in {"true", "1", "yes", "on"}
+    base_settings = OllamaDeepResearcherSettings()
+    settings = base_settings.model_copy(
+        update={
+            "local_llm": local_llm,
+            "ollama_host": ollama_host,
+            "debug": debug,
+        }
+    )
+
     config = {
         "configurable": {
             "local_llm": local_llm,
-            "ollama_base_url": ollama_base_url,
-            # Other settings can be added as needed
-            # "search_api": "duckduckgo",
-            # "max_web_research_loops": 3,
+            "ollama_host": ollama_host,
+            "debug": debug,
         }
     }
 
     try:
         # Build graph
-        graph = build_graph()
+        graph = build_graph(settings=settings)
 
         # Execute the graph (research process) asynchronously
         result = await graph.ainvoke({"research_topic": research_topic}, config=config)

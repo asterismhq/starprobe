@@ -8,7 +8,7 @@ from ollama_deep_researcher.services.prompt_service import PromptService
 from ollama_deep_researcher.state import SummaryState
 
 
-def reflect_on_summary(
+async def reflect_on_summary(
     state: SummaryState,
     prompt_service: PromptService,
     ollama_client: OllamaClientProtocol,
@@ -48,7 +48,7 @@ def reflect_on_summary(
 
     if prompt_service.configurable.use_tool_calling:
         llm = ollama_client.bind_tools([FollowUpQuery])
-        result = llm.invoke(messages)
+        result = await llm.invoke(messages)
 
         if not result.tool_calls:
             search_query = fallback_query
@@ -60,7 +60,7 @@ def reflect_on_summary(
                 search_query = fallback_query
     else:
         # Use JSON mode
-        result = ollama_client.invoke(messages)
+        result = await ollama_client.invoke(messages)
         content = result.content
 
         try:

@@ -2,20 +2,21 @@
 
 import pytest
 
-from dev.mocks.mock_duckduckgo_client import MockDuckDuckGoClient
 from dev.mocks.mock_ollama_client import MockOllamaClient
 from dev.mocks.mock_scraping_service import MockScrapingService
-from ollama_deep_researcher.settings import OllamaDeepResearcherSettings
+from dev.mocks.mock_search_client import MockSearchClient
 
 
 @pytest.fixture
-def mock_settings():
+def mock_settings(default_settings):
     """Provide test-specific settings.
 
     Returns:
         OllamaDeepResearcherSettings: Settings instance for unit tests
     """
-    return OllamaDeepResearcherSettings()
+    # Override ollama_host for tests
+    default_settings.ollama_host = "http://ollama:11434/"
+    return default_settings
 
 
 @pytest.fixture
@@ -29,13 +30,13 @@ def mock_ollama_client():
 
 
 @pytest.fixture
-def mock_duckduckgo_client():
-    """Provide MockDuckDuckGoClient instance.
+def mock_search_client():
+    """Provide MockSearchClient instance.
 
     Returns:
-        MockDuckDuckGoClient: Mock DuckDuckGo client from dev/mocks
+        MockSearchClient: Mock search client from dev/mocks
     """
-    return MockDuckDuckGoClient()
+    return MockSearchClient()
 
 
 @pytest.fixture

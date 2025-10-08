@@ -1,7 +1,7 @@
-from .duckduckgo_client import DuckDuckGoClient
 from .ollama_client import OllamaClient
+from .searxng_client import SearXNGClient
 
 __all__ = [
-    "DuckDuckGoClient",
+    "SearXNGClient",
     "OllamaClient",
 ]

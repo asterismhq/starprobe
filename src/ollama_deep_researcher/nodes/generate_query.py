@@ -8,7 +8,7 @@ from ollama_deep_researcher.services.prompt_service import PromptService
 from ollama_deep_researcher.state import SummaryState
 
 
-def generate_query(
+async def generate_query(
     state: SummaryState,
     prompt_service: PromptService,
     ollama_client: OllamaClientProtocol,
@@ -43,7 +43,7 @@ def generate_query(
 
     if prompt_service.configurable.use_tool_calling:
         llm = ollama_client.bind_tools([Query])
-        result = llm.invoke(messages)
+        result = await llm.invoke(messages)
 
         if not result.tool_calls:
             search_query = fallback_query
@@ -55,7 +55,7 @@ def generate_query(
                 search_query = fallback_query
     else:
         # Use JSON mode
-        result = ollama_client.invoke(messages)
+        result = await ollama_client.invoke(messages)
         content = result.content
 
         try:

@@ -11,25 +11,34 @@ if TYPE_CHECKING:
 class OllamaDeepResearcherSettings(BaseSettings):
     """The configurable fields for the research assistant."""
 
-    model_config = SettingsConfigDict(env_file_encoding="utf-8", extra="ignore")
+    model_config = SettingsConfigDict(
+        env_file_encoding="utf-8",
+        extra="ignore",
+        populate_by_name=True,
+    )
 
     max_web_research_loops: int = Field(
         default=3,
-        validation_alias="MAX_WEB_RESEARCH_LOOPS",
         title="Research Depth",
         description="Number of research iterations to perform",
     )
     local_llm: str = Field(
-        default="llama3.2:3b",
-        validation_alias="LLM_MODEL",
+        default="tinyllama:1.1b",
         title="LLM Model Name",
         description="Name of the LLM model to use",
+        alias="RESEARCH_API_OLLAMA_MODEL",
     )
-    ollama_base_url: str = Field(
+    ollama_host: str = Field(
         default="http://ollama:11434/",
-        validation_alias="OLLAMA_BASE_URL",
         title="Ollama Base URL",
         description="Base URL for Ollama API",
+        alias="OLLAMA_HOST",
+    )
+    searxng_url: str = Field(
+        default="http://localhost:8080",
+        title="SearXNG URL",
+        description="Base URL for the SearXNG instance",
+        alias="SEARXNG_URL",
     )
     strip_thinking_tokens: bool = Field(
         default=True,
@@ -43,9 +52,9 @@ class OllamaDeepResearcherSettings(BaseSettings):
     )
     debug: bool = Field(
         default=False,
-        validation_alias="DEBUG",
         title="Debug Mode",
         description="Enable mock client mode for development and testing",
+        alias="DEBUG",
     )
     max_tokens_per_source: int = Field(
         default=1000,
@@ -62,6 +71,16 @@ class OllamaDeepResearcherSettings(BaseSettings):
         title="Scraping Read Timeout",
         description="Timeout in seconds for reading response during scraping",
     )
+
+    @field_validator("ollama_host", mode="before")
+    @classmethod
+    def normalize_ollama_host(cls, value: Any) -> Any:
+        if isinstance(value, str):
+            trimmed = value.strip()
+            if not trimmed:
+                return trimmed
+            return trimmed.rstrip("/") + "/"
+        return value
 
     @field_validator("debug", mode="before")
     @classmethod

@@ -11,8 +11,15 @@ if [ "$#" -gt 0 ]; then
     exec "$@"
 else
     echo "Starting server on 0.0.0.0:8000..."
-    exec uv run uvicorn ollama_deep_researcher.api.main:app \
-        --host "0.0.0.0" \
-        --port "8000" \
-        --reload
+    # Use --reload in development, controlled by CONTAINER_ENV. Defaults to production behavior.
+    if [ "${CONTAINER_ENV:-production}" = "development" ]; then
+        exec uvicorn ollama_deep_researcher.api.main:app \
+            --host "0.0.0.0" \
+            --port "8000" \
+            --reload
+    else
+        exec uvicorn ollama_deep_researcher.api.main:app \
+            --host "0.0.0.0" \
+            --port "8000"
+    fi
 fi
