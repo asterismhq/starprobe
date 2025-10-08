@@ -86,7 +86,7 @@ intg-test:
 # Run e2e tests (requires Ollama)
 e2e-test:
     @echo "🚀 Running e2e tests (requires Ollama)..."
-    @uv run pytest tests/e2e
+    @DEBUG=false uv run pytest tests/e2e
 
 # Build Docker image for testing without leaving artifacts
 build-test:

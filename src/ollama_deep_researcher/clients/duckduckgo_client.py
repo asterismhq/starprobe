@@ -7,8 +7,7 @@ from ..protocols.duckduckgo_client_protocol import DuckDuckGoClientProtocol
 class DuckDuckGoClient(DuckDuckGoClientProtocol):
     """Client for performing web searches using DuckDuckGo."""
 
-    def __init__(self, settings=None):
-        self.settings = settings
+    def __init__(self):
         from ddgs import DDGS
 
         self._client = DDGS()

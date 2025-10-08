@@ -136,23 +136,6 @@ class TestDuckDuckGoClient:
 
         assert result == {"results": []}
 
-    def test_initialization_with_settings(self, mocker):
-        """Test client initialization with settings."""
-        mock_settings = mocker.Mock()
-        mocker.patch("ddgs.DDGS")
-
-        client = DuckDuckGoClient(settings=mock_settings)
-
-        assert client.settings == mock_settings
-
-    def test_initialization_without_settings(self, mocker):
-        """Test client initialization without settings."""
-        mocker.patch("ddgs.DDGS")
-
-        client = DuckDuckGoClient()
-
-        assert client.settings is None
-
     def test_search_creates_ddgs_client(self, mocker):
         """Test that DDGS client is created on initialization."""
         mock_ddgs_class = mocker.patch("ddgs.DDGS")

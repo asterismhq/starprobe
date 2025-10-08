@@ -13,7 +13,7 @@ def default_settings():
     """
     return OllamaDeepResearcherSettings(
         max_web_research_loops=3,
-        local_llm="llama3.2:3b",
+        local_llm="tinyllama:1.1b",
         ollama_host="http://ollama:11434/",
         strip_thinking_tokens=True,
         use_tool_calling=False,
@@ -32,7 +32,7 @@ def prod_settings():
     """
     return OllamaDeepResearcherSettings(
         max_web_research_loops=3,
-        local_llm="llama3.2:3b",
+        local_llm="tinyllama:1.1bs",
         ollama_host="http://ollama:11434/",
         strip_thinking_tokens=True,
         use_tool_calling=False,

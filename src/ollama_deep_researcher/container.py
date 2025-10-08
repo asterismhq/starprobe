@@ -46,9 +46,7 @@ class DependencyContainer:
         else:
             # Use real implementations
             self.ollama_client: OllamaClientProtocol = OllamaClient(self.settings)
-            self.duckduckgo_client: DuckDuckGoClientProtocol = DuckDuckGoClient(
-                self.settings
-            )
+            self.duckduckgo_client: DuckDuckGoClientProtocol = DuckDuckGoClient()
             self.scraping_service: ScrapingServiceProtocol = ScrapingService(
                 self.settings
             )
