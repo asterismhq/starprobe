@@ -1,8 +1,8 @@
-from ollama_deep_researcher.protocols.duckduckgo_client_protocol import (
-    DuckDuckGoClientProtocol,
-)
 from ollama_deep_researcher.protocols.scraping_service_protocol import (
     ScrapingServiceProtocol,
+)
+from ollama_deep_researcher.protocols.search_client_protocol import (
+    SearchClientProtocol,
 )
 from ollama_deep_researcher.services.text_processing_service import (
     TextProcessingService,
@@ -15,7 +15,7 @@ class ResearchService:
 
     Dependencies:
     - TextProcessingService: For formatting and deduplicating search results
-    - DuckDuckGoClientProtocol: For web search functionality
+    - SearchClientProtocol: For web search functionality
     - ScrapingServiceProtocol: For web scraping functionality
     - OllamaDeepResearcherSettings: For configuration
     """
@@ -23,7 +23,7 @@ class ResearchService:
     def __init__(
         self,
         settings: OllamaDeepResearcherSettings,
-        search_client: DuckDuckGoClientProtocol,
+        search_client: SearchClientProtocol,
         scraper: ScrapingServiceProtocol,
     ):
         self.settings = settings
@@ -73,5 +73,5 @@ class ResearchService:
             return f"Search failed: {str(e)}", "Error fetching sources"
 
     def _perform_search(self, query: str, loop_count: int):
-        """Perform the actual search using DuckDuckGo."""
+        """Perform the actual search using the configured search backend."""
         return self.search_client.search(query, max_results=3)

@@ -9,9 +9,9 @@ class TestSearchService:
     """Test cases for SearchService."""
 
     @pytest.fixture
-    def search_service(self, mock_duckduckgo_client):
+    def search_service(self, mock_search_client):
         """Create a SearchService instance with mock client."""
-        return SearchService(search_client=mock_duckduckgo_client)
+        return SearchService(search_client=mock_search_client)
 
     def test_search_returns_results(self, search_service):
         """Test search returns list of results."""
@@ -29,7 +29,7 @@ class TestSearchService:
             assert "url" in item
             assert "content" in item or "raw_content" in item
 
-    def test_search_with_max_results(self, search_service, mock_duckduckgo_client):
+    def test_search_with_max_results(self, search_service, mock_search_client):
         """Test max_results parameter limits returned results."""
         result = search_service.search("test query", max_results=2)
         assert len(result["results"]) <= 2
@@ -41,31 +41,29 @@ class TestSearchService:
         assert len(result["results"]) <= 3
 
     def test_search_handles_empty_results(
-        self, search_service, mock_duckduckgo_client, mocker
+        self, search_service, mock_search_client, mocker
     ):
         """Test behavior with no search results."""
-        mocker.patch.object(
-            mock_duckduckgo_client, "search", return_value={"results": []}
-        )
+        mocker.patch.object(mock_search_client, "search", return_value={"results": []})
         result = search_service.search("test query")
         assert result == {"results": []}
 
     def test_search_handles_exceptions(
-        self, search_service, mock_duckduckgo_client, mocker
+        self, search_service, mock_search_client, mocker
     ):
         """Test graceful error handling when search fails."""
         mocker.patch.object(
-            mock_duckduckgo_client, "search", side_effect=Exception("Network error")
+            mock_search_client, "search", side_effect=Exception("Network error")
         )
         result = search_service.search("test query")
         assert result == {"results": []}
 
-    def test_search_delegates_to_client(self, mocker, mock_duckduckgo_client):
+    def test_search_delegates_to_client(self, mocker, mock_search_client):
         """Test search delegates to the injected client."""
-        search_service = SearchService(search_client=mock_duckduckgo_client)
+        search_service = SearchService(search_client=mock_search_client)
 
         # Spy on the client's search method
-        spy = mocker.spy(mock_duckduckgo_client, "search")
+        spy = mocker.spy(mock_search_client, "search")
 
         query = "test query"
         max_results = 5

@@ -32,13 +32,13 @@ class MockOllamaClient(OllamaClientProtocol):
             **kwargs: Configuration parameters (ignored in mock)
         """
         self._bound_tools = []
-        self.base_url = kwargs.get("base_url", "http://localhost:11434/")
-        self.model = kwargs.get("model", "llama3.2:3b")
+        self.base_url = kwargs.get("base_url", "http://mock:11434/")
+        self.model = kwargs.get("model", "mock-model")
         self.temperature = kwargs.get("temperature", 0)
         self.format = kwargs.get("format")
         print("[MockOllamaClient] Initialized - Using mock responses")
 
-    def invoke(self, messages: Any, **kwargs: Any) -> MockResponse:
+    async def invoke(self, messages: Any, **kwargs: Any) -> MockResponse:
         """Return a mock response instead of calling the actual API.
 
         Args:

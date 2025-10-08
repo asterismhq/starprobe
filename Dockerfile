@@ -3,7 +3,7 @@
 # Stage 1: Base
 # - Base stage with uv setup and dependency files
 # ==============================================================================
-FROM python:3.11-slim as base
+FROM python:3.12-slim as base
 
 WORKDIR /app
 
@@ -48,10 +48,13 @@ RUN --mount=type=cache,target=/root/.cache \
 # - Development environment with all dependencies and debugging tools
 # - Includes curl and other development utilities
 # ==============================================================================
-FROM python:3.11-slim AS development
+FROM python:3.12-slim AS development
 
 # Install development tools
 RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
+
+# Install uv
+RUN pip install uv
 
 # Create a non-root user for development
 RUN groupadd -r appgroup && useradd -r -g appgroup -d /home/appuser -m appuser
@@ -59,14 +62,17 @@ RUN groupadd -r appgroup && useradd -r -g appgroup -d /home/appuser -m appuser
 WORKDIR /app
 RUN chown appuser:appgroup /app
 
+ENV PYTHONPATH="/app/src"
+
 # Copy the development virtual environment from dev-deps stage
-COPY --from=dev-deps /app/.venv ./.venv
+COPY --from=dev-deps --chown=appuser:appgroup /app/.venv ./.venv
 
 # Set the PATH to include the venv's bin directory
 ENV PATH="/app/.venv/bin:${PATH}"
 
 # Copy application code
 COPY --chown=appuser:appgroup src/ ./src
+COPY --chown=appuser:appgroup dev/ ./dev
 COPY --chown=appuser:appgroup pyproject.toml .
 COPY --chown=appuser:appgroup entrypoint.sh .
 
@@ -79,7 +85,7 @@ EXPOSE 8000
 
 # Development healthcheck
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD curl -fsS http://localhost:8000/health || exit 1
+    CMD python -c "import sys, urllib.request; sys.exit(0) if urllib.request.urlopen('http://localhost:8000/health').getcode() == 200 else sys.exit(1)"
 
 ENTRYPOINT ["/app/entrypoint.sh"]
 
@@ -90,10 +96,11 @@ ENTRYPOINT ["/app/entrypoint.sh"]
 # - Creates the final, lightweight production image.
 # - Copies the lean venv and only necessary application files.
 # ==============================================================================
-FROM python:3.11-slim AS production
+FROM python:3.12-slim AS production
 
-# Install curl for healthcheck
+# Install curl for healthcheck and uv for running commands
 RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
+RUN pip install uv
 
 # Create a non-root user and group for security
 RUN groupadd -r appgroup && useradd -r -g appgroup -d /home/appuser -m appuser
@@ -104,8 +111,10 @@ WORKDIR /app
 # Grant ownership of the working directory to the non-root user
 RUN chown appuser:appgroup /app
 
+ENV PYTHONPATH="/app/src"
+
 # Copy the lean virtual environment from the prod-deps stage
-COPY --from=prod-deps /app/.venv ./.venv
+COPY --from=prod-deps --chown=appuser:appgroup /app/.venv ./.venv
 
 # Set the PATH to include the venv's bin directory for simpler command execution
 ENV PATH="/app/.venv/bin:${PATH}"
@@ -124,9 +133,9 @@ USER appuser
 # Expose the port the app runs on (will be mapped by Docker Compose)
 EXPOSE 8000
 
-# Healthcheck
+# Healthcheck using only Python's standard library to avoid extra dependencies
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD curl -fsS http://localhost:8000/health || exit 1
+    CMD python -c "import sys, urllib.request; sys.exit(0) if urllib.request.urlopen('http://localhost:8000/health').getcode() == 200 else sys.exit(1)"
 
 # Set the entrypoint script to be executed when the container starts
 ENTRYPOINT ["/app/entrypoint.sh"]

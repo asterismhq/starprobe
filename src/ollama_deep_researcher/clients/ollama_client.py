@@ -14,8 +14,10 @@ class OllamaClientAdapter(OllamaClientProtocol):
     def __init__(self, client: Any):
         self._client = client
 
-    def invoke(self, messages: Any, **kwargs: Any) -> Any:
-        return self._client.invoke(messages, **kwargs)
+    async def invoke(self, messages: Any, **kwargs: Any) -> Any:
+        import asyncio
+
+        return await asyncio.to_thread(self._client.invoke, messages, **kwargs)
 
     def bind_tools(self, tools: list[Any]) -> OllamaClientProtocol:
         bound_client = self._client.bind_tools(tools)
@@ -37,7 +39,7 @@ class OllamaClient(OllamaClientProtocol):
             settings: OllamaDeepResearcherSettings instance
         """
         self.settings = settings
-        self.base_url = settings.ollama_host
+        self.base_url = settings.ollama_host.rstrip("/")
         self.model = settings.local_llm
         self.temperature = 0
         self.format = None
@@ -45,7 +47,7 @@ class OllamaClient(OllamaClientProtocol):
         from langchain_ollama import ChatOllama
 
         kwargs = {
-            "base_url": self.base_url,
+            "base_url": settings.ollama_host,
             "model": self.model,
             "temperature": self.temperature,
         }
@@ -60,7 +62,7 @@ class OllamaClient(OllamaClientProtocol):
     ):
         """Configure the client with new settings and recreate the internal client."""
         self.settings = settings
-        self.base_url = settings.ollama_host
+        self.base_url = settings.ollama_host.rstrip("/")
         self.model = settings.local_llm
         self.temperature = 0
         self.format = None
@@ -68,7 +70,7 @@ class OllamaClient(OllamaClientProtocol):
         from langchain_ollama import ChatOllama
 
         kwargs = {
-            "base_url": self.base_url,
+            "base_url": settings.ollama_host,
             "model": self.model,
             "temperature": self.temperature,
         }
@@ -77,5 +79,5 @@ class OllamaClient(OllamaClientProtocol):
 
         self._client = OllamaClientAdapter(ChatOllama(**kwargs))
 
-    def invoke(self, messages: Any, **kwargs: Any) -> Any:
-        return self._client.invoke(messages, **kwargs)
+    async def invoke(self, messages: Any, **kwargs: Any) -> Any:
+        return await self._client.invoke(messages, **kwargs)

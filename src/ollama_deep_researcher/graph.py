@@ -1,3 +1,5 @@
+from typing import Optional
+
 from langchain_core.runnables import RunnableConfig
 from langgraph.graph import END, START, StateGraph
 
@@ -32,20 +34,20 @@ class ResearchGraph:
         settings = OllamaDeepResearcherSettings.from_runnable_config(config)
         self.ollama_client.configure(settings)
 
-    def generate_query(self, state: SummaryState, config: RunnableConfig):
+    async def generate_query(self, state: SummaryState, config: RunnableConfig):
         self._configure_ollama_client(config)
-        return generate_query(state, self.prompt_service, self.ollama_client)
+        return await generate_query(state, self.prompt_service, self.ollama_client)
 
     def web_research(self, state: SummaryState, config: RunnableConfig):
         return web_research(state, self.research_service)
 
-    def summarize_sources(self, state: SummaryState, config: RunnableConfig):
+    async def summarize_sources(self, state: SummaryState, config: RunnableConfig):
         self._configure_ollama_client(config)
-        return summarize_sources(state, self.prompt_service, self.ollama_client)
+        return await summarize_sources(state, self.prompt_service, self.ollama_client)
 
-    def reflect_on_summary(self, state: SummaryState, config: RunnableConfig):
+    async def reflect_on_summary(self, state: SummaryState, config: RunnableConfig):
         self._configure_ollama_client(config)
-        return reflect_on_summary(state, self.prompt_service, self.ollama_client)
+        return await reflect_on_summary(state, self.prompt_service, self.ollama_client)
 
     def route_research(self, state: SummaryState, config: RunnableConfig):
         settings = OllamaDeepResearcherSettings.from_runnable_config(config)
@@ -80,8 +82,8 @@ class ResearchGraph:
         return builder.compile()
 
 
-def build_graph():
-    settings = OllamaDeepResearcherSettings()
+def build_graph(settings: Optional[OllamaDeepResearcherSettings] = None):
+    settings = settings or OllamaDeepResearcherSettings()
     container = DependencyContainer(settings)
     research_graph = ResearchGraph(container)
     return research_graph.build()

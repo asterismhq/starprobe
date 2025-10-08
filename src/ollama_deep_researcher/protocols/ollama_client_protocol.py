@@ -10,7 +10,7 @@ class OllamaClientProtocol(Protocol):
     a contract that both real and mock implementations must follow.
     """
 
-    def invoke(self, messages: Any, **kwargs: Any) -> Any:
+    async def invoke(self, messages: Any, **kwargs: Any) -> Any:
         """Generate a response from the LLM.
 
         Args:

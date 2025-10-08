@@ -1,19 +1,22 @@
-version: "3.9"
-
 services:
   research-api:
     build:
       target: development
+    ports: !override
+      - "${RESEARCH_API_HOST_IP:-0.0.0.0}:${RESEARCH_API_DEV_PORT:-8001}:8000"
     volumes:
       - ./src:/app/src
     environment:
       - CONTAINER_ENV=development
+      - SEARXNG_SECRET=${SEARXNG_SECRET}
+      - OLLAMA_HOST=${OLLAMA_HOST-http://ollama:11434}
+      - RESEARCH_API_OLLAMA_MODEL=${RESEARCH_API_OLLAMA_MODEL-tinyllama:1.1b}
     depends_on:
       ollama:
         condition: service_healthy
 
   ollama:
-    image: ghcr.io/famiclone/ol-ci-img:tinyllama-v1
+    image: ghcr.io/akitorahayashi/olm-ci-img:tinyllama-v1
     ports:
       - "11434:11434"
     volumes:

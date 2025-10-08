@@ -6,7 +6,7 @@ from ollama_deep_researcher.services.text_processing_service import (
 from ollama_deep_researcher.state import SummaryState
 
 
-def summarize_sources(
+async def summarize_sources(
     state: SummaryState,
     prompt_service: PromptService,
     ollama_client: OllamaClientProtocol,
@@ -32,7 +32,7 @@ def summarize_sources(
             existing_summary=state.running_summary,
             new_context=state.web_research_results[-1],
         )
-        result = ollama_client.invoke(messages)
+        result = await ollama_client.invoke(messages)
 
         # Strip thinking tokens if configured
         running_summary = result.content

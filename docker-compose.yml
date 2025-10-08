@@ -1,12 +1,30 @@
-version: "3.9"
-
 services:
   research-api:
     build:
       target: production
-    environment:
-      - CONTAINER_ENV=production
-    ports:
-      - "${RESEARCH_API_HOST_IP:-0.0.0.0}:${RESEARCH_API_HOST_PORT:-8000}:8000"
     env_file:
       - .env
+    environment:
+      - CONTAINER_ENV=production
+      - SEARXNG_URL=http://searxng:8080
+      - OLLAMA_HOST=${OLLAMA_HOST-http://ollama:11434}
+      - RESEARCH_API_OLLAMA_MODEL=${RESEARCH_API_OLLAMA_MODEL-tinyllama:1.1b}
+    ports:
+      - "${RESEARCH_API_HOST_IP:-0.0.0.0}:${RESEARCH_API_HOST_PORT:-8000}:8000"
+    depends_on:
+      - searxng
+
+  searxng:
+    image: searxng/searxng:latest
+    container_name: searxng
+    restart: always
+    environment:
+      - SEARXNG_BASE_URL=${SEARXNG_BASE_URL}
+      - SEARXNG_SECRET=${SEARXNG_SECRET}
+    env_file:
+      - .env
+    ports:
+      - "8888:8080"
+    volumes:
+      - ./searxng-settings:/etc/searxng:ro
+      - ./searxng-data:/var/cache/searxng

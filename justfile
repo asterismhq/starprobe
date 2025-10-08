@@ -51,6 +51,12 @@ up:
 down:
   @{{DEV_COMPOSE}} down --remove-orphans
 
+# Rebuild and restart the API service
+rebuild:
+    @echo "Rebuilding and restarting API service..."
+    @{{DEV_COMPOSE}} down --remove-orphans
+    @{{DEV_COMPOSE}} build --no-cache research-api
+
 # ==============================================================================
 # CODE QUALITY
 # ==============================================================================
@@ -86,7 +92,7 @@ intg-test:
 # Run e2e tests (requires Ollama)
 e2e-test:
     @echo "🚀 Running e2e tests (requires Ollama)..."
-    @DEBUG=false uv run pytest tests/e2e
+    @uv run pytest tests/e2e
 
 # Build Docker image for testing without leaving artifacts
 build-test:

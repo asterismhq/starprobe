@@ -3,17 +3,17 @@ from typing import Any, Dict, List
 
 from langsmith import traceable
 
-from ..protocols.duckduckgo_client_protocol import DuckDuckGoClientProtocol
+from ..protocols.search_client_protocol import SearchClientProtocol
 
 
 class SearchService:
-    """Service for performing web searches using a search client.
+    """Service for performing web searches using a pluggable search client.
 
     Dependencies:
-    - DuckDuckGoClientProtocol: For executing web searches
+    - SearchClientProtocol: For executing web searches (e.g., SearXNG)
     """
 
-    def __init__(self, search_client: DuckDuckGoClientProtocol):
+    def __init__(self, search_client: SearchClientProtocol):
         self.search_client = search_client
 
     @traceable
