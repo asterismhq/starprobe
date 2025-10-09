@@ -28,7 +28,12 @@ class OllamaDeepResearcherSettings(BaseSettings):
         description="Name of the Ollama model to use",
         alias="RESEARCH_API_OLLAMA_MODEL",
     )
-    ollama_host: str
+    ollama_host: Optional[str] = Field(
+        default=None,
+        title="Ollama Host",
+        description="Base URL for the Ollama instance",
+        alias="OLLAMA_HOST",
+    )
     searxng_url: str = Field(
         default="http://localhost:8080",
         title="SearXNG URL",
@@ -70,10 +75,12 @@ class OllamaDeepResearcherSettings(BaseSettings):
     @field_validator("ollama_host", mode="before")
     @classmethod
     def normalize_ollama_host(cls, value: Any) -> Any:
+        if value is None:
+            return None
         if isinstance(value, str):
             trimmed = value.strip()
             if not trimmed:
-                raise ValueError("ollama_host cannot be empty")
+                return None
             return trimmed.rstrip("/") + "/"
         return value
 

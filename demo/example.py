@@ -22,14 +22,16 @@ async def main(output_file: str = "demo/example.md"):
     # Build the configuration the same way as the API server
     ollama_model = os.getenv("RESEARCH_API_OLLAMA_MODEL", "llama3.2:3b")
     ollama_host = os.getenv("OLLAMA_HOST")
-    if not ollama_host:
-        raise RuntimeError("OLLAMA_HOST must be set in the environment to run the demo")
     # Let Pydantic handle parsing the DEBUG env var from the environment
     settings = OllamaDeepResearcherSettings(
         ollama_host=ollama_host,
         ollama_model=ollama_model,
     )
     debug = settings.debug
+
+    # Check OLLAMA_HOST only if not in debug mode
+    if not debug and not ollama_host:
+        raise RuntimeError("OLLAMA_HOST must be set in the environment to run the demo")
 
     settings = settings.model_copy(
         update={
