@@ -44,9 +44,9 @@ class TestAPI:
             f"  sources count: {len(data['sources'])}\n"
             f"  processing_time: {data['processing_time']}"
         )
-        assert data["error_message"] is None, (
-            f"Expected no error but got: {data['error_message']}"
-        )
+        assert (
+            data["error_message"] is None
+        ), f"Expected no error but got: {data['error_message']}"
 
         # Type checks for response fields
         assert isinstance(data["success"], bool)

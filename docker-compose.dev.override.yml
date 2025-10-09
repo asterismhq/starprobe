@@ -8,4 +8,3 @@ services:
       - ./src:/app/src
     environment:
       - CONTAINER_ENV=development
-      - SEARXNG_SECRET=${SEARXNG_SECRET}

@@ -11,6 +11,7 @@ services:
       - SEARXNG_CONTAINER_URL=http://searxng:8080
       - OLLAMA_HOST=${OLLAMA_HOST}
       - RESEARCH_API_OLLAMA_MODEL=${RESEARCH_API_OLLAMA_MODEL}
+      - SEARXNG_SECRET=${SEARXNG_SECRET}
     depends_on:
       - searxng
 
