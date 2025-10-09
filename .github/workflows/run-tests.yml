@@ -7,7 +7,6 @@ jobs:
   test:
     runs-on: ubuntu-latest
     env:
-      DEBUG=true
       OLLAMA_HOST: ${{ secrets.OLLAMA_HOST }}
       RESEARCH_API_OLLAMA_MODEL: "tinyllama:1.1b"
       SEARXNG_SECRET: ${{ secrets.SEARXNG_SECRET || 'test_secret_key' }}
