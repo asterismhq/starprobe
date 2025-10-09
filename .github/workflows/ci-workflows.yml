@@ -15,4 +15,3 @@ jobs:
     uses: ./.github/workflows/run-tests.yml
     secrets:
       OLLAMA_HOST: ${{ secrets.OLLAMA_HOST }}
-      SEARXNG_SECRET: ${{ secrets.SEARXNG_SECRET }}

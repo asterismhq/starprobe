@@ -2,6 +2,9 @@ name: Run Tests
 
 on:
   workflow_call:
+    secrets:
+      OLLAMA_HOST:
+        required: true
 
 jobs:
   test:
@@ -9,7 +12,6 @@ jobs:
     env:
       OLLAMA_HOST: ${{ secrets.OLLAMA_HOST }}
       RESEARCH_API_OLLAMA_MODEL: "tinyllama:1.1b"
-      SEARXNG_SECRET: ${{ secrets.SEARXNG_SECRET || 'test_secret_key' }}
     strategy:
       matrix:
         test_target: [unit-test, intg-test, build-test, e2e-test]
@@ -39,7 +41,6 @@ jobs:
       - name: Configure environment variables
         run: |
           echo "OLLAMA_HOST=${{ secrets.OLLAMA_HOST }}" >> .env
-          echo "SEARXNG_SECRET=${{ secrets.SEARXNG_SECRET || 'test_secret_key' }}" >> .env
           echo "RESEARCH_API_OLLAMA_MODEL=${{ env.RESEARCH_API_OLLAMA_MODEL }}" >> .env
 
       - name: Run tests
