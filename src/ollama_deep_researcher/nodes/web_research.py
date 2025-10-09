@@ -1,3 +1,5 @@
+import logging
+
 from ollama_deep_researcher.services.research_service import ResearchService
 from ollama_deep_researcher.state import SummaryState
 
@@ -17,11 +19,25 @@ async def web_research(state: SummaryState, research_service: ResearchService):
     Returns:
         Dictionary with state update, including sources_gathered, research_loop_count, and web_research_results
     """
-    results, sources = await research_service.search_and_scrape(
-        query=state.search_query, loop_count=state.research_loop_count
-    )
+    logger = logging.getLogger(__name__)
+
+    try:
+        results, sources, errors = await research_service.search_and_scrape(
+            query=state.search_query, loop_count=state.research_loop_count
+        )
+    except Exception as exc:  # pragma: no cover - defensive guard
+        diagnostic = f"Web research node failed: {exc}"
+        logger.exception(diagnostic)
+        return {
+            "web_research_results": state.web_research_results,
+            "sources_gathered": state.sources_gathered,
+            "research_loop_count": state.research_loop_count + 1,
+            "errors": [diagnostic],
+        }
+
     return {
         "web_research_results": state.web_research_results + [results],
         "sources_gathered": state.sources_gathered + [sources],
         "research_loop_count": state.research_loop_count + 1,
+        "errors": errors,
     }

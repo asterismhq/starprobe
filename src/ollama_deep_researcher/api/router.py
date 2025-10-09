@@ -48,6 +48,7 @@ async def run_research(request: ResearchRequest):
             summary=result.get("running_summary"),
             sources=result.get("sources", []),
             error_message=result.get("error_message"),
+            diagnostics=result.get("diagnostics", []),
             processing_time=time.time() - start_time,
         )
 
@@ -59,6 +60,7 @@ async def run_research(request: ResearchRequest):
                 "source_count": len(response.sources),
                 "summary_length": len(response.summary) if response.summary else 0,
                 "error_message": response.error_message,
+                "diagnostics": response.diagnostics,
                 "processing_time": response.processing_time,
             },
         )

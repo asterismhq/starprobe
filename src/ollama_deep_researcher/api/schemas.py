@@ -16,6 +16,9 @@ class ResearchResponse(BaseModel):
     summary: str | None = Field(None, description="Generated research summary")
     sources: list[str] = Field(default_factory=list, description="Source URLs")
     error_message: str | None = Field(None, description="Error details if failed")
+    diagnostics: list[str] = Field(
+        default_factory=list, description="Diagnostics collected during research"
+    )
     processing_time: float = Field(
         ..., description="Time taken to process the request in seconds"
     )

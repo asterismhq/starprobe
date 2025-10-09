@@ -12,6 +12,7 @@ class SummaryState:
     sources_gathered: Annotated[list, operator.add] = field(default_factory=list)
     research_loop_count: int = field(default=0)
     running_summary: str = field(default=None)
+    errors: Annotated[list[str], operator.add] = field(default_factory=list)
 
 
 @dataclass(kw_only=True)
@@ -25,3 +26,4 @@ class SummaryStateOutput:
     running_summary: str = field(default=None)
     sources: list[str] = field(default_factory=list)
     error_message: str = field(default=None)
+    diagnostics: list[str] = field(default_factory=list)
