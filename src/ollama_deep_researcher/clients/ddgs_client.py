@@ -1,3 +1,4 @@
+import asyncio
 import logging
 from typing import Any, Dict, List
 
@@ -22,12 +23,21 @@ class DdgsClient(SearchClientProtocol):
     ) -> Dict[str, List[Dict[str, Any]]]:
         """Search the web using DuckDuckGo and return formatted results."""
         try:
-            raw_results = list(self._ddgs.text(query, max_results=max_results))
+            raw_results = await asyncio.to_thread(
+                self._ddgs.text,
+                query,
+                region=self.settings.ddgs_region,
+                safesearch=self.settings.ddgs_safesearch,
+                max_results=max_results,
+            )
         except DDGSException as exc:
             logger.error("Error querying DuckDuckGo: %s", exc)
             return {"results": []}
         except Exception as exc:  # pragma: no cover - defensive catch-all
             logger.error("Unexpected error during DuckDuckGo search: %s", exc)
+            return {"results": []}
+
+        if not raw_results:
             return {"results": []}
 
         formatted_results: List[Dict[str, Any]] = []

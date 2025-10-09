@@ -56,9 +56,11 @@ async def test_search_trims_to_max_results(settings, mocker):
         }
         for idx in range(5)
     ]
-    mock_ddgs_instance.text.side_effect = lambda query, max_results=3: all_results[
-        :max_results
-    ]
+    mock_ddgs_instance.text.side_effect = (
+        lambda query, region=None, safesearch=None, max_results=3: all_results[
+            :max_results
+        ]
+    )
 
     mocker.patch(
         "ollama_deep_researcher.clients.ddgs_client.DDGS",
@@ -68,7 +70,12 @@ async def test_search_trims_to_max_results(settings, mocker):
     result = await client.search("python", max_results=2)
 
     assert len(result["results"]) == 2
-    mock_ddgs_instance.text.assert_called_once_with("python", max_results=2)
+    mock_ddgs_instance.text.assert_called_once_with(
+        "python",
+        region=settings.ddgs_region,
+        safesearch=settings.ddgs_safesearch,
+        max_results=2,
+    )
 
 
 @pytest.mark.asyncio
