@@ -35,9 +35,18 @@ class TestAPI:
         assert "error_message" in data
         assert data["processing_time"] > 0
 
-        # Research should succeed
-        assert data["success"] is True
-        assert data["error_message"] is None
+        # Research should succeed - print full response on failure
+        assert data["success"] is True, (
+            f"Research failed. Full response:\n"
+            f"  success: {data['success']}\n"
+            f"  error_message: {data['error_message']}\n"
+            f"  summary: {data['summary'][:100] if data['summary'] else None}...\n"
+            f"  sources count: {len(data['sources'])}\n"
+            f"  processing_time: {data['processing_time']}"
+        )
+        assert data["error_message"] is None, (
+            f"Expected no error but got: {data['error_message']}"
+        )
 
         # Type checks for response fields
         assert isinstance(data["success"], bool)
