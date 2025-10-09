@@ -1,39 +1,32 @@
-import httpx
-
 from dev.mocks.mock_search_client import MockSearchClient
-from ollama_deep_researcher.clients.searxng_client import SearXNGClient
+from ollama_deep_researcher.clients.ddgs_client import DdgsClient
 from ollama_deep_researcher.settings import OllamaDeepResearcherSettings
 
 
-async def test_real_client_with_mock_transport():
-    payload = {
-        "results": [
-            {
-                "title": "Example Result 1",
-                "url": "https://example.com/1",
-                "content": "Snippet 1",
-            },
-            {
-                "title": "Example Result 2",
-                "url": "https://example.com/2",
-                "summary": "Snippet 2",
-            },
-        ]
-    }
+async def test_real_client_with_mocked_ddgs(mocker):
+    mock_ddgs_instance = mocker.Mock()
+    mock_ddgs_instance.text.return_value = [
+        {
+            "title": "Example Result 1",
+            "href": "https://example.com/1",
+            "body": "Snippet 1",
+        },
+        {
+            "title": "Example Result 2",
+            "href": "https://example.com/2",
+            "body": "Snippet 2",
+        },
+    ]
 
-    def handler(_: httpx.Request) -> httpx.Response:
-        return httpx.Response(200, json=payload)
-
-    transport = httpx.MockTransport(handler)
+    mocker.patch(
+        "ollama_deep_researcher.clients.ddgs_client.DDGS",
+        return_value=mock_ddgs_instance,
+    )
     settings = OllamaDeepResearcherSettings(
-        searxng_container_url="http://searxng:8080",
         ollama_host="http://ollama:11434/",
         ollama_model="llama3.2:3b",
     )
-    client = httpx.AsyncClient(
-        base_url=settings.searxng_container_url.rstrip("/"), transport=transport
-    )
-    search_client = SearXNGClient(settings, client=client)
+    search_client = DdgsClient(settings)
 
     results = await search_client.search("python", max_results=2)
 

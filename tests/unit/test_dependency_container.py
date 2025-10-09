@@ -19,8 +19,8 @@ class TestDependencyContainer:
         # For real OllamaClient, _client should be OllamaClientAdapter
         assert hasattr(container.ollama_client._client, "invoke")
 
-        # Search client should wrap an HTTPX client
-        assert hasattr(container.search_client, "_client")
+        # Search client should be DdgsClient with DDGS instance
+        assert hasattr(container.search_client, "_ddgs")
         # Check it's not the mock implementation
         assert not hasattr(container.search_client, "mock_results")
 

@@ -2,7 +2,7 @@ import os
 import sys
 from typing import TYPE_CHECKING
 
-from ollama_deep_researcher.clients import OllamaClient, SearXNGClient
+from ollama_deep_researcher.clients import DdgsClient, OllamaClient
 from ollama_deep_researcher.services import (
     PromptService,
     ResearchService,
@@ -43,14 +43,14 @@ class DependencyContainer:
             except ImportError:
                 # Fall back to real implementations if mocks are not available
                 self.ollama_client: OllamaClientProtocol = OllamaClient(self.settings)
-                self.search_client: SearchClientProtocol = SearXNGClient(self.settings)
+                self.search_client: SearchClientProtocol = DdgsClient(self.settings)
                 self.scraping_service: ScrapingServiceProtocol = ScrapingService(
                     self.settings
                 )
         else:
             # Use real implementations
             self.ollama_client: OllamaClientProtocol = OllamaClient(self.settings)
-            self.search_client: SearchClientProtocol = SearXNGClient(self.settings)
+            self.search_client: SearchClientProtocol = DdgsClient(self.settings)
             self.scraping_service: ScrapingServiceProtocol = ScrapingService(
                 self.settings
             )
