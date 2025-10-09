@@ -20,7 +20,7 @@ async def main(output_file: str = "demo/example.md", use_debug: bool | None = No
     print(f"Starting research on the topic '{research_topic}'...")
 
     # Build the configuration the same way as the API server
-    ollama_model = os.getenv("OLLAMA_MODEL", "llama3.2:3b")
+    ollama_model = os.getenv("RESEARCH_API_OLLAMA_MODEL", "llama3.2:3b")
     ollama_host = os.getenv("OLLAMA_HOST")
     if not ollama_host:
         raise RuntimeError("OLLAMA_HOST must be set in the environment to run the demo")

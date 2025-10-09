@@ -35,7 +35,7 @@ def api_config():
     to ensure consistent testing across all E2E tests.
     """
     host_port = os.getenv("TEST_PORT", "8002")
-    model_name = os.getenv("OLLAMA_MODEL", "llama3.2:3b").split(",")[0]
+    model_name = os.getenv("RESEARCH_API_OLLAMA_MODEL", "llama3.2:3b").split(",")[0]
 
     return {
         "base_url": f"http://localhost:{host_port}",

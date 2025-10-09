@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING, Any, Optional
 
 from langchain_core.runnables import RunnableConfig
-from pydantic import AliasChoices, Field, field_validator
+from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 if TYPE_CHECKING:
@@ -26,8 +26,7 @@ class OllamaDeepResearcherSettings(BaseSettings):
         default="llama3.2:3b",
         title="Ollama Model Name",
         description="Name of the Ollama model to use",
-        alias="OLLAMA_MODEL",
-        validation_alias=AliasChoices("OLLAMA_MODEL", "RESEARCH_API_OLLAMA_MODEL"),
+        alias="RESEARCH_API_OLLAMA_MODEL",
     )
     ollama_host: str
     searxng_url: str = Field(

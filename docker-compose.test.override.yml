@@ -7,3 +7,5 @@ services:
     environment:
       - CONTAINER_ENV=development
       - DEBUG=False
+      - OLLAMA_HOST=${OLLAMA_HOST}
+      - RESEARCH_API_OLLAMA_MODEL=${RESEARCH_API_OLLAMA_MODEL}

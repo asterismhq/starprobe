@@ -10,7 +10,7 @@ services:
       - CONTAINER_ENV=production
       - SEARXNG_URL=http://searxng:8080
       - OLLAMA_HOST=${OLLAMA_HOST}
-      - OLLAMA_MODEL=${OLLAMA_MODEL}
+      - RESEARCH_API_OLLAMA_MODEL=${RESEARCH_API_OLLAMA_MODEL}
     depends_on:
       - searxng
 
