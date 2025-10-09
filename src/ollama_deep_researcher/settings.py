@@ -22,23 +22,23 @@ class OllamaDeepResearcherSettings(BaseSettings):
         title="Research Depth",
         description="Number of research iterations to perform",
     )
-    local_llm: str = Field(
-        default="tinyllama:1.1b",
-        title="LLM Model Name",
-        description="Name of the LLM model to use",
+    ollama_model: str = Field(
+        default="llama3.2:3b",
+        title="Ollama Model Name",
+        description="Name of the Ollama model to use",
         alias="RESEARCH_API_OLLAMA_MODEL",
     )
-    ollama_host: str = Field(
-        default="http://ollama:11434/",
-        title="Ollama Base URL",
-        description="Base URL for Ollama API",
+    ollama_host: Optional[str] = Field(
+        default=None,
+        title="Ollama Host",
+        description="Base URL for the Ollama instance",
         alias="OLLAMA_HOST",
     )
-    searxng_url: str = Field(
-        default="http://localhost:8080",
-        title="SearXNG URL",
-        description="Base URL for the SearXNG instance",
-        alias="SEARXNG_URL",
+    searxng_container_url: str = Field(
+        default="http://searxng:8080",
+        title="SearXNG Container URL",
+        description="URL for the SearXNG instance in container",
+        alias="SEARXNG_CONTAINER_URL",
     )
     strip_thinking_tokens: bool = Field(
         default=True,
@@ -75,11 +75,20 @@ class OllamaDeepResearcherSettings(BaseSettings):
     @field_validator("ollama_host", mode="before")
     @classmethod
     def normalize_ollama_host(cls, value: Any) -> Any:
+        if value is None:
+            return None
         if isinstance(value, str):
             trimmed = value.strip()
             if not trimmed:
-                return trimmed
+                return None
             return trimmed.rstrip("/") + "/"
+        return value
+
+    @field_validator("ollama_model", mode="before")
+    @classmethod
+    def normalize_ollama_model(cls, value: Any) -> Any:
+        if isinstance(value, str) and not value.strip():
+            return "llama3.2:3b"
         return value
 
     @field_validator("debug", mode="before")
@@ -94,15 +103,21 @@ class OllamaDeepResearcherSettings(BaseSettings):
         cls, config: Optional[RunnableConfig] = None
     ) -> "OllamaDeepResearcherSettings":
         """Create a Configuration instance from a RunnableConfig."""
-        # Start with environment variables loaded by BaseSettings
-        settings = cls()
+        configurable = config.get("configurable", {}) if config else {}
+
+        init_kwargs: dict[str, Any] = {}
+        for field in ("ollama_host", "ollama_model"):
+            if field in configurable:
+                init_kwargs[field] = configurable[field]
+
+        # Start with environment variables loaded by BaseSettings, allowing
+        # required values to be provided through the configurable section.
+        settings = cls(**init_kwargs)
 
         # Override with configurable values if provided
-        if config and "configurable" in config:
-            configurable = config["configurable"]
-            for key, value in configurable.items():
-                if hasattr(settings, key):
-                    setattr(settings, key, value)
+        for key, value in configurable.items():
+            if hasattr(settings, key):
+                setattr(settings, key, value)
 
         return settings
 

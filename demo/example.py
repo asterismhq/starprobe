@@ -10,7 +10,7 @@ from ollama_deep_researcher.settings import OllamaDeepResearcherSettings
 load_dotenv()
 
 
-async def main(output_file: str = "demo/example.md", use_debug: bool | None = None):
+async def main(output_file: str = "demo/example.md"):
     """
     Main function to perform deep research locally.
     """
@@ -20,22 +20,22 @@ async def main(output_file: str = "demo/example.md", use_debug: bool | None = No
     print(f"Starting research on the topic '{research_topic}'...")
 
     # Build the configuration the same way as the API server
-    # If environment variables are not set, default values will be used
-    local_llm = os.getenv("RESEARCH_API_OLLAMA_MODEL", "llama3.2:3b")
-    ollama_host = os.getenv("OLLAMA_HOST", "http://localhost:11434/")
+    ollama_model = os.getenv("RESEARCH_API_OLLAMA_MODEL", "llama3.2:3b")
+    ollama_host = os.getenv("OLLAMA_HOST")
     # Let Pydantic handle parsing the DEBUG env var from the environment
-    settings = OllamaDeepResearcherSettings()
+    settings = OllamaDeepResearcherSettings(
+        ollama_host=ollama_host,
+        ollama_model=ollama_model,
+    )
     debug = settings.debug
 
-    # For the demo, default to debug=True if DEBUG is not set, and allow override via function arg
-    if use_debug is not None:
-        debug = use_debug
-    elif os.getenv("DEBUG") is None:
-        debug = True
+    # Check OLLAMA_HOST only if not in debug mode
+    if not debug and not ollama_host:
+        raise RuntimeError("OLLAMA_HOST must be set in the environment to run the demo")
 
     settings = settings.model_copy(
         update={
-            "local_llm": local_llm,
+            "ollama_model": ollama_model,
             "ollama_host": ollama_host,
             "debug": debug,
         }
@@ -43,7 +43,7 @@ async def main(output_file: str = "demo/example.md", use_debug: bool | None = No
 
     config = {
         "configurable": {
-            "local_llm": local_llm,
+            "ollama_model": ollama_model,
             "ollama_host": ollama_host,
             "debug": debug,
         }

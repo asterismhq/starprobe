@@ -8,9 +8,10 @@ services:
       - .env
     environment:
       - CONTAINER_ENV=production
-      - SEARXNG_URL=http://searxng:8080
-      - OLLAMA_HOST=${OLLAMA_HOST-http://ollama:11434}
-      - RESEARCH_API_OLLAMA_MODEL=${RESEARCH_API_OLLAMA_MODEL-tinyllama:1.1b}
+      - SEARXNG_CONTAINER_URL=http://searxng:8080
+      - OLLAMA_HOST=${OLLAMA_HOST}
+      - RESEARCH_API_OLLAMA_MODEL=${RESEARCH_API_OLLAMA_MODEL}
+      - SEARXNG_SECRET=${SEARXNG_SECRET}
     depends_on:
       - searxng
 

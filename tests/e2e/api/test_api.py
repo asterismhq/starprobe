@@ -19,7 +19,7 @@ class TestAPI:
 
     @pytest.mark.asyncio
     async def test_research_success(self):
-        """Test research request completes with proper response structure."""
+        """Test research request completes with proper response structure and types."""
         payload = {"topic": "AI technology trends"}
         response = await self.http_client.post(
             self.api_config["research_url"], json=payload
@@ -35,13 +35,27 @@ class TestAPI:
         assert "error_message" in data
         assert data["processing_time"] > 0
 
-        # Note: DuckDuckGo may return 403 in Docker environments
-        # If successful, verify complete response
-        if data["success"] is True:
-            assert data["error_message"] is None
-        # If failed (e.g., DuckDuckGo 403), verify error handling
-        else:
-            assert data["error_message"] is not None
+        # Research should succeed - print full response on failure
+        assert data["success"] is True, (
+            f"Research failed. Full response:\n"
+            f"  success: {data['success']}\n"
+            f"  error_message: {data['error_message']}\n"
+            f"  summary: {data['summary'][:100] if data['summary'] else None}...\n"
+            f"  sources count: {len(data['sources'])}\n"
+            f"  processing_time: {data['processing_time']}"
+        )
+        assert (
+            data["error_message"] is None
+        ), f"Expected no error but got: {data['error_message']}"
+
+        # Type checks for response fields
+        assert isinstance(data["success"], bool)
+        assert isinstance(data["summary"], (str, type(None)))
+        assert isinstance(data["sources"], list)
+        assert all(isinstance(source, str) for source in data["sources"])
+        assert isinstance(data["error_message"], (str, type(None)))
+        assert isinstance(data["processing_time"], (int, float))
+        assert data["processing_time"] >= 0
 
     @pytest.mark.asyncio
     async def test_research_empty_topic(self):
@@ -51,21 +65,6 @@ class TestAPI:
             self.api_config["research_url"], json=payload
         )
         assert response.status_code == 422  # Pydantic validation error
-
-    @pytest.mark.asyncio
-    async def test_research_timeout(self):
-        """Test research request handles errors gracefully."""
-        payload = {"topic": "Very complex topic that might timeout"}
-        response = await self.http_client.post(
-            self.api_config["research_url"], json=payload
-        )
-        data = response.json()
-        # Request should complete even if it encounters errors
-        assert response.status_code == 200
-        # If request fails (e.g., DuckDuckGo 403), verify error is handled gracefully
-        if data["success"] is False:
-            assert data["error_message"] is not None
-            assert len(data["error_message"]) > 0
 
     @pytest.mark.asyncio
     async def test_research_missing_topic(self):
@@ -94,26 +93,6 @@ class TestAPI:
         )
         assert response.status_code == 422  # Pydantic validation error
 
-    @pytest.mark.asyncio
-    async def test_research_response_structure_types(self):
-        """Test research response has correct types."""
-        payload = {"topic": "Test topic"}
-        response = await self.http_client.post(
-            self.api_config["research_url"], json=payload
-        )
-        assert response.status_code == 200
-        data = response.json()
-
-        # Type checks for response fields
-        assert isinstance(data["success"], bool)
-        assert isinstance(data["summary"], (str, type(None)))
-        assert isinstance(data["sources"], list)
-        assert all(isinstance(source, str) for source in data["sources"])
-        assert isinstance(data["error_message"], (str, type(None)))
-        assert isinstance(data["processing_time"], (int, float))
-        assert data["processing_time"] >= 0
-
-    @pytest.mark.asyncio
     async def test_health_response_structure(self):
         """Test health response has correct structure and types."""
         response = await self.http_client.get("/health")

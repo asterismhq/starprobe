@@ -32,19 +32,13 @@ async def run_research(request: ResearchRequest):
     try:
         # Loading Settings from the Settings Class
         settings = OllamaDeepResearcherSettings()
-        config = {
-            "configurable": {
-                "local_llm": settings.local_llm,
-                "ollama_host": settings.ollama_host,
-            }
-        }
 
         # Build graph with injected services
-        graph = build_graph()
+        graph = build_graph(settings)
 
         # Execute graph with timeout
         result = await asyncio.wait_for(
-            graph.ainvoke({"research_topic": request.topic}, config=config),
+            graph.ainvoke({"research_topic": request.topic}),
             timeout=300.0,  # 5-minute timeout
         )
 
@@ -63,6 +57,9 @@ async def run_research(request: ResearchRequest):
                 "topic": request.topic,
                 "success": response.success,
                 "source_count": len(response.sources),
+                "summary_length": len(response.summary) if response.summary else 0,
+                "error_message": response.error_message,
+                "processing_time": response.processing_time,
             },
         )
 

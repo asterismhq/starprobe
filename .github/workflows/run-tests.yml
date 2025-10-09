@@ -2,12 +2,16 @@ name: Run Tests
 
 on:
   workflow_call:
+    secrets:
+      OLLAMA_HOST:
+        required: true
 
 jobs:
   test:
     runs-on: ubuntu-latest
     env:
       OLLAMA_HOST: ${{ secrets.OLLAMA_HOST }}
+      RESEARCH_API_OLLAMA_MODEL: "tinyllama:1.1b"
     strategy:
       matrix:
         test_target: [unit-test, intg-test, build-test, e2e-test]
@@ -34,5 +38,15 @@ jobs:
       - name: Create .env file from example
         run: cp .env.example .env
 
+      - name: Configure environment variables
+        run: |
+          echo "OLLAMA_HOST=${{ secrets.OLLAMA_HOST }}" >> .env
+          echo "RESEARCH_API_OLLAMA_MODEL=${{ env.RESEARCH_API_OLLAMA_MODEL }}" >> .env
+          echo "SEARXNG_CONTAINER_URL=http://searxng:8080" >> .env
+
       - name: Run tests
-        run: just ${{ matrix.test_target }}
+        run: |
+          if [ "${{ matrix.test_target }}" = "e2e-test" ]; then
+            export DEBUG=false
+          fi
+          just ${{ matrix.test_target }}

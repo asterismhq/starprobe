@@ -10,6 +10,7 @@ class TestDependencyContainer:
     def test_production_mode(self):
         """Test container in production mode (DEBUG=false)."""
         os.environ["DEBUG"] = "False"
+        os.environ["OLLAMA_HOST"] = "http://dummy:11434/"
         settings = OllamaDeepResearcherSettings()
         container = DependencyContainer(settings)
 
@@ -46,6 +47,7 @@ class TestDependencyContainer:
     def test_services_initialization(self):
         """Test that services are properly initialized."""
         os.environ["DEBUG"] = "False"
+        os.environ["OLLAMA_HOST"] = "http://dummy:11434/"
         settings = OllamaDeepResearcherSettings()
         container = DependencyContainer(settings)
 

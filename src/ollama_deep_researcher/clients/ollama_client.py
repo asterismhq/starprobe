@@ -40,7 +40,7 @@ class OllamaClient(OllamaClientProtocol):
         """
         self.settings = settings
         self.base_url = settings.ollama_host.rstrip("/")
-        self.model = settings.local_llm
+        self.model = settings.ollama_model
         self.temperature = 0
         self.format = None
 
@@ -63,7 +63,7 @@ class OllamaClient(OllamaClientProtocol):
         """Configure the client with new settings and recreate the internal client."""
         self.settings = settings
         self.base_url = settings.ollama_host.rstrip("/")
-        self.model = settings.local_llm
+        self.model = settings.ollama_model
         self.temperature = 0
         self.format = None
 
