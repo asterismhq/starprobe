@@ -35,7 +35,7 @@ class OllamaDeepResearcherSettings(BaseSettings):
         alias="OLLAMA_HOST",
     )
     searxng_container_url: str = Field(
-        default="http://localhost:8080",
+        default="http://searxng:8080",
         title="SearXNG Container URL",
         description="URL for the SearXNG instance in container",
         alias="SEARXNG_CONTAINER_URL",
