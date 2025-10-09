@@ -53,7 +53,7 @@ async def test_search_returns_results(client_factory):
                 "title": "Example Result 1",
                 "url": "https://example.com/1",
                 "content": "Snippet 1",
-                "raw_content": "Snippet 1",
+                "raw_content": "",  # Left empty so ResearchService can scrape
             }
         ]
     }

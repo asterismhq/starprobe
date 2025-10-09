@@ -2,7 +2,6 @@ import logging
 
 from ollama_deep_researcher.state import SummaryState
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -56,11 +55,21 @@ def finalize_summary(state: SummaryState):
         elif has_errors:
             error_message = "Diagnostics reported during research"
 
-    diagnostics = state.errors
-    if not success and diagnostics:
-        joined = "; ".join(dict.fromkeys(diagnostics))
-        error_message = f"{error_message}. Diagnostics: {joined}" if error_message else joined
+    # Combine errors and warnings for diagnostics
+    diagnostics = list(dict.fromkeys(state.errors + state.warnings))
+    if not success and state.errors:
+        joined = "; ".join(dict.fromkeys(state.errors))
+        error_message = (
+            f"{error_message}. Diagnostics: {joined}" if error_message else joined
+        )
         logger.error("Finalize summary detected errors", extra={"diagnostics": joined})
+
+    # Log warnings separately if present
+    if state.warnings:
+        warnings_joined = "; ".join(dict.fromkeys(state.warnings))
+        logger.warning(
+            "Non-critical issues during research", extra={"warnings": warnings_joined}
+        )
 
     # Join the deduplicated sources
     all_sources = "\n".join(unique_sources)

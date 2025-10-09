@@ -49,9 +49,9 @@ class TestAPI:
         assert (
             data["error_message"] is None
         ), f"Expected no error but got: {data['error_message']}"
-        assert not data["diagnostics"], (
-            f"Expected no diagnostics but got: {data['diagnostics']}"
-        )
+        assert not data[
+            "diagnostics"
+        ], f"Expected no diagnostics but got: {data['diagnostics']}"
 
         # Type checks for response fields
         assert isinstance(data["success"], bool)

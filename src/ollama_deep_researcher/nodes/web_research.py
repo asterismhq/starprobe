@@ -22,7 +22,7 @@ async def web_research(state: SummaryState, research_service: ResearchService):
     logger = logging.getLogger(__name__)
 
     try:
-        results, sources, errors = await research_service.search_and_scrape(
+        results, sources, errors, warnings = await research_service.search_and_scrape(
             query=state.search_query, loop_count=state.research_loop_count
         )
     except Exception as exc:  # pragma: no cover - defensive guard
@@ -40,4 +40,5 @@ async def web_research(state: SummaryState, research_service: ResearchService):
         "sources_gathered": state.sources_gathered + [sources],
         "research_loop_count": state.research_loop_count + 1,
         "errors": errors,
+        "warnings": warnings,
     }

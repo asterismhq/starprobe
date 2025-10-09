@@ -64,7 +64,8 @@ class SearXNGClient(SearchClientProtocol):
                     "title": title,
                     "url": url,
                     "content": content or "",
-                    "raw_content": content or "",
+                    # Leave raw_content empty so ResearchService will scrape
+                    "raw_content": "",
                 }
             )
 

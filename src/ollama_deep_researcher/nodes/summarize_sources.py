@@ -47,9 +47,7 @@ async def summarize_sources(
         return {"running_summary": running_summary}
     except Exception as e:
         # Log error but preserve existing summary or return fallback
-        message = (
-            f"Summarization error for topic '{state.research_topic}': {e}"
-        )
+        message = f"Summarization error for topic '{state.research_topic}': {e}"
         logger.exception(
             "Summarization error",
             extra={

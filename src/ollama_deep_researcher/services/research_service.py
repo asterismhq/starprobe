@@ -36,9 +36,10 @@ class ResearchService:
 
     async def search_and_scrape(
         self, query: str, loop_count: int
-    ) -> tuple[str, str, list[str]]:
-        """Perform web search and scraping, return formatted results and sources."""
+    ) -> tuple[str, str, list[str], list[str]]:
+        """Perform web search and scraping, return formatted results, sources, errors, and warnings."""
         errors: list[str] = []
+        warnings: list[str] = []
 
         try:
             # Step 1: Search the web
@@ -63,19 +64,21 @@ class ResearchService:
                 errors.append(message)
                 search_results = {"results": []}
 
+        offline_fallback = False
         if not search_results.get("results"):
             errors.append(
                 "Search results were empty after fallback. Using offline fallback data."
             )
             self.logger.warning(errors[-1])
             search_results = self._build_offline_results(query)
+            offline_fallback = True
 
         try:
             # Step 2: Instantiate scraper
             scraper = self.scraper
 
             # Step 3: Loop through results and scrape each URL
-            if "results" in search_results:
+            if "results" in search_results and not offline_fallback:
                 for result in search_results["results"]:
                     url = result.get("url")
                     if not url:
@@ -88,11 +91,12 @@ class ResearchService:
                         if scraped_content:
                             result["raw_content"] = scraped_content
                     except Exception as e:
-                        # On failure, log warning and keep snippet
+                        # On failure, log warning and fall back to snippet from search
                         message = f"Scraping failed for {url}: {e}"
                         self.logger.warning(message)
-                        errors.append(message)
-                        # Keep the existing content as fallback (snippet from search)
+                        warnings.append(message)
+                        # Use snippet from search engine as fallback
+                        result["raw_content"] = result.get("content", "")
                         continue
 
             # Format results with scraped content using the new service
@@ -103,13 +107,13 @@ class ResearchService:
 
             sources = TextProcessingService.format_sources(search_results)
 
-            return search_str, sources, errors
+            return search_str, sources, errors, warnings
         except Exception as e:
             # Log error but continue with empty results
             message = f"Web research error: {e}"
             self.logger.exception(message)
             errors.append(message)
-            return f"Search failed: {e}", "Error fetching sources", errors
+            return "", "", errors, warnings
 
     async def _perform_search(self, query: str, loop_count: int):
         """Perform the actual search using the configured search backend."""
