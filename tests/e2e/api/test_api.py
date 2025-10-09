@@ -84,7 +84,6 @@ class TestAPI:
         )
         assert response.status_code == 422  # Pydantic validation error
 
-
     async def test_health_response_structure(self):
         """Test health response has correct structure and types."""
         response = await self.http_client.get("/health")
