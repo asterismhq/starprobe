@@ -42,32 +42,24 @@ class TestDemo:
                 os.unlink(temp_path)
 
     @pytest.mark.asyncio
-    async def test_demo_with_debug_mode(self):
+    async def test_demo_with_debug_mode(self, monkeypatch):
         """Test demo execution in debug mode."""
         # Set RESEARCH_API_DEBUG environment variable
-        original_debug = os.environ.get("RESEARCH_API_DEBUG")
-        os.environ["RESEARCH_API_DEBUG"] = "true"
+        monkeypatch.setenv("RESEARCH_API_DEBUG", "true")
 
-        try:
-            with tempfile.NamedTemporaryFile(
-                mode="w", suffix=".md", delete=False
-            ) as temp_file:
-                temp_path = temp_file.name
+        with tempfile.NamedTemporaryFile(
+            mode="w", suffix=".md", delete=False
+        ) as temp_file:
+            temp_path = temp_file.name
 
-            await main(output_file=temp_path)
+        await main(output_file=temp_path)
 
-            assert os.path.exists(temp_path)
-            with open(temp_path, "r", encoding="utf-8") as f:
-                content = f.read()
+        assert os.path.exists(temp_path)
+        with open(temp_path, "r", encoding="utf-8") as f:
+            content = f.read()
 
-            assert "# Research Results" in content
-            assert "**Success:** True" in content
+        assert "# Research Results" in content
+        assert "**Success:** True" in content
 
-        finally:
-            if "RESEARCH_API_DEBUG" in os.environ:
-                if original_debug is not None:
-                    os.environ["RESEARCH_API_DEBUG"] = original_debug
-                else:
-                    del os.environ["RESEARCH_API_DEBUG"]
-            if os.path.exists(temp_path):
-                os.unlink(temp_path)
+        if os.path.exists(temp_path):
+            os.unlink(temp_path)
