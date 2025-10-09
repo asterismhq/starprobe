@@ -57,6 +57,9 @@ async def run_research(request: ResearchRequest):
                 "topic": request.topic,
                 "success": response.success,
                 "source_count": len(response.sources),
+                "summary_length": len(response.summary) if response.summary else 0,
+                "error_message": response.error_message,
+                "processing_time": response.processing_time,
             },
         )
 

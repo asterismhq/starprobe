@@ -38,7 +38,6 @@ jobs:
 
       - name: Run tests
         run: |
-          echo "OLLAMA_HOST: $OLLAMA_HOST"
           if [ "${{ matrix.test_target }}" = "e2e-test" ]; then
             export DEBUG=false
           fi

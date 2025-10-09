@@ -18,7 +18,7 @@ class SearXNGClient(SearchClientProtocol):
         client: Optional[httpx.AsyncClient] = None,
     ) -> None:
         self.settings = settings
-        base_url = settings.searxng_base_url.rstrip("/")
+        base_url = settings.searxng_container_url.rstrip("/")
         timeout = httpx.Timeout(connect=5.0, read=15.0, write=5.0, pool=5.0)
         headers = {"User-Agent": "Mozilla/5.0 (compatible; OllamaDeepResearcher/1.0)"}
         self._client = client or httpx.AsyncClient(
