@@ -34,11 +34,23 @@ class OllamaDeepResearcherSettings(BaseSettings):
         description="Base URL for the Ollama instance",
         alias="OLLAMA_HOST",
     )
-    searxng_container_url: str = Field(
-        default="http://searxng:8080",
-        title="SearXNG Container URL",
-        description="URL for the SearXNG instance in container",
-        alias="SEARXNG_CONTAINER_URL",
+    ddgs_region: str = Field(
+        default="wt-wt",
+        title="DDGS Region",
+        description="Region code for DuckDuckGo search (e.g., wt-wt for global, us-en for US)",
+        alias="DDGS_REGION",
+    )
+    ddgs_safesearch: str = Field(
+        default="moderate",
+        title="DDGS SafeSearch",
+        description="SafeSearch level for DuckDuckGo: off, moderate, or strict",
+        alias="DDGS_SAFESEARCH",
+    )
+    ddgs_max_results: int = Field(
+        default=10,
+        title="DDGS Max Results",
+        description="Maximum number of results to fetch from DuckDuckGo per query",
+        alias="DDGS_MAX_RESULTS",
     )
     strip_thinking_tokens: bool = Field(
         default=True,

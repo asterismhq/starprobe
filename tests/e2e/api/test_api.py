@@ -33,6 +33,7 @@ class TestAPI:
         assert "sources" in data
         assert "processing_time" in data
         assert "error_message" in data
+        assert "diagnostics" in data
         assert data["processing_time"] > 0
 
         # Research should succeed - print full response on failure
@@ -40,6 +41,7 @@ class TestAPI:
             f"Research failed. Full response:\n"
             f"  success: {data['success']}\n"
             f"  error_message: {data['error_message']}\n"
+            f"  diagnostics: {data['diagnostics']}\n"
             f"  summary: {data['summary'][:100] if data['summary'] else None}...\n"
             f"  sources count: {len(data['sources'])}\n"
             f"  processing_time: {data['processing_time']}"
@@ -47,6 +49,8 @@ class TestAPI:
         assert (
             data["error_message"] is None
         ), f"Expected no error but got: {data['error_message']}"
+        # Diagnostics may contain warnings (non-critical) even on success
+        # Only check that there are no critical errors by verifying success=True
 
         # Type checks for response fields
         assert isinstance(data["success"], bool)
@@ -54,6 +58,8 @@ class TestAPI:
         assert isinstance(data["sources"], list)
         assert all(isinstance(source, str) for source in data["sources"])
         assert isinstance(data["error_message"], (str, type(None)))
+        assert isinstance(data["diagnostics"], list)
+        assert all(isinstance(msg, str) for msg in data["diagnostics"])
         assert isinstance(data["processing_time"], (int, float))
         assert data["processing_time"] >= 0
 

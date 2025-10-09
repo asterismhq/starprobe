@@ -1,4 +1,5 @@
 import json
+import logging
 
 from langchain_core.tools import tool
 from pydantic import BaseModel, Field
@@ -46,29 +47,44 @@ async def reflect_on_summary(
 
     fallback_query = f"Tell me more about {state.research_topic}"
 
-    if prompt_service.configurable.use_tool_calling:
-        llm = ollama_client.bind_tools([FollowUpQuery])
-        result = await llm.invoke(messages)
+    logger = logging.getLogger(__name__)
 
-        if not result.tool_calls:
-            search_query = fallback_query
+    error_messages: list[str] | None = None
+
+    try:
+        if prompt_service.configurable.use_tool_calling:
+            llm = ollama_client.bind_tools([FollowUpQuery])
+            result = await llm.invoke(messages)
+
+            if not result.tool_calls:
+                search_query = fallback_query
+            else:
+                try:
+                    tool_data = result.tool_calls[0]["args"]
+                    search_query = tool_data.get("follow_up_query", fallback_query)
+                except (IndexError, KeyError):
+                    search_query = fallback_query
         else:
+            # Use JSON mode
+            result = await ollama_client.invoke(messages)
+            content = result.content
+
             try:
-                tool_data = result.tool_calls[0]["args"]
-                search_query = tool_data.get("follow_up_query", fallback_query)
-            except (IndexError, KeyError):
+                parsed_json = json.loads(content)
+                search_query = parsed_json.get("follow_up_query")
+                if not search_query:
+                    search_query = fallback_query
+            except (json.JSONDecodeError, KeyError):
                 search_query = fallback_query
-    else:
-        # Use JSON mode
-        result = await ollama_client.invoke(messages)
-        content = result.content
+    except Exception as exc:  # pragma: no cover - defensive guard
+        search_query = fallback_query
+        error_messages = [f"Reflect query fallback triggered: {exc}"]
+        logger.exception(
+            "Failed to generate follow-up query",
+            extra={"topic": state.research_topic, "error": str(exc)},
+        )
 
-        try:
-            parsed_json = json.loads(content)
-            search_query = parsed_json.get("follow_up_query")
-            if not search_query:
-                search_query = fallback_query
-        except (json.JSONDecodeError, KeyError):
-            search_query = fallback_query
-
-    return {"search_query": search_query}
+    response = {"search_query": search_query}
+    if error_messages is not None:
+        response["errors"] = error_messages
+    return response

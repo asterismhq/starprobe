@@ -1,4 +1,8 @@
+import logging
+
 from ollama_deep_researcher.state import SummaryState
+
+logger = logging.getLogger(__name__)
 
 
 def finalize_summary(state: SummaryState):
@@ -38,7 +42,8 @@ def finalize_summary(state: SummaryState):
     # Determine success based on content quality
     has_summary = bool(state.running_summary and len(state.running_summary) > 50)
     has_sources = len(source_urls) > 0
-    success = has_summary and has_sources
+    has_errors = bool(state.errors)
+    success = has_summary and has_sources and not has_errors
 
     # Set error message if not successful
     error_message = None
@@ -47,6 +52,18 @@ def finalize_summary(state: SummaryState):
             error_message = "Failed to generate summary"
         elif not has_sources:
             error_message = "No sources found"
+        elif has_errors:
+            error_message = "Errors occurred during research"
+
+    # Use errors directly as diagnostics
+    diagnostics = list(dict.fromkeys(state.errors))
+    if state.errors:
+        joined = "; ".join(dict.fromkeys(state.errors))
+        if not error_message:
+            error_message = joined
+        else:
+            error_message = f"{error_message}. Details: {joined}"
+        logger.error("Research completed with errors", extra={"errors": joined})
 
     # Join the deduplicated sources
     all_sources = "\n".join(unique_sources)
@@ -59,4 +76,5 @@ def finalize_summary(state: SummaryState):
         "success": success,
         "sources": source_urls,
         "error_message": error_message,
+        "diagnostics": diagnostics,
     }

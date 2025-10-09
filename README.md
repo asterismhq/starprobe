@@ -128,6 +128,14 @@ The application's behavior can be controlled via the following environment varia
   * `SCRAPING_TIMEOUT_READ`: Timeout for reading from scraping targets. Default is 90 seconds.
   * `DEBUG`: If set to `true`, the application will use mock objects instead of connecting to external services like Ollama server, allowing for testing without actual dependencies.
 
+### DuckDuckGo Search Configuration (Optional)
+
+The service uses DuckDuckGo for web searches via the `duckduckgo-search` Python library. The following optional environment variables allow you to customize search behavior:
+
+  * `DDGS_REGION`: Region code for DuckDuckGo search (e.g., `wt-wt` for global, `us-en` for US). Default is `wt-wt`.
+  * `DDGS_SAFESEARCH`: SafeSearch level for DuckDuckGo. Options are `off`, `moderate`, or `strict`. Default is `moderate`.
+  * `DDGS_MAX_RESULTS`: Maximum number of results to fetch from DuckDuckGo per query. Default is `10`.
+
 ## 🧪 Testing
 
 The project includes comprehensive test coverage across multiple test types:
@@ -136,7 +144,7 @@ The project includes comprehensive test coverage across multiple test types:
 
 - **Unit Tests** (`tests/unit/`): Test individual components in isolation
   - `services/`: Tests for all service classes (PromptService, ResearchService, SearchService, ScrapingService, TextProcessingService)
-  - `clients/`: Tests for client classes (OllamaClient, DuckDuckGoClient)
+  - `clients/`: Tests for client classes (OllamaClient, DdgsClient)
 - **Mock Tests** (`tests/mock/`): Tests for mock implementations and dependency container
 - **Integration Tests** (`tests/intg/`): End-to-end tests with real workflows
 
@@ -162,35 +170,16 @@ pytest tests/ --cov=src/ollama_deep_researcher --cov-report=html
 
 ## Troubleshooting
 
-### SearXNG Container Fails to Start
+### Manual Verification
 
-When running `docker-compose up`, the `searxng` container may fail to start with errors related to a `Read-only file system` and `Invalid settings.yml`.
+To verify the service is working correctly with DuckDuckGo search:
 
-```
-chown: /etc/searxng: Read-only file system
-...
-ValueError: Invalid settings.yml
-```
-
-This occurs because the volume for SearXNG's configuration is mounted as read-only, but no configuration file is provided. The container tries and fails to create a default `settings.yml`, leading to the error.
-
-#### Resolution Steps
-
-The following steps were taken to resolve this issue:
-
-1.  **Create `settings.yml`**: An empty `settings.yml` was first created in the `./searxng-settings/` directory. This resolved the initial file creation error but led to a new `Invalid settings.yml` error because the file was empty.
-
-2.  **Generate a Secret Key**: A required `secret_key` was generated for the configuration file using `openssl`:
-    ```shell
-    openssl rand -hex 32
-    ```
-
-3.  **Update `settings.yml`**: The generated key was added to `searxng-settings/settings.yml`:
-    ```yaml
-    server:
-      secret_key: "YOUR_GENERATED_KEY_HERE"
-    ```
-
-4.  **Update `.gitignore`**: To prevent the sensitive secret key from being committed to version control, the `searxng-settings/` directory was added to the `.gitignore` file.
-
-By following these steps, a valid, git-ignored configuration is provided to the container, allowing it to start correctly.
+1. **Start the service** using Docker or locally
+2. **Send a test research request** to `/api/v1/research`:
+   ```shell
+   curl -X POST http://localhost:8000/api/v1/research \
+   -H "Content-Type: application/json" \
+   -d '{"topic": "quantum computing applications"}'
+   ```
+3. **Monitor the logs** to confirm DuckDuckGo search executes successfully
+4. **Verify the response** contains sources with DuckDuckGo search result URLs

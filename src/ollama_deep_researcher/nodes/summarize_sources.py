@@ -1,3 +1,5 @@
+import logging
+
 from ollama_deep_researcher.protocols.ollama_client_protocol import OllamaClientProtocol
 from ollama_deep_researcher.services.prompt_service import PromptService
 from ollama_deep_researcher.services.text_processing_service import (
@@ -26,6 +28,7 @@ async def summarize_sources(
     Returns:
         Dictionary with state update, including running_summary key containing the updated summary
     """
+    logger = logging.getLogger(__name__)
     try:
         messages = prompt_service.generate_summarize_prompt(
             research_topic=state.research_topic,
@@ -44,5 +47,16 @@ async def summarize_sources(
         return {"running_summary": running_summary}
     except Exception as e:
         # Log error but preserve existing summary or return fallback
-        print(f"Summarization error: {str(e)}")
-        return {"running_summary": state.running_summary or "Summary generation failed"}
+        message = f"Summarization error for topic '{state.research_topic}': {e}"
+        logger.exception(
+            "Summarization error",
+            extra={
+                "topic": state.research_topic,
+                "has_context": bool(state.web_research_results),
+                "error": str(e),
+            },
+        )
+        return {
+            "running_summary": state.running_summary or "Summary generation failed",
+            "errors": [message],
+        }
