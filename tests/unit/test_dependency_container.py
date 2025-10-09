@@ -1,5 +1,3 @@
-import os
-
 from src.ollama_deep_researcher.container import DependencyContainer
 from src.ollama_deep_researcher.settings import OllamaDeepResearcherSettings
 
@@ -7,10 +5,10 @@ from src.ollama_deep_researcher.settings import OllamaDeepResearcherSettings
 class TestDependencyContainer:
     """Test cases for DependencyContainer."""
 
-    def test_production_mode(self):
-        """Test container in production mode (DEBUG=false)."""
-        os.environ["DEBUG"] = "False"
-        os.environ["OLLAMA_HOST"] = "http://dummy:11434/"
+    def test_production_mode(self, monkeypatch):
+        """Test container in production mode (RESEARCH_API_DEBUG=false)."""
+        monkeypatch.setenv("RESEARCH_API_DEBUG", "False")
+        monkeypatch.setenv("OLLAMA_HOST", "http://dummy:11434/")
         settings = OllamaDeepResearcherSettings()
         container = DependencyContainer(settings)
 
@@ -27,9 +25,9 @@ class TestDependencyContainer:
         # ScrapingService should be real
         assert hasattr(container.scraping_service, "scrape")
 
-    def test_debug_mode(self):
-        """Test container in debug mode (DEBUG=true)."""
-        os.environ["DEBUG"] = "True"
+    def test_debug_mode(self, monkeypatch):
+        """Test container in debug mode (RESEARCH_API_DEBUG=true)."""
+        monkeypatch.setenv("RESEARCH_API_DEBUG", "True")
         settings = OllamaDeepResearcherSettings()
         container = DependencyContainer(settings)
 
@@ -44,10 +42,10 @@ class TestDependencyContainer:
         # ScrapingService should be mock
         assert hasattr(container.scraping_service, "scrape")
 
-    def test_services_initialization(self):
+    def test_services_initialization(self, monkeypatch):
         """Test that services are properly initialized."""
-        os.environ["DEBUG"] = "False"
-        os.environ["OLLAMA_HOST"] = "http://dummy:11434/"
+        monkeypatch.setenv("RESEARCH_API_DEBUG", "False")
+        monkeypatch.setenv("OLLAMA_HOST", "http://dummy:11434/")
         settings = OllamaDeepResearcherSettings()
         container = DependencyContainer(settings)
 

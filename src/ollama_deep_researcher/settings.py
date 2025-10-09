@@ -66,7 +66,7 @@ class OllamaDeepResearcherSettings(BaseSettings):
         default=False,
         title="Debug Mode",
         description="Enable mock client mode for development and testing",
-        alias="DEBUG",
+        alias="RESEARCH_API_DEBUG",
     )
     max_tokens_per_source: int = Field(
         default=1000,
