@@ -13,7 +13,7 @@ class TestSearXNGIntegration:
     def settings(self):
         """Create settings with SearXNG URL for testing."""
         return OllamaDeepResearcherSettings(
-            searxng_url="http://localhost:8080",
+            searxng_base_url="http://localhost:8080",
             ollama_host="http://ollama:11434/",
             ollama_model="llama3.2:3b",
         )

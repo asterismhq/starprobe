@@ -26,12 +26,12 @@ async def test_real_client_with_mock_transport():
 
     transport = httpx.MockTransport(handler)
     settings = OllamaDeepResearcherSettings(
-        searxng_url="http://searxng:8080",
+        searxng_base_url="http://searxng:8080",
         ollama_host="http://ollama:11434/",
         ollama_model="llama3.2:3b",
     )
     client = httpx.AsyncClient(
-        base_url=settings.searxng_url.rstrip("/"), transport=transport
+        base_url=settings.searxng_base_url.rstrip("/"), transport=transport
     )
     search_client = SearXNGClient(settings, client=client)
 
