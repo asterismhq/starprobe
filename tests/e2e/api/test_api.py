@@ -35,13 +35,9 @@ class TestAPI:
         assert "error_message" in data
         assert data["processing_time"] > 0
 
-        # Note: DuckDuckGo may return 403 in Docker environments
-        # If successful, verify complete response
-        if data["success"] is True:
-            assert data["error_message"] is None
-        # If failed (e.g., DuckDuckGo 403), verify error handling
-        else:
-            assert data["error_message"] is not None
+        # Research should succeed
+        assert data["success"] is True
+        assert data["error_message"] is None
 
     @pytest.mark.asyncio
     async def test_research_empty_topic(self):

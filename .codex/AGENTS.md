@@ -62,3 +62,5 @@ To prevent unintended overwrites, non-sensitive configuration values are defined
 -   **Application & Deployment**: `.env` (ports, project names, etc.)
 -   **Application & Testing**: `settings.py` (model names, timeouts, etc.)
 -   **Infrastructure**: Docker Compose files (environment sections, etc.)
+
+---

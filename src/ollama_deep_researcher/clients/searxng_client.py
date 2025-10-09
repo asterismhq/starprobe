@@ -73,9 +73,3 @@ class SearXNGClient(SearchClientProtocol):
     async def close(self) -> None:
         """Close the underlying HTTP client."""
         await self._client.aclose()
-
-    def __del__(self) -> None:  # pragma: no cover - best effort cleanup
-        try:
-            self.close()
-        except Exception:
-            pass

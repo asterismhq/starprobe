@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING, Any, Optional
 
 from langchain_core.runnables import RunnableConfig
-from pydantic import Field, AliasChoices, field_validator
+from pydantic import AliasChoices, Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 if TYPE_CHECKING:
@@ -74,7 +74,7 @@ class OllamaDeepResearcherSettings(BaseSettings):
         if isinstance(value, str):
             trimmed = value.strip()
             if not trimmed:
-                return trimmed
+                raise ValueError("ollama_host cannot be empty")
             return trimmed.rstrip("/") + "/"
         return value
 

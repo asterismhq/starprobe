@@ -23,9 +23,7 @@ async def main(output_file: str = "demo/example.md", use_debug: bool | None = No
     ollama_model = os.getenv("OLLAMA_MODEL", "llama3.2:3b")
     ollama_host = os.getenv("OLLAMA_HOST")
     if not ollama_host:
-        raise RuntimeError(
-            "OLLAMA_HOST must be set in the environment to run the demo"
-        )
+        raise RuntimeError("OLLAMA_HOST must be set in the environment to run the demo")
     # Let Pydantic handle parsing the DEBUG env var from the environment
     settings = OllamaDeepResearcherSettings(
         ollama_host=ollama_host,
