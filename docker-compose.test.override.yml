@@ -3,7 +3,7 @@ services:
     build:
       target: development
     ports: !override
-      - "${RESEARCH_API_HOST_IP:-127.0.0.1}:${RESEARCH_API_TEST_PORT:-8002}:8000"
+      - "${RESEARCH_API_BIND_IP:-127.0.0.1}:${RESEARCH_API_TEST_PORT:-8002}:8000"
     environment:
       - CONTAINER_ENV=development
-      - DEBUG=False
+      - RESEARCH_API_DEBUG=False

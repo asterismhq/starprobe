@@ -8,8 +8,8 @@ class TestDependencyContainer:
     """Test cases for DependencyContainer."""
 
     def test_production_mode(self):
-        """Test container in production mode (DEBUG=false)."""
-        os.environ["DEBUG"] = "False"
+        """Test container in production mode (RESEARCH_API_DEBUG=false)."""
+        os.environ["RESEARCH_API_DEBUG"] = "False"
         os.environ["OLLAMA_HOST"] = "http://dummy:11434/"
         settings = OllamaDeepResearcherSettings()
         container = DependencyContainer(settings)
@@ -28,8 +28,8 @@ class TestDependencyContainer:
         assert hasattr(container.scraping_service, "scrape")
 
     def test_debug_mode(self):
-        """Test container in debug mode (DEBUG=true)."""
-        os.environ["DEBUG"] = "True"
+        """Test container in debug mode (RESEARCH_API_DEBUG=true)."""
+        os.environ["RESEARCH_API_DEBUG"] = "True"
         settings = OllamaDeepResearcherSettings()
         container = DependencyContainer(settings)
 
@@ -46,7 +46,7 @@ class TestDependencyContainer:
 
     def test_services_initialization(self):
         """Test that services are properly initialized."""
-        os.environ["DEBUG"] = "False"
+        os.environ["RESEARCH_API_DEBUG"] = "False"
         os.environ["OLLAMA_HOST"] = "http://dummy:11434/"
         settings = OllamaDeepResearcherSettings()
         container = DependencyContainer(settings)

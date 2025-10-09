@@ -4,7 +4,7 @@ Ollama Deep Researcher is a fully local web research and summarization API servi
 
 ## 🏗️ Architecture Overview
 
-The project introduces a Dependency Injection (DI) container called `DependencyContainer` to manage dependencies. The `DEBUG` flag allows switching between production implementations and mock implementations at the DI container level. The project is primarily composed of components such as `graph`, `nodes`, `services`, and `clients`.
+The project introduces a Dependency Injection (DI) container called `DependencyContainer` to manage dependencies. The `RESEARCH_API_DEBUG` flag allows switching between production implementations and mock implementations at the DI container level. The project is primarily composed of components such as `graph`, `nodes`, `services`, and `clients`.
 
 ## 🚀 Quick Start
 
@@ -44,7 +44,7 @@ This service is designed to run as a Docker container.
    ```shell
    curl http://localhost:8000/health
    ```
-   *Note: If you changed the port using the `RESEARCH_API_HOST_PORT` environment variable (e.g., to `8001`), replace `8000` with your chosen port.*
+   *Note: If you changed the port using the `RESEARCH_API_BIND_PORT` environment variable (e.g., to `8001`), replace `8000` with your chosen port.*
 
    A successful response will look like this:
    ```json
@@ -126,7 +126,7 @@ The application's behavior can be controlled via the following environment varia
   * `RESEARCH_API_OLLAMA_MODEL`: The name of the Ollama model to use for research. Default is `llama3.2:3b`.
   * `SCRAPING_TIMEOUT_CONNECT`: Timeout for connecting to scraping targets. Default is 30 seconds.
   * `SCRAPING_TIMEOUT_READ`: Timeout for reading from scraping targets. Default is 90 seconds.
-  * `DEBUG`: If set to `true`, the application will use mock objects instead of connecting to external services like Ollama server, allowing for testing without actual dependencies.
+  * `RESEARCH_API_DEBUG`: If set to `true`, the application will use mock objects instead of connecting to external services like Ollama server, allowing for testing without actual dependencies.
 
 ### DuckDuckGo Search Configuration (Optional)
 

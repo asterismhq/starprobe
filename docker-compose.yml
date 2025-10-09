@@ -3,7 +3,7 @@ services:
     build:
       target: production
     ports:
-      - "${RESEARCH_API_HOST_IP:-0.0.0.0}:${RESEARCH_API_HOST_PORT:-8000}:8000"
+      - "${RESEARCH_API_BIND_IP:-0.0.0.0}:${RESEARCH_API_BIND_PORT:-8000}:8000"
     env_file:
       - .env
     environment:
