@@ -8,6 +8,15 @@ jobs:
     runs-on: ubuntu-latest
     env:
       OLLAMA_HOST: ${{ secrets.OLLAMA_HOST }}
+      DEBUG: true
+      RESEARCH_API_PROJECT_NAME: ollama-deep-researcher
+      RESEARCH_API_HOST_IP: 127.0.0.1
+      RESEARCH_API_HOST_PORT: 8000
+      RESEARCH_API_DEV_PORT: 8001
+      RESEARCH_API_TEST_PORT: 8002
+      RESEARCH_API_OLLAMA_MODEL: tinyllama:1.1b
+      SEARXNG_SECRET: ${{ secrets.SEARXNG_SECRET || 'test_secret_key' }}
+      SEARXNG_URL: http://localhost:8080
     strategy:
       matrix:
         test_target: [unit-test, intg-test, build-test, e2e-test]
@@ -31,8 +40,9 @@ jobs:
       - name: Install just
         uses: extractions/setup-just@v2
 
-      - name: Create .env file from example
-        run: cp .env.example .env
-
       - name: Run tests
-        run: just ${{ matrix.test_target }}
+        run: |
+          if [ "${{ matrix.test_target }}" = "intg-test" ] || [ "${{ matrix.test_target }}" = "e2e-test" ]; then
+            export DEBUG=false
+          fi
+          just ${{ matrix.test_target }}

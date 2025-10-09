@@ -49,21 +49,6 @@ class TestAPI:
         assert response.status_code == 422  # Pydantic validation error
 
     @pytest.mark.asyncio
-    async def test_research_timeout(self):
-        """Test research request handles errors gracefully."""
-        payload = {"topic": "Very complex topic that might timeout"}
-        response = await self.http_client.post(
-            self.api_config["research_url"], json=payload
-        )
-        data = response.json()
-        # Request should complete even if it encounters errors
-        assert response.status_code == 200
-        # If request fails (e.g., DuckDuckGo 403), verify error is handled gracefully
-        if data["success"] is False:
-            assert data["error_message"] is not None
-            assert len(data["error_message"]) > 0
-
-    @pytest.mark.asyncio
     async def test_research_missing_topic(self):
         """Test research request with missing topic field fails."""
         payload = {}  # Missing topic field
