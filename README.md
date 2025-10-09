@@ -130,7 +130,7 @@ The application's behavior can be controlled via the following environment varia
 
 ### DuckDuckGo Search Configuration (Optional)
 
-The service uses DuckDuckGo for web searches via the `duckduckgo-search` Python library. The following optional environment variables allow you to customize search behavior:
+The service uses DuckDuckGo for web searches via the [`ddgs`](https://pypi.org/project/ddgs/) Python library. The following optional environment variables allow you to customize search behavior:
 
   * `DDGS_REGION`: Region code for DuckDuckGo search (e.g., `wt-wt` for global, `us-en` for US). Default is `wt-wt`.
   * `DDGS_SAFESEARCH`: SafeSearch level for DuckDuckGo. Options are `off`, `moderate`, or `strict`. Default is `moderate`.
