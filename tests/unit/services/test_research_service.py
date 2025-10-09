@@ -36,15 +36,14 @@ class TestResearchService:
     @pytest.mark.asyncio
     async def test_search_and_scrape_success(self, research_service):
         """Test successful search and scrape workflow."""
-        search_str, sources, errors, warnings = (
-            await research_service.search_and_scrape("test query", loop_count=1)
+        search_str, sources, errors = await research_service.search_and_scrape(
+            "test query", loop_count=1
         )
 
         # Should return tuple of strings
         assert isinstance(search_str, str)
         assert isinstance(sources, str)
         assert errors == []
-        assert warnings == []
 
         # Should contain URLs
         assert (
@@ -78,14 +77,13 @@ class TestResearchService:
 
         spy = mocker.spy(mock_scraping_service, "scrape")
 
-        _, _, errors, warnings = await research_service.search_and_scrape(
+        _, _, errors = await research_service.search_and_scrape(
             "test query", loop_count=1
         )
 
         # Verify scraping was called
         spy.assert_called()
         assert errors == []
-        assert warnings == []
 
     @pytest.mark.asyncio
     async def test_search_and_scrape_with_failed_scraping(self, mock_settings, mocker):
@@ -119,15 +117,15 @@ class TestResearchService:
             scraper=mock_scraper,
         )
 
-        search_str, sources, errors, warnings = (
-            await research_service.search_and_scrape("test query", loop_count=1)
+        search_str, sources, errors = await research_service.search_and_scrape(
+            "test query", loop_count=1
         )
 
         # Should still return results despite scraping failure
+        # Scraping failures are logged but not treated as errors (fallback to snippet)
         assert isinstance(search_str, str)
         assert isinstance(sources, str)
         assert errors == []
-        assert any("Scraping failed" in warn for warn in warnings)
 
     @pytest.mark.asyncio
     async def test_search_and_scrape_empty_results(
@@ -143,15 +141,14 @@ class TestResearchService:
             scraper=mock_scraping_service,
         )
 
-        search_str, sources, errors, warnings = (
-            await research_service.search_and_scrape("test query", loop_count=1)
+        search_str, sources, errors = await research_service.search_and_scrape(
+            "test query", loop_count=1
         )
 
         # Should return empty strings or defaults
         assert isinstance(search_str, str)
         assert isinstance(sources, str)
         assert errors  # fallback diagnostics should be recorded
-        assert isinstance(warnings, list)
 
     @pytest.mark.asyncio
     async def test_search_and_scrape_respects_max_results(
@@ -202,14 +199,13 @@ class TestResearchService:
         )
 
         # Should not raise error with missing URL
-        search_str, sources, errors, warnings = (
-            await research_service.search_and_scrape("test query", loop_count=1)
+        search_str, sources, errors = await research_service.search_and_scrape(
+            "test query", loop_count=1
         )
 
         assert isinstance(search_str, str)
         assert isinstance(sources, str)
         assert errors == []
-        assert warnings == []
 
     @pytest.mark.asyncio
     async def test_search_and_scrape_handles_search_exception(
@@ -225,15 +221,14 @@ class TestResearchService:
             scraper=mock_scraping_service,
         )
 
-        search_str, sources, errors, warnings = (
-            await research_service.search_and_scrape("test query", loop_count=1)
+        search_str, sources, errors = await research_service.search_and_scrape(
+            "test query", loop_count=1
         )
 
         # Should return error messages instead of raising
         assert isinstance(search_str, str)
         assert isinstance(sources, str)
         assert any("Primary search failed" in err for err in errors)
-        assert isinstance(warnings, list)
 
     @pytest.mark.asyncio
     async def test_search_and_scrape_updates_raw_content(
@@ -263,14 +258,13 @@ class TestResearchService:
             scraper=mock_scraper,
         )
 
-        search_str, sources, errors, warnings = (
-            await research_service.search_and_scrape("test query", loop_count=1)
+        search_str, sources, errors = await research_service.search_and_scrape(
+            "test query", loop_count=1
         )
 
         # Should contain the scraped content
         assert "Full scraped content" in search_str
         assert errors == []
-        assert warnings == []
 
     @pytest.mark.asyncio
     async def test_perform_search_delegates_to_client(

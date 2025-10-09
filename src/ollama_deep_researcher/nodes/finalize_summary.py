@@ -53,23 +53,17 @@ def finalize_summary(state: SummaryState):
         elif not has_sources:
             error_message = "No sources found"
         elif has_errors:
-            error_message = "Diagnostics reported during research"
+            error_message = "Errors occurred during research"
 
-    # Combine errors and warnings for diagnostics
-    diagnostics = list(dict.fromkeys(state.errors + state.warnings))
-    if not success and state.errors:
+    # Use errors directly as diagnostics
+    diagnostics = list(dict.fromkeys(state.errors))
+    if state.errors:
         joined = "; ".join(dict.fromkeys(state.errors))
-        error_message = (
-            f"{error_message}. Diagnostics: {joined}" if error_message else joined
-        )
-        logger.error("Finalize summary detected errors", extra={"diagnostics": joined})
-
-    # Log warnings separately if present
-    if state.warnings:
-        warnings_joined = "; ".join(dict.fromkeys(state.warnings))
-        logger.warning(
-            "Non-critical issues during research", extra={"warnings": warnings_joined}
-        )
+        if not error_message:
+            error_message = joined
+        else:
+            error_message = f"{error_message}. Details: {joined}"
+        logger.error("Research completed with errors", extra={"errors": joined})
 
     # Join the deduplicated sources
     all_sources = "\n".join(unique_sources)

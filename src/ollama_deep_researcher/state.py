@@ -13,7 +13,6 @@ class SummaryState:
     research_loop_count: int = field(default=0)
     running_summary: str = field(default=None)
     errors: Annotated[list[str], operator.add] = field(default_factory=list)
-    warnings: Annotated[list[str], operator.add] = field(default_factory=list)
 
 
 @dataclass(kw_only=True)

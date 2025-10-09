@@ -36,10 +36,9 @@ class ResearchService:
 
     async def search_and_scrape(
         self, query: str, loop_count: int
-    ) -> tuple[str, str, list[str], list[str]]:
-        """Perform web search and scraping, return formatted results, sources, errors, and warnings."""
+    ) -> tuple[str, str, list[str]]:
+        """Perform web search and scraping, return formatted results, sources, and errors."""
         errors: list[str] = []
-        warnings: list[str] = []
 
         try:
             # Step 1: Search the web
@@ -91,10 +90,11 @@ class ResearchService:
                         if scraped_content:
                             result["raw_content"] = scraped_content
                     except Exception as e:
-                        # On failure, log warning and fall back to snippet from search
-                        message = f"Scraping failed for {url}: {e}"
-                        self.logger.warning(message)
-                        warnings.append(message)
+                        # On failure, log at debug level and fall back to snippet from search
+                        # This is expected behavior (403, timeouts, etc.) so don't treat as error
+                        self.logger.debug(
+                            f"Scraping failed for {url}, using snippet: {e}"
+                        )
                         # Use snippet from search engine as fallback
                         result["raw_content"] = result.get("content", "")
                         continue
@@ -107,13 +107,13 @@ class ResearchService:
 
             sources = TextProcessingService.format_sources(search_results)
 
-            return search_str, sources, errors, warnings
+            return search_str, sources, errors
         except Exception as e:
             # Log error but continue with empty results
             message = f"Web research error: {e}"
             self.logger.exception(message)
             errors.append(message)
-            return "", "", errors, warnings
+            return "", "", errors
 
     async def _perform_search(self, query: str, loop_count: int):
         """Perform the actual search using the configured search backend."""
