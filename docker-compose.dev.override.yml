@@ -9,5 +9,3 @@ services:
     environment:
       - CONTAINER_ENV=development
       - SEARXNG_SECRET=${SEARXNG_SECRET}
-      - OLLAMA_HOST=${OLLAMA_HOST}
-      - OLLAMA_MODEL=${OLLAMA_MODEL}

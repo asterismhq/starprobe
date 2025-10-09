@@ -78,6 +78,13 @@ class OllamaDeepResearcherSettings(BaseSettings):
             return trimmed.rstrip("/") + "/"
         return value
 
+    @field_validator("ollama_model", mode="before")
+    @classmethod
+    def normalize_ollama_model(cls, value: Any) -> Any:
+        if isinstance(value, str) and not value.strip():
+            return "llama3.2:3b"
+        return value
+
     @field_validator("debug", mode="before")
     @classmethod
     def parse_debug(cls, v):
