@@ -34,7 +34,7 @@ async def run_research(request: ResearchRequest):
         settings = OllamaDeepResearcherSettings()
         config = {
             "configurable": {
-                "local_llm": settings.local_llm,
+                "ollama_model": settings.ollama_model,
                 "ollama_host": settings.ollama_host,
             }
         }

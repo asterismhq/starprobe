@@ -77,7 +77,7 @@ class TestOllamaClient:
         mock_chat_ollama.reset_mock()
 
         # Create new settings with updated model
-        new_settings = mock_settings.model_copy(update={"local_llm": "new-model"})
+        new_settings = mock_settings.model_copy(update={"ollama_model": "new-model"})
         client.configure(new_settings)
 
         assert client.model == "new-model"
@@ -114,7 +114,7 @@ class TestOllamaClient:
         # Create new settings by copying mock_settings and updating values
         new_settings = mock_settings.model_copy()
         new_settings.ollama_host = "http://updated:11434/"
-        new_settings.local_llm = "updated-model"
+        new_settings.ollama_model = "updated-model"
         client.configure(new_settings)
 
         assert client.base_url == "http://updated:11434"

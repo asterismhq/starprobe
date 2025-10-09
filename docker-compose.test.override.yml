@@ -7,25 +7,5 @@ services:
     environment:
       - CONTAINER_ENV=development
       - DEBUG=False
-      - OLLAMA_HOST=${OLLAMA_HOST-http://ollama:11434}
-      - RESEARCH_API_OLLAMA_MODEL=tinyllama:1.1b
-    depends_on:
-      ollama:
-        condition: service_healthy
-
-  ollama:
-    image: ghcr.io/akitorahayashi/olm-ci-img:tinyllama-v1
-    volumes:
-      - ollama-data:/root/.ollama
-    healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:11434/api/tags" ]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 10s
-
-volumes:
-  ollama-data:
-    driver: local
-    name: ollama-data
-    external: false
+      - OLLAMA_HOST=${OLLAMA_HOST}
+      - OLLAMA_MODEL=${OLLAMA_MODEL}

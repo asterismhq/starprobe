@@ -9,7 +9,11 @@ from ollama_deep_researcher.settings import OllamaDeepResearcherSettings
 
 @pytest.fixture
 def settings():
-    return OllamaDeepResearcherSettings(searxng_url="http://searxng:8080")
+    return OllamaDeepResearcherSettings(
+        searxng_url="http://searxng:8080",
+        ollama_host="http://ollama:11434/",
+        ollama_model="llama3.2:3b",
+    )
 
 
 @pytest.fixture

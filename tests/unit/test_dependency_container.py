@@ -10,7 +10,10 @@ class TestDependencyContainer:
     def test_production_mode(self):
         """Test container in production mode (DEBUG=false)."""
         os.environ["DEBUG"] = "False"
-        settings = OllamaDeepResearcherSettings()
+        settings = OllamaDeepResearcherSettings(
+            ollama_host="http://ollama:11434/",
+            ollama_model="tinyllama:1.1b",
+        )
         container = DependencyContainer(settings)
 
         # Check that real implementations are used
@@ -29,7 +32,10 @@ class TestDependencyContainer:
     def test_debug_mode(self):
         """Test container in debug mode (DEBUG=true)."""
         os.environ["DEBUG"] = "True"
-        settings = OllamaDeepResearcherSettings()
+        settings = OllamaDeepResearcherSettings(
+            ollama_host="http://ollama:11434/",
+            ollama_model="tinyllama:1.1b",
+        )
         container = DependencyContainer(settings)
 
         # Check that mock implementations are used
@@ -46,7 +52,10 @@ class TestDependencyContainer:
     def test_services_initialization(self):
         """Test that services are properly initialized."""
         os.environ["DEBUG"] = "False"
-        settings = OllamaDeepResearcherSettings()
+        settings = OllamaDeepResearcherSettings(
+            ollama_host="http://ollama:11434/",
+            ollama_model="tinyllama:1.1b",
+        )
         container = DependencyContainer(settings)
 
         # Check services exist

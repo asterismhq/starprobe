@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING, Any, Optional
 
 from langchain_core.runnables import RunnableConfig
-from pydantic import Field, field_validator
+from pydantic import Field, AliasChoices, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 if TYPE_CHECKING:
@@ -22,18 +22,14 @@ class OllamaDeepResearcherSettings(BaseSettings):
         title="Research Depth",
         description="Number of research iterations to perform",
     )
-    local_llm: str = Field(
-        default="tinyllama:1.1b",
-        title="LLM Model Name",
-        description="Name of the LLM model to use",
-        alias="RESEARCH_API_OLLAMA_MODEL",
+    ollama_model: str = Field(
+        default="llama3.2:3b",
+        title="Ollama Model Name",
+        description="Name of the Ollama model to use",
+        alias="OLLAMA_MODEL",
+        validation_alias=AliasChoices("OLLAMA_MODEL", "RESEARCH_API_OLLAMA_MODEL"),
     )
-    ollama_host: str = Field(
-        default="http://ollama:11434/",
-        title="Ollama Base URL",
-        description="Base URL for Ollama API",
-        alias="OLLAMA_HOST",
-    )
+    ollama_host: str
     searxng_url: str = Field(
         default="http://localhost:8080",
         title="SearXNG URL",
@@ -94,15 +90,21 @@ class OllamaDeepResearcherSettings(BaseSettings):
         cls, config: Optional[RunnableConfig] = None
     ) -> "OllamaDeepResearcherSettings":
         """Create a Configuration instance from a RunnableConfig."""
-        # Start with environment variables loaded by BaseSettings
-        settings = cls()
+        configurable = config.get("configurable", {}) if config else {}
+
+        init_kwargs: dict[str, Any] = {}
+        for field in ("ollama_host", "ollama_model"):
+            if field in configurable:
+                init_kwargs[field] = configurable[field]
+
+        # Start with environment variables loaded by BaseSettings, allowing
+        # required values to be provided through the configurable section.
+        settings = cls(**init_kwargs)
 
         # Override with configurable values if provided
-        if config and "configurable" in config:
-            configurable = config["configurable"]
-            for key, value in configurable.items():
-                if hasattr(settings, key):
-                    setattr(settings, key, value)
+        for key, value in configurable.items():
+            if hasattr(settings, key):
+                setattr(settings, key, value)
 
         return settings
 
