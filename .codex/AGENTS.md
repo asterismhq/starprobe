@@ -27,7 +27,7 @@ The agent's logic is built as a state machine using **LangGraph**. It repeats th
     -   `ScrapingService`: Extracts content from URLs.
 -   **Clients (`clients/`)**:
     -   `OllamaClient`: Communicates with the Ollama LLM.
-    -   `DuckDuckGoClient`: Performs web searches.
+    -   `DdgsClient`: Performs DuckDuckGo web searches using the `ddgs` library.
 -   **State (`state.py`)**:
     -   `SummaryState`: Shares information such as topics, queries, and summaries between states.
 
