@@ -10,7 +10,7 @@ from ollama_deep_researcher.settings import OllamaDeepResearcherSettings
 load_dotenv()
 
 
-async def main(output_file: str = "demo/example.md", use_debug: bool | None = None):
+async def main(output_file: str = "demo/example.md"):
     """
     Main function to perform deep research locally.
     """
@@ -30,12 +30,6 @@ async def main(output_file: str = "demo/example.md", use_debug: bool | None = No
         ollama_model=ollama_model,
     )
     debug = settings.debug
-
-    # For the demo, default to debug=True if DEBUG is not set, and allow override via function arg
-    if use_debug is not None:
-        debug = use_debug
-    elif os.getenv("DEBUG") is None:
-        debug = True
 
     settings = settings.model_copy(
         update={
