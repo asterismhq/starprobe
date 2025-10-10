@@ -8,44 +8,47 @@ logger = logging.getLogger(__name__)
 def finalize_summary(state: SummaryState):
     """LangGraph node that finalizes the research summary.
 
-    Prepares the final output by deduplicating and formatting sources, then
-    combining them with the running summary to create a well-structured
-    research report with proper citations.
-    Populates success/error metadata for API response.
-
-    Args:
-        state: Current graph state containing the running summary and sources gathered
-
-    Returns:
-        Dictionary with state update, including running_summary, success, sources, and error_message
+    Builds a Markdown article from accumulated state values and prepares
+    metadata for API consumers.
     """
 
-    # Deduplicate sources before joining
+    # Deduplicate sources while preserving order
     seen_sources = set()
-    unique_sources = []
+    unique_sources: list[str] = []
 
     for source in state.sources_gathered:
-        # Split the source into lines and process each individually
         for line in source.split("\n"):
-            # Only process non-empty lines
-            if line.strip() and line not in seen_sources:
-                seen_sources.add(line)
-                unique_sources.append(line)
+            cleaned = line.strip()
+            if cleaned and cleaned not in seen_sources:
+                seen_sources.add(cleaned)
+                unique_sources.append(cleaned)
 
-    # Extract source URLs
-    source_urls = []
-    for line in unique_sources:
-        # Look for lines that start with http
-        if line.strip().startswith("http"):
-            source_urls.append(line.strip())
+    source_urls = [line for line in unique_sources if line.startswith("http")]
 
-    # Determine success based on content quality
-    has_summary = bool(state.running_summary and len(state.running_summary) > 50)
+    article_sections: list[str] = []
+    title = state.research_topic or "Research Article"
+    article_sections.append(f"# {title}")
+
+    summary_body = state.running_summary or "Summary generation unavailable."
+    article_sections.append("")
+    article_sections.append("## Summary")
+    article_sections.append("")
+    article_sections.append(summary_body)
+
+    if source_urls:
+        article_sections.append("")
+        article_sections.append("## Sources")
+        article_sections.append("")
+        for index, url in enumerate(source_urls, start=1):
+            article_sections.append(f"{index}. {url}")
+
+    article = "\n".join(article_sections).strip()
+
+    has_summary = bool(summary_body and len(summary_body) > 50)
     has_sources = len(source_urls) > 0
     has_errors = bool(state.errors)
     success = has_summary and has_sources and not has_errors
 
-    # Set error message if not successful
     error_message = None
     if not success:
         if not has_summary:
@@ -55,26 +58,24 @@ def finalize_summary(state: SummaryState):
         elif has_errors:
             error_message = "Errors occurred during research"
 
-    # Use errors directly as diagnostics
     diagnostics = list(dict.fromkeys(state.errors))
     if state.errors:
-        joined = "; ".join(dict.fromkeys(state.errors))
+        joined = "; ".join(diagnostics)
         if not error_message:
             error_message = joined
         else:
             error_message = f"{error_message}. Details: {joined}"
         logger.error("Research completed with errors", extra={"errors": joined})
 
-    # Join the deduplicated sources
-    all_sources = "\n".join(unique_sources)
-    formatted_summary = (
-        f"## Summary\n{state.running_summary}\n\n ### Sources:\n{all_sources}"
-    )
+    metadata = {
+        "sources": source_urls,
+        "source_count": len(source_urls),
+    }
 
     return {
-        "running_summary": formatted_summary,
+        "article": article,
         "success": success,
-        "sources": source_urls,
+        "metadata": metadata,
         "error_message": error_message,
         "diagnostics": diagnostics,
     }

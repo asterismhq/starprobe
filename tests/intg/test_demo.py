@@ -28,9 +28,8 @@ class TestDemo:
                 content = f.read()
 
             # Check basic structure
-            assert "# Research Results" in content
             assert (
-                "**Topic:** Current state of AI technology in Japan and future prospects"
+                "# Current state of AI technology in Japan and future prospects"
                 in content
             )
             assert "## Summary" in content
@@ -58,7 +57,9 @@ class TestDemo:
         with open(temp_path, "r", encoding="utf-8") as f:
             content = f.read()
 
-        assert "# Research Results" in content
+        assert (
+            "# Current state of AI technology in Japan and future prospects" in content
+        )
         assert "**Success:** True" in content
 
         if os.path.exists(temp_path):

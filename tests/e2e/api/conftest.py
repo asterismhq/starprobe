@@ -39,7 +39,7 @@ def api_config():
 
     return {
         "base_url": f"http://localhost:{host_port}",
-        "research_url": f"http://localhost:{host_port}/api/v1/research",
+        "research_url": f"http://localhost:{host_port}/research",
         "health_url": f"http://localhost:{host_port}/health",
         "model_name": model_name,
     }
