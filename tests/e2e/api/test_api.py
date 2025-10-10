@@ -20,7 +20,7 @@ class TestAPI:
     @pytest.mark.asyncio
     async def test_research_success(self):
         """Test research request completes with proper response structure and types."""
-        payload = {"topic": "AI technology trends"}
+        payload = {"query": "AI technology trends"}
         response = await self.http_client.post(
             self.api_config["research_url"], json=payload
         )
@@ -29,8 +29,8 @@ class TestAPI:
 
         # Verify response structure exists
         assert "success" in data
-        assert "summary" in data
-        assert "sources" in data
+        assert "article" in data
+        assert "metadata" in data
         assert "processing_time" in data
         assert "error_message" in data
         assert "diagnostics" in data
@@ -42,8 +42,8 @@ class TestAPI:
             f"  success: {data['success']}\n"
             f"  error_message: {data['error_message']}\n"
             f"  diagnostics: {data['diagnostics']}\n"
-            f"  summary: {data['summary'][:100] if data['summary'] else None}...\n"
-            f"  sources count: {len(data['sources'])}\n"
+            f"  article: {data['article'][:100] if data['article'] else None}...\n"
+            f"  metadata: {data['metadata']}\n"
             f"  processing_time: {data['processing_time']}"
         )
         assert (
@@ -54,9 +54,13 @@ class TestAPI:
 
         # Type checks for response fields
         assert isinstance(data["success"], bool)
-        assert isinstance(data["summary"], (str, type(None)))
-        assert isinstance(data["sources"], list)
-        assert all(isinstance(source, str) for source in data["sources"])
+        assert isinstance(data["article"], (str, type(None)))
+        assert isinstance(data["metadata"], (dict, type(None)))
+        if data["success"]:
+            assert data["metadata"] is not None
+            assert "source_count" in data["metadata"]
+            assert "sources" in data["metadata"]
+            assert isinstance(data["metadata"]["sources"], list)
         assert isinstance(data["error_message"], (str, type(None)))
         assert isinstance(data["diagnostics"], list)
         assert all(isinstance(msg, str) for msg in data["diagnostics"])
@@ -64,36 +68,36 @@ class TestAPI:
         assert data["processing_time"] >= 0
 
     @pytest.mark.asyncio
-    async def test_research_empty_topic(self):
-        """Test research request with empty topic fails."""
-        payload = {"topic": ""}
+    async def test_research_empty_query(self):
+        """Test research request with empty query fails."""
+        payload = {"query": ""}
         response = await self.http_client.post(
             self.api_config["research_url"], json=payload
         )
         assert response.status_code == 422  # Pydantic validation error
 
     @pytest.mark.asyncio
-    async def test_research_missing_topic(self):
-        """Test research request with missing topic field fails."""
-        payload = {}  # Missing topic field
+    async def test_research_missing_query(self):
+        """Test research request with missing query field fails."""
+        payload = {}  # Missing query field
         response = await self.http_client.post(
             self.api_config["research_url"], json=payload
         )
         assert response.status_code == 422  # Pydantic validation error
 
     @pytest.mark.asyncio
-    async def test_research_null_topic(self):
-        """Test research request with null topic fails."""
-        payload = {"topic": None}
+    async def test_research_null_query(self):
+        """Test research request with null query fails."""
+        payload = {"query": None}
         response = await self.http_client.post(
             self.api_config["research_url"], json=payload
         )
         assert response.status_code == 422  # Pydantic validation error
 
     @pytest.mark.asyncio
-    async def test_research_invalid_topic_type(self):
-        """Test research request with non-string topic fails."""
-        payload = {"topic": 123}  # Number instead of string
+    async def test_research_invalid_query_type(self):
+        """Test research request with non-string query fails."""
+        payload = {"query": 123}  # Number instead of string
         response = await self.http_client.post(
             self.api_config["research_url"], json=payload
         )

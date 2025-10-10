@@ -61,43 +61,50 @@ Once the service is running, the following endpoints are available.
 
 ### Perform Research
 
-  * **Endpoint:** `POST /api/v1/research`
-  * **Description:** Performs detailed research on the specified topic.
+  * **Endpoint:** `POST /research`
+  * **Description:** Performs detailed research on the specified query and returns a ready-to-use Markdown article.
   * **Request Body:**
     ```json
     {
-      "topic": "YOUR_RESEARCH_TOPIC"
+      "query": "YOUR_RESEARCH_QUERY"
     }
     ```
-    - `topic` (string, required): The research topic to investigate. Must be at least 1 character long.
+    - `query` (string, required): The topic or search query to investigate. Must be at least 1 character long.
   * **Example using `curl`:**
     ```shell
-    curl -X POST http://localhost:8000/api/v1/research \
+    curl -X POST http://localhost:8000/research \
     -H "Content-Type: application/json" \
-    -d '{"topic": "The future of renewable energy"}'
+    -d '{"query": "The future of renewable energy"}'
     ```
   * **Response (on success):**
     ```json
     {
       "success": true,
-      "summary": "## Summary\n...",
-      "sources": [
-        "https://example.com/source1",
-        "https://example.com/source2"
-      ],
+      "article": "# Sample Article\n...",
+      "metadata": {
+        "sources": [
+          "https://example.com/source1",
+          "https://example.com/source2"
+        ],
+        "source_count": 2
+      },
+      "diagnostics": [],
+      "processing_time": 12.34,
       "error_message": null
     }
     ```
     - `success` (boolean): Indicates whether the research completed successfully.
-    - `summary` (string or null): The generated research summary in Markdown format.
-    - `sources` (array of strings): List of source URLs used in the research.
+    - `article` (string or null): The generated Markdown article that can be persisted directly.
+    - `metadata` (object or null): Additional structured data such as source listings or counts.
+    - `diagnostics` (array of strings): Warnings or informational messages collected during execution.
     - `error_message` (string or null): Error details if the research failed.
   * **Response (on failure/timeout):**
     ```json
     {
         "success": false,
-        "summary": null,
-        "sources": [],
+        "article": null,
+        "metadata": null,
+        "diagnostics": [],
         "error_message": "Research request exceeded 5-minute timeout"
     }
     ```
@@ -175,11 +182,11 @@ pytest tests/ --cov=src/ollama_deep_researcher --cov-report=html
 To verify the service is working correctly with DuckDuckGo search:
 
 1. **Start the service** using Docker or locally
-2. **Send a test research request** to `/api/v1/research`:
+2. **Send a test research request** to `/research`:
    ```shell
-   curl -X POST http://localhost:8000/api/v1/research \
+   curl -X POST http://localhost:8000/research \
    -H "Content-Type: application/json" \
-   -d '{"topic": "quantum computing applications"}'
+   -d '{"query": "quantum computing applications"}'
    ```
 3. **Monitor the logs** to confirm DuckDuckGo search executes successfully
 4. **Verify the response** contains sources with DuckDuckGo search result URLs

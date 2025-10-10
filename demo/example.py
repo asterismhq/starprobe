@@ -63,10 +63,7 @@ async def main(output_file: str = "demo/example.md"):
 
         # Save results to markdown file
         with open(output_file, "w", encoding="utf-8") as f:
-            f.write("# Research Results\n\n")
-            f.write(f"**Topic:** {research_topic}\n\n")
-            running_summary = result.get("running_summary", "No summary available")
-            f.write(running_summary)
+            f.write(result.get("article", "No article available"))
             f.write(f"\n\n**Success:** {result.get('success', False)}\n")
             if result.get("error_message"):
                 f.write(f"\n**Error:** {result['error_message']}\n")
