@@ -23,8 +23,8 @@ async def test_real_client_with_mocked_ddgs(mocker):
         return_value=mock_ddgs_instance,
     )
     settings = OllamaDeepResearcherSettings(
-        ollama_host="http://ollama:11434/",
-        ollama_model="llama3.2:3b",
+        ollama_host="http://placeholder:11434/",
+        ollama_model="test-model",
     )
     search_client = DdgsClient(settings)
 
