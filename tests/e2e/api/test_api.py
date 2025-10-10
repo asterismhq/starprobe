@@ -68,8 +68,8 @@ class TestAPI:
         assert data["processing_time"] >= 0
 
     @pytest.mark.asyncio
-    async def test_research_empty_topic(self):
-        """Test research request with empty topic fails."""
+    async def test_research_empty_query(self):
+        """Test research request with empty query fails."""
         payload = {"query": ""}
         response = await self.http_client.post(
             self.api_config["research_url"], json=payload
@@ -77,8 +77,8 @@ class TestAPI:
         assert response.status_code == 422  # Pydantic validation error
 
     @pytest.mark.asyncio
-    async def test_research_missing_topic(self):
-        """Test research request with missing topic field fails."""
+    async def test_research_missing_query(self):
+        """Test research request with missing query field fails."""
         payload = {}  # Missing query field
         response = await self.http_client.post(
             self.api_config["research_url"], json=payload
@@ -86,8 +86,8 @@ class TestAPI:
         assert response.status_code == 422  # Pydantic validation error
 
     @pytest.mark.asyncio
-    async def test_research_null_topic(self):
-        """Test research request with null topic fails."""
+    async def test_research_null_query(self):
+        """Test research request with null query fails."""
         payload = {"query": None}
         response = await self.http_client.post(
             self.api_config["research_url"], json=payload
@@ -95,8 +95,8 @@ class TestAPI:
         assert response.status_code == 422  # Pydantic validation error
 
     @pytest.mark.asyncio
-    async def test_research_invalid_topic_type(self):
-        """Test research request with non-string topic fails."""
+    async def test_research_invalid_query_type(self):
+        """Test research request with non-string query fails."""
         payload = {"query": 123}  # Number instead of string
         response = await self.http_client.post(
             self.api_config["research_url"], json=payload
