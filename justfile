@@ -4,7 +4,7 @@
 
 set dotenv-load 
 
-PROJECT_NAME := env("RESEARCH_API_PROJECT_NAME", "ollama-deep-researcher")
+PROJECT_NAME := env("OLM_D_RCH_PROJECT_NAME", "olm-d-rch")
 
 DEV_PROJECT_NAME := PROJECT_NAME + "-dev"
 TEST_PROJECT_NAME := PROJECT_NAME + "-test"
@@ -55,7 +55,7 @@ down:
 rebuild:
     @echo "Rebuilding and restarting API service..."
     @{{DEV_COMPOSE}} down --remove-orphans
-    @{{DEV_COMPOSE}} build --no-cache research-api
+    @{{DEV_COMPOSE}} build --no-cache olm-d-rch
 
 # ==============================================================================
 # CODE QUALITY

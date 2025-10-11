@@ -2,7 +2,7 @@
 
 import pytest
 
-from ollama_deep_researcher.container import DependencyContainer
+from olm_d_rch.container import DependencyContainer
 
 
 class TestResearchService:

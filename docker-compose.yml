@@ -1,12 +1,12 @@
 services:
-  research-api:
+  olm-d-rch:
     build:
       target: production
     ports:
-      - "${RESEARCH_API_BIND_IP:-0.0.0.0}:${RESEARCH_API_BIND_PORT:-8000}:8000"
+      - "${OLM_D_RCH_BIND_IP:-0.0.0.0}:${OLM_D_RCH_BIND_PORT:-8000}:8000"
     env_file:
       - .env
     environment:
       - CONTAINER_ENV=production
       - OLLAMA_HOST=${OLLAMA_HOST}
-      - RESEARCH_API_OLLAMA_MODEL=${RESEARCH_API_OLLAMA_MODEL}
+      - OLM_D_RCH_OLLAMA_MODEL=${OLM_D_RCH_OLLAMA_MODEL}

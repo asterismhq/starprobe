@@ -1,11 +1,11 @@
 import logging
 
-from ollama_deep_researcher.protocols.ollama_client_protocol import OllamaClientProtocol
-from ollama_deep_researcher.services.prompt_service import PromptService
-from ollama_deep_researcher.services.text_processing_service import (
+from olm_d_rch.protocols.ollama_client_protocol import OllamaClientProtocol
+from olm_d_rch.services.prompt_service import PromptService
+from olm_d_rch.services.text_processing_service import (
     TextProcessingService,
 )
-from ollama_deep_researcher.state import SummaryState
+from olm_d_rch.state import SummaryState
 
 
 async def summarize_sources(

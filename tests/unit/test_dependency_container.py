@@ -6,8 +6,8 @@ import pytest
 from dev.mocks.mock_ollama_client import MockOllamaClient
 from dev.mocks.mock_scraping_service import MockScrapingService
 from dev.mocks.mock_search_client import MockSearchClient
-from ollama_deep_researcher.clients import DdgsClient, OllamaClient
-from ollama_deep_researcher.services import ScrapingService
+from olm_d_rch.clients import DdgsClient, OllamaClient
+from olm_d_rch.services import ScrapingService
 
 _COMPONENT_MATRIX = (
     (
@@ -34,15 +34,13 @@ _COMPONENT_MATRIX = (
 def _refresh_dependency_container_module():
     """Reload config and container modules so new env vars take effect."""
 
-    workflow_settings_module = import_module(
-        "ollama_deep_researcher.config.workflow_settings"
-    )
+    workflow_settings_module = import_module("olm_d_rch.config.workflow_settings")
     importlib.reload(workflow_settings_module)
 
-    config_module = import_module("ollama_deep_researcher.config")
+    config_module = import_module("olm_d_rch.config")
     importlib.reload(config_module)
 
-    container_module = import_module("ollama_deep_researcher.container")
+    container_module = import_module("olm_d_rch.container")
     return importlib.reload(container_module)
 
 

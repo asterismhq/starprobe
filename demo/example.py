@@ -4,7 +4,7 @@ from pprint import pprint
 
 from dotenv import load_dotenv
 
-from ollama_deep_researcher.graph import build_graph
+from olm_d_rch.graph import build_graph
 
 load_dotenv()
 
@@ -19,7 +19,7 @@ async def main(output_file: str = "demo/example.md"):
     print(f"Starting research on the topic '{research_topic}'...")
 
     # Build the configuration the same way as the API server
-    ollama_model = os.getenv("RESEARCH_API_OLLAMA_MODEL", "llama3.2:3b")
+    ollama_model = os.getenv("OLM_D_RCH_OLLAMA_MODEL", "llama3.2:3b")
     ollama_host = os.getenv("OLLAMA_HOST")
 
     if not ollama_host:

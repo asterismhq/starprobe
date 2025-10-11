@@ -4,11 +4,11 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from ollama_deep_researcher.clients.ollama_client import (
+from olm_d_rch.clients.ollama_client import (
     OllamaClient,
     OllamaClientAdapter,
 )
-from ollama_deep_researcher.container import DependencyContainer
+from olm_d_rch.container import DependencyContainer
 
 
 class TestOllamaClientAdapter:
@@ -49,7 +49,7 @@ class TestOllamaClient:
     @patch("langchain_ollama.ChatOllama")
     def test_init_with_defaults(self, mock_chat_ollama):
         """Test client initialization with default settings."""
-        from ollama_deep_researcher.config.ollama_settings import OllamaSettings
+        from olm_d_rch.config.ollama_settings import OllamaSettings
 
         settings = OllamaSettings()
         client = OllamaClient(settings)

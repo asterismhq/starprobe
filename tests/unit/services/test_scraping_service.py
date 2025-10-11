@@ -3,8 +3,8 @@
 import pytest
 import requests
 
-from ollama_deep_researcher.container import DependencyContainer
-from ollama_deep_researcher.services.scraping_service import ScrapingService
+from olm_d_rch.container import DependencyContainer
+from olm_d_rch.services.scraping_service import ScrapingService
 
 
 class TestScrapingService:

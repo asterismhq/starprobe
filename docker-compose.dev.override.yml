@@ -1,9 +1,9 @@
 services:
-  research-api:
+  olm-d-rch:
     build:
       target: development
     ports: !override
-      - "${RESEARCH_API_BIND_IP:-0.0.0.0}:${RESEARCH_API_DEV_PORT:-8001}:8000"
+      - "${OLM_D_RCH_BIND_IP:-0.0.0.0}:${OLM_D_RCH_DEV_PORT:-8001}:8000"
     volumes:
       - ./src:/app/src
     environment:

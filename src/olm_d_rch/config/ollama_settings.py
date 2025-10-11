@@ -19,7 +19,7 @@ class OllamaSettings(BaseSettings):
         default="llama3.2:3b",
         title="Ollama Model Name",
         description="Name of the Ollama model to use",
-        alias="RESEARCH_API_OLLAMA_MODEL",
+        alias="OLM_D_RCH_OLLAMA_MODEL",
     )
     ollama_host: Optional[str] = Field(
         default=None,

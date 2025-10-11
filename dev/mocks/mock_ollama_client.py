@@ -2,7 +2,7 @@
 
 from typing import Any
 
-from ollama_deep_researcher.protocols.ollama_client_protocol import OllamaClientProtocol
+from olm_d_rch.protocols.ollama_client_protocol import OllamaClientProtocol
 
 
 class MockResponse:

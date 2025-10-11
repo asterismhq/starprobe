@@ -13,14 +13,14 @@ This service is designed to run as a Docker container.
 1. **Clone the repository:**
 
     ```shell
-    git clone https://github.com/langchain-ai/ollama-deep-researcher.git
-    cd ollama-deep-researcher
+    git clone https://github.com/langchain-ai/olm-d-rch.git
+    cd olm-d-rch
     ```
 
 2. **Build the Docker image:**
 
     ```shell
-    docker build -t ollama-deep-researcher-api .
+    docker build -t olm-d-rch-api .
     ```
 
 3. **Run the Docker container:**
@@ -31,7 +31,7 @@ This service is designed to run as a Docker container.
     docker run --rm -it -p 8000:8000 \
       -e OLLAMA_HOST="http://host.docker.internal:11434" \
       -e RESEARCH_API_OLLAMA_MODEL="llama3.2:3b" \
-      ollama-deep-researcher-api
+      olm-d-rch-api
     ```
 
       * `OLLAMA_HOST`: Specifies the endpoint of the Ollama service.
@@ -133,7 +133,7 @@ The application's behavior can be controlled via the following environment varia
 
   * `RESEARCH_API_BIND_IP`: IP address to bind the API server to. Default is `127.0.0.1`.
   * `RESEARCH_API_BIND_PORT`: Port to bind the API server to. Default is `8000`.
-  * `RESEARCH_API_PROJECT_NAME`: Name of the project. Default is `ollama-deep-researcher`.
+  * `RESEARCH_API_PROJECT_NAME`: Name of the project. Default is `olm-d-rch`.
 
 ### Ollama Configuration
 

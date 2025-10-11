@@ -1,10 +1,10 @@
 from langchain_core.runnables import RunnableConfig
 from langgraph.graph import END, START, StateGraph
 
-from ollama_deep_researcher.config import workflow_settings
-from ollama_deep_researcher.config.ollama_settings import OllamaSettings
-from ollama_deep_researcher.container import DependencyContainer
-from ollama_deep_researcher.nodes import (
+from olm_d_rch.config import workflow_settings
+from olm_d_rch.config.ollama_settings import OllamaSettings
+from olm_d_rch.container import DependencyContainer
+from olm_d_rch.nodes import (
     finalize_summary,
     generate_query,
     reflect_on_summary,
@@ -12,7 +12,7 @@ from ollama_deep_researcher.nodes import (
     summarize_sources,
     web_research,
 )
-from ollama_deep_researcher.state import (
+from olm_d_rch.state import (
     SummaryState,
     SummaryStateInput,
     SummaryStateOutput,
