@@ -5,6 +5,8 @@ from urllib.parse import urlparse
 import requests
 from bs4 import BeautifulSoup
 
+from ..config.scraping_settings import ScrapingSettings
+
 
 class ScrapingService:
     """Service for web scraping with URL validation and content extraction.
@@ -13,7 +15,7 @@ class ScrapingService:
     - None (standalone service using requests and BeautifulSoup)
     """
 
-    def __init__(self, settings=None):
+    def __init__(self, settings: ScrapingSettings):
         self.settings = settings
 
     def validate_url(self, url: str) -> None:
@@ -57,13 +59,10 @@ class ScrapingService:
         self.validate_url(url)
 
         if timeout is None:
-            if self.settings:
-                timeout = (
-                    self.settings.scraping_timeout_connect,
-                    self.settings.scraping_timeout_read,
-                )
-            else:
-                timeout = (30, 90)
+            timeout = (
+                self.settings.scraping_timeout_connect,
+                self.settings.scraping_timeout_read,
+            )
 
         headers = {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"

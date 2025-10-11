@@ -1,6 +1,6 @@
 from dev.mocks.mock_search_client import MockSearchClient
 from ollama_deep_researcher.clients.ddgs_client import DdgsClient
-from ollama_deep_researcher.settings import OllamaDeepResearcherSettings
+from ollama_deep_researcher.config.ddgs_settings import DDGSSettings
 
 
 async def test_real_client_with_mocked_ddgs(mocker):
@@ -22,10 +22,7 @@ async def test_real_client_with_mocked_ddgs(mocker):
         "ollama_deep_researcher.clients.ddgs_client.DDGS",
         return_value=mock_ddgs_instance,
     )
-    settings = OllamaDeepResearcherSettings(
-        ollama_host="http://placeholder:11434/",
-        ollama_model="test-model",
-    )
+    settings = DDGSSettings()
     search_client = DdgsClient(settings)
 
     results = await search_client.search("python", max_results=2)

@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, Any
 from ollama_deep_researcher.protocols.ollama_client_protocol import OllamaClientProtocol
 
 if TYPE_CHECKING:
-    from ollama_deep_researcher.settings import OllamaDeepResearcherSettings
+    from ollama_deep_researcher.config.ollama_settings import OllamaSettings
 
 
 class OllamaClientAdapter(OllamaClientProtocol):
@@ -29,17 +29,19 @@ class OllamaClient(OllamaClientProtocol):
 
     def __init__(
         self,
-        settings: "OllamaDeepResearcherSettings",
+        settings: "OllamaSettings",
     ):
         """Initialize the Ollama client.
 
         Automatically chooses between MockOllamaClient and ChatOllama based on settings.debug.
 
         Args:
-            settings: OllamaDeepResearcherSettings instance
+            settings: OllamaSettings instance
         """
         self.settings = settings
-        self.base_url = settings.ollama_host.rstrip("/")
+        self.base_url = (
+            settings.ollama_host.rstrip("/") if settings.ollama_host else None
+        )
         self.model = settings.ollama_model
         self.temperature = 0
         self.format = None
@@ -58,11 +60,13 @@ class OllamaClient(OllamaClientProtocol):
 
     def configure(
         self,
-        settings: "OllamaDeepResearcherSettings",
+        settings: "OllamaSettings",
     ):
         """Configure the client with new settings and recreate the internal client."""
         self.settings = settings
-        self.base_url = settings.ollama_host.rstrip("/")
+        self.base_url = (
+            settings.ollama_host.rstrip("/") if settings.ollama_host else None
+        )
         self.model = settings.ollama_model
         self.temperature = 0
         self.format = None

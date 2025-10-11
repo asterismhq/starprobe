@@ -5,8 +5,8 @@ from typing import Any, Dict, List
 from ddgs import DDGS
 from ddgs.exceptions import DDGSException
 
+from ..config.ddgs_settings import DDGSSettings
 from ..protocols.search_client_protocol import SearchClientProtocol
-from ..settings import OllamaDeepResearcherSettings
 
 logger = logging.getLogger(__name__)
 
@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 class DdgsClient(SearchClientProtocol):
     """Client for performing web searches using DuckDuckGo via the ddgs library."""
 
-    def __init__(self, settings: OllamaDeepResearcherSettings) -> None:
+    def __init__(self, settings: DDGSSettings) -> None:
         self.settings = settings
         self._ddgs = DDGS()
 

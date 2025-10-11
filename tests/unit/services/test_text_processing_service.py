@@ -2,6 +2,7 @@
 
 import tiktoken
 
+from ollama_deep_researcher.config import workflow_settings
 from ollama_deep_researcher.services.text_processing_service import (
     TextProcessingService,
 )
@@ -99,7 +100,7 @@ class TestTextProcessingService:
         result = TextProcessingService.truncate_text_by_tokens(text, max_tokens)
         assert result == ""
 
-    def test_deduplicate_and_format_sources(self, mock_settings):
+    def test_deduplicate_and_format_sources(self):
         """Test deduplication and formatting of sources."""
         search_results = {
             "results": [
@@ -119,7 +120,7 @@ class TestTextProcessingService:
             ]
         }
         result = TextProcessingService.deduplicate_and_format_sources(
-            search_results, mock_settings
+            search_results, workflow_settings
         )
         # Should only have 2 sources (duplicate removed)
         assert "https://example.com/1" in result
@@ -130,7 +131,7 @@ class TestTextProcessingService:
         # Check separator is present
         assert "---" in result
 
-    def test_deduplicate_and_format_sources_with_truncation(self, mock_settings):
+    def test_deduplicate_and_format_sources_with_truncation(self):
         """Test deduplication with token limit truncation."""
         # Create content that will exceed the token limit
         long_content = "word " * 1000
@@ -140,7 +141,7 @@ class TestTextProcessingService:
             ]
         }
         result = TextProcessingService.deduplicate_and_format_sources(
-            search_results, mock_settings
+            search_results, workflow_settings
         )
         # Result should be shorter than original content
         assert len(result) < len(long_content) + 100  # +100 for formatting
@@ -148,7 +149,7 @@ class TestTextProcessingService:
         assert "Source:" in result
         assert "Content:" in result
 
-    def test_deduplicate_and_format_sources_fallback_to_content(self, mock_settings):
+    def test_deduplicate_and_format_sources_fallback_to_content(self):
         """Test fallback to 'content' field when 'raw_content' is missing."""
         search_results = {
             "results": [
@@ -156,23 +157,23 @@ class TestTextProcessingService:
             ]
         }
         result = TextProcessingService.deduplicate_and_format_sources(
-            search_results, mock_settings
+            search_results, workflow_settings
         )
         assert "https://example.com/1" in result
         assert "Content without raw" in result
 
-    def test_deduplicate_and_format_sources_empty_results(self, mock_settings):
+    def test_deduplicate_and_format_sources_empty_results(self):
         """Test deduplication with empty results."""
         search_results = {"results": []}
         result = TextProcessingService.deduplicate_and_format_sources(
-            search_results, mock_settings
+            search_results, workflow_settings
         )
         assert result == ""
 
-    def test_deduplicate_and_format_sources_no_results_key(self, mock_settings):
+    def test_deduplicate_and_format_sources_no_results_key(self):
         """Test deduplication when results key is missing."""
         search_results = {}
         result = TextProcessingService.deduplicate_and_format_sources(
-            search_results, mock_settings
+            search_results, workflow_settings
         )
         assert result == ""

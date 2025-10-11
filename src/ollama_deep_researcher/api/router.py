@@ -12,7 +12,6 @@ from ollama_deep_researcher.api.schemas import (
     ResearchResponse,
 )
 from ollama_deep_researcher.graph import build_graph
-from ollama_deep_researcher.settings import OllamaDeepResearcherSettings
 
 router = APIRouter()
 
@@ -31,10 +30,10 @@ async def run_research(request: ResearchRequest):
 
     try:
         # Loading Settings from the Settings Class
-        settings = OllamaDeepResearcherSettings()
+        # Settings are now loaded as singletons
 
         # Build graph with injected services
-        graph = build_graph(settings)
+        graph = build_graph()
 
         # Execute graph with timeout
         result = await asyncio.wait_for(

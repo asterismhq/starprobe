@@ -3,14 +3,14 @@ from typing import Any, Dict, List
 
 import tiktoken
 
-from ollama_deep_researcher.settings import OllamaDeepResearcherSettings
+from ollama_deep_researcher.config.workflow_settings import WorkflowSettings
 
 
 class TextProcessingService:
     """A service class for text processing utilities.
 
     Dependencies:
-    - OllamaDeepResearcherSettings: For configuration of token limits
+    - WorkflowSettings: For configuration of token limits
     """
 
     # Set the encoding used by gpt-3.5-turbo or gpt-4 as default
@@ -71,7 +71,7 @@ class TextProcessingService:
     @staticmethod
     def deduplicate_and_format_sources(
         search_results: Dict[str, List[Dict[str, Any]]],
-        settings: OllamaDeepResearcherSettings,
+        settings: WorkflowSettings,
     ) -> str:
         """Deduplicate and format search results into a single string."""
         if not search_results or "results" not in search_results:

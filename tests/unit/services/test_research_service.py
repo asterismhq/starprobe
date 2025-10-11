@@ -2,15 +2,18 @@
 
 import pytest
 
-from ollama_deep_researcher.services.research_service import ResearchService
+from ollama_deep_researcher.container import DependencyContainer
 
 
 class TestResearchService:
     """Test cases for ResearchService."""
 
     @pytest.fixture
-    async def research_service(self, mock_settings, mock_scraping_service, mocker):
+    async def research_service(self, mocker):
         """Create a ResearchService instance with mocked dependencies."""
+        container = DependencyContainer()
+
+        # Mock the search client to return test data
         mock_search_client = mocker.AsyncMock()
         mock_search_client.search.return_value = {
             "results": [
@@ -27,11 +30,11 @@ class TestResearchService:
             ]
         }
 
-        return ResearchService(
-            settings=mock_settings,
-            search_client=mock_search_client,
-            scraper=mock_scraping_service,
-        )
+        # Create research service with mocked search client
+        research_service = container.research_service
+        research_service.search_client = mock_search_client  # Override with mock
+
+        return research_service
 
     @pytest.mark.asyncio
     async def test_search_and_scrape_success(self, research_service):
@@ -54,10 +57,9 @@ class TestResearchService:
         )
 
     @pytest.mark.asyncio
-    async def test_search_and_scrape_with_scraping(
-        self, mock_settings, mock_scraping_service, mocker
-    ):
+    async def test_search_and_scrape_with_scraping(self, mocker):
         """Test that scraping is called for each URL."""
+        container = DependencyContainer()
         mock_search_client = mocker.AsyncMock()
         mock_search_client.search.return_value = {
             "results": [
@@ -69,13 +71,10 @@ class TestResearchService:
             ]
         }
 
-        research_service = ResearchService(
-            settings=mock_settings,
-            search_client=mock_search_client,
-            scraper=mock_scraping_service,
-        )
+        research_service = container.research_service
+        research_service.search_client = mock_search_client
 
-        spy = mocker.spy(mock_scraping_service, "scrape")
+        spy = mocker.spy(container.scraping_service, "scrape")
 
         _, _, errors = await research_service.search_and_scrape(
             "test query", loop_count=1
@@ -86,8 +85,9 @@ class TestResearchService:
         assert errors == []
 
     @pytest.mark.asyncio
-    async def test_search_and_scrape_with_failed_scraping(self, mock_settings, mocker):
+    async def test_search_and_scrape_with_failed_scraping(self, mocker):
         """Test behavior when some URLs fail to scrape."""
+        container = DependencyContainer()
         mock_search_client = mocker.AsyncMock()
         mock_search_client.search.return_value = {
             "results": [
@@ -111,11 +111,9 @@ class TestResearchService:
             Exception("Network error"),
         ]
 
-        research_service = ResearchService(
-            settings=mock_settings,
-            search_client=mock_search_client,
-            scraper=mock_scraper,
-        )
+        research_service = container.research_service
+        research_service.search_client = mock_search_client
+        research_service.scraper = mock_scraper
 
         search_str, sources, errors = await research_service.search_and_scrape(
             "test query", loop_count=1
@@ -128,18 +126,14 @@ class TestResearchService:
         assert errors == []
 
     @pytest.mark.asyncio
-    async def test_search_and_scrape_empty_results(
-        self, mock_settings, mock_scraping_service, mocker
-    ):
+    async def test_search_and_scrape_empty_results(self, mocker):
         """Test behavior with no search results."""
+        container = DependencyContainer()
         mock_search_client = mocker.AsyncMock()
         mock_search_client.search.return_value = {"results": []}
 
-        research_service = ResearchService(
-            settings=mock_settings,
-            search_client=mock_search_client,
-            scraper=mock_scraping_service,
-        )
+        research_service = container.research_service
+        research_service.search_client = mock_search_client
 
         search_str, sources, errors = await research_service.search_and_scrape(
             "test query", loop_count=1
@@ -151,18 +145,14 @@ class TestResearchService:
         assert errors  # fallback diagnostics should be recorded
 
     @pytest.mark.asyncio
-    async def test_search_and_scrape_respects_max_results(
-        self, mock_settings, mock_scraping_service, mocker
-    ):
+    async def test_search_and_scrape_respects_max_results(self, mocker):
         """Test that search is called with max_results=3."""
+        container = DependencyContainer()
         mock_search_client = mocker.AsyncMock()
         mock_search_client.search.return_value = {"results": []}
 
-        research_service = ResearchService(
-            settings=mock_settings,
-            search_client=mock_search_client,
-            scraper=mock_scraping_service,
-        )
+        research_service = container.research_service
+        research_service.search_client = mock_search_client
 
         await research_service.search_and_scrape("test query", loop_count=1)
 
@@ -176,10 +166,9 @@ class TestResearchService:
             assert call.kwargs == {"max_results": 3}
 
     @pytest.mark.asyncio
-    async def test_search_and_scrape_handles_missing_url(
-        self, mock_settings, mock_scraping_service, mocker
-    ):
+    async def test_search_and_scrape_handles_missing_url(self, mocker):
         """Test handling of search results without URLs."""
+        container = DependencyContainer()
         mock_search_client = mocker.AsyncMock()
         mock_search_client.search.return_value = {
             "results": [
@@ -192,11 +181,8 @@ class TestResearchService:
             ]
         }
 
-        research_service = ResearchService(
-            settings=mock_settings,
-            search_client=mock_search_client,
-            scraper=mock_scraping_service,
-        )
+        research_service = container.research_service
+        research_service.search_client = mock_search_client
 
         # Should not raise error with missing URL
         search_str, sources, errors = await research_service.search_and_scrape(
@@ -208,18 +194,14 @@ class TestResearchService:
         assert errors == []
 
     @pytest.mark.asyncio
-    async def test_search_and_scrape_handles_search_exception(
-        self, mock_settings, mock_scraping_service, mocker
-    ):
+    async def test_search_and_scrape_handles_search_exception(self, mocker):
         """Test graceful error handling when search fails."""
+        container = DependencyContainer()
         mock_search_client = mocker.AsyncMock()
         mock_search_client.search.side_effect = Exception("Search API error")
 
-        research_service = ResearchService(
-            settings=mock_settings,
-            search_client=mock_search_client,
-            scraper=mock_scraping_service,
-        )
+        research_service = container.research_service
+        research_service.search_client = mock_search_client
 
         search_str, sources, errors = await research_service.search_and_scrape(
             "test query", loop_count=1
@@ -231,9 +213,7 @@ class TestResearchService:
         assert any("Primary search failed" in err for err in errors)
 
     @pytest.mark.asyncio
-    async def test_search_and_scrape_updates_raw_content(
-        self, mock_settings, mock_scraping_service, mocker
-    ):
+    async def test_search_and_scrape_updates_raw_content(self, mocker):
         """Test that raw_content is updated with scraped content."""
         search_results = {
             "results": [
@@ -245,6 +225,7 @@ class TestResearchService:
             ]
         }
 
+        container = DependencyContainer()
         mock_search_client = mocker.AsyncMock()
         mock_search_client.search.return_value = search_results
 
@@ -252,11 +233,9 @@ class TestResearchService:
         mock_scraper = mocker.Mock()
         mock_scraper.scrape.return_value = "Full scraped content from the page"
 
-        research_service = ResearchService(
-            settings=mock_settings,
-            search_client=mock_search_client,
-            scraper=mock_scraper,
-        )
+        research_service = container.research_service
+        research_service.search_client = mock_search_client
+        research_service.scraper = mock_scraper
 
         search_str, sources, errors = await research_service.search_and_scrape(
             "test query", loop_count=1
@@ -267,18 +246,14 @@ class TestResearchService:
         assert errors == []
 
     @pytest.mark.asyncio
-    async def test_perform_search_delegates_to_client(
-        self, mock_settings, mock_scraping_service, mocker
-    ):
+    async def test_perform_search_delegates_to_client(self, mocker):
         """Test _perform_search delegates to search client."""
+        container = DependencyContainer()
         mock_search_client = mocker.AsyncMock()
         mock_search_client.search.return_value = {"results": []}
 
-        research_service = ResearchService(
-            settings=mock_settings,
-            search_client=mock_search_client,
-            scraper=mock_scraping_service,
-        )
+        research_service = container.research_service
+        research_service.search_client = mock_search_client
 
         result = await research_service._perform_search("test query", loop_count=1)
 

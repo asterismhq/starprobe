@@ -5,6 +5,7 @@ from langchain_core.messages import HumanMessage, SystemMessage
 from langchain_core.tools import tool
 from pydantic import BaseModel, Field
 
+from ollama_deep_researcher.config.workflow_settings import WorkflowSettings
 from ollama_deep_researcher.prompts.components import (
     json_mode_query_instructions,
     json_mode_reflection_instructions,
@@ -14,16 +15,13 @@ from ollama_deep_researcher.prompts.components import (
     tool_calling_query_instructions,
     tool_calling_reflection_instructions,
 )
-from ollama_deep_researcher.settings import (
-    OllamaDeepResearcherSettings,
-)
 
 
 class PromptService:
     """Service class for generating LLM prompts.
 
     Dependencies:
-    - OllamaDeepResearcherSettings: For configuration
+    - WorkflowSettings: For configuration
     - ollama_deep_researcher.prompts: For prompt templates and instructions
     """
 
@@ -32,7 +30,7 @@ class PromptService:
         """Get current date in a readable format."""
         return datetime.now().strftime("%B %d, %Y")
 
-    def __init__(self, configurable: OllamaDeepResearcherSettings):
+    def __init__(self, configurable: WorkflowSettings):
         self.configurable = configurable
         self.template_env = jinja2.Environment(
             loader=jinja2.FileSystemLoader(

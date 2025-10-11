@@ -3,13 +3,18 @@ import sys
 from typing import TYPE_CHECKING
 
 from ollama_deep_researcher.clients import DdgsClient, OllamaClient
+from ollama_deep_researcher.config import (
+    ddgs_settings,
+    ollama_settings,
+    scraping_settings,
+    workflow_settings,
+)
 from ollama_deep_researcher.services import (
     PromptService,
     ResearchService,
     ScrapingService,
     SearchService,
 )
-from ollama_deep_researcher.settings import OllamaDeepResearcherSettings
 
 if TYPE_CHECKING:
     from ollama_deep_researcher.protocols import (
@@ -22,10 +27,8 @@ if TYPE_CHECKING:
 class DependencyContainer:
     """Container for managing dependencies based on settings."""
 
-    def __init__(self, settings: OllamaDeepResearcherSettings):
-        self.settings = settings
-
-        if self.settings.debug:
+    def __init__(self):
+        if workflow_settings.debug:
             # Try to use mock implementations, fall back to real if not available
             dev_path = os.path.abspath(
                 os.path.join(os.path.dirname(__file__), "../../dev")
@@ -42,22 +45,22 @@ class DependencyContainer:
                 self.scraping_service: ScrapingServiceProtocol = MockScrapingService()
             except ImportError:
                 # Fall back to real implementations if mocks are not available
-                self.ollama_client: OllamaClientProtocol = OllamaClient(self.settings)
-                self.search_client: SearchClientProtocol = DdgsClient(self.settings)
+                self.ollama_client: OllamaClientProtocol = OllamaClient(ollama_settings)
+                self.search_client: SearchClientProtocol = DdgsClient(ddgs_settings)
                 self.scraping_service: ScrapingServiceProtocol = ScrapingService(
-                    self.settings
+                    scraping_settings
                 )
         else:
             # Use real implementations
-            self.ollama_client: OllamaClientProtocol = OllamaClient(self.settings)
-            self.search_client: SearchClientProtocol = DdgsClient(self.settings)
+            self.ollama_client: OllamaClientProtocol = OllamaClient(ollama_settings)
+            self.search_client: SearchClientProtocol = DdgsClient(ddgs_settings)
             self.scraping_service: ScrapingServiceProtocol = ScrapingService(
-                self.settings
+                scraping_settings
             )
 
         # Instantiate services
-        self.prompt_service = PromptService(self.settings)
+        self.prompt_service = PromptService(workflow_settings)
         self.search_service = SearchService(self.search_client)
         self.research_service = ResearchService(
-            self.settings, self.search_service, self.scraping_service
+            workflow_settings, self.search_service, self.scraping_service
         )

@@ -1,11 +1,11 @@
 from typing_extensions import Literal
 
-from ollama_deep_researcher.settings import OllamaDeepResearcherSettings
+from ollama_deep_researcher.config.workflow_settings import WorkflowSettings
 from ollama_deep_researcher.state import SummaryState
 
 
 def route_research(
-    state: SummaryState, settings: OllamaDeepResearcherSettings
+    state: SummaryState, settings: WorkflowSettings
 ) -> Literal["finalize_summary", "web_research"]:
     """LangGraph routing function that determines the next step in the research flow.
 
@@ -14,7 +14,7 @@ def route_research(
 
     Args:
         state: Current graph state containing the research loop count
-        settings: OllamaDeepResearcherSettings for the runnable, including max_web_research_loops setting
+        settings: WorkflowSettings for the runnable, including max_web_research_loops setting
 
     Returns:
         String literal indicating the next node to visit ("web_research" or "finalize_summary")
