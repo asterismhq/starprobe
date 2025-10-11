@@ -121,5 +121,5 @@ clean:
 # ==============================================================================
 
 # Run demo script
-run-demo:
+demo:
     @uv run demo/example.py

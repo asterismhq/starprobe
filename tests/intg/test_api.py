@@ -1,8 +1,8 @@
 import pytest
 
 
-class TestE2EAPI:
-    """E2E tests for the API endpoints."""
+class TestIntgAPI:
+    """Integration tests for the API endpoints with mocked dependencies."""
 
     @pytest.fixture(autouse=True)
     def setup(self, http_client, api_config):
