@@ -138,14 +138,14 @@ The application's behavior can be controlled via the following environment varia
 
 ### API Configuration
 
-  * `RESEARCH_API_BIND_IP`: IP address to bind the API server to. Default is `127.0.0.1`.
-  * `RESEARCH_API_BIND_PORT`: Port to bind the API server to. Default is `8000`.
-  * `RESEARCH_API_PROJECT_NAME`: Name of the project. Default is `olm-d-rch`.
+  * `OLM_D_RCH_BIND_IP`: IP address to bind the API server to. Default is `127.0.0.1`.
+  * `OLM_D_RCH_BIND_PORT`: Port to bind the API server to. Default is `8000`.
+  * `OLM_D_RCH_PROJECT_NAME`: Name of the project. Default is `olm-d-rch`.
 
 ### Ollama Configuration
 
   * `OLLAMA_HOST`: (Required) The endpoint URL for the Ollama API.
-  * `RESEARCH_API_OLLAMA_MODEL`: The name of the Ollama model to use for research. Default is `llama3.2:3b`.
+  * `OLM_D_RCH_OLLAMA_MODEL`: The name of the Ollama model to use for research. Default is `llama3.2:3b`.
 
 ### Workflow Configuration
 

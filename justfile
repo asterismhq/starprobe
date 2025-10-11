@@ -40,7 +40,7 @@ setup:
 # Run local development server (no Docker)
 dev:
     @echo "Starting local development server..."
-    @uv run uvicorn olm_d_rch.main:app --reload --host 0.0.0.0 --port 8001
+    @uv run uvicorn olm_d_rch.api.main:app --reload --host 0.0.0.0 --port 8001
 
 # Start production-like environment with Docker Compose
 up:
