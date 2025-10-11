@@ -3,7 +3,6 @@
 import pytest
 import requests
 
-from olm_d_rch.container import DependencyContainer
 from olm_d_rch.services.scraping_service import ScrapingService
 
 
@@ -13,8 +12,10 @@ class TestScrapingService:
     @pytest.fixture
     def scraping_service(self):
         """Create a ScrapingService instance for testing."""
-        container = DependencyContainer()
-        return container.scraping_service
+        from olm_d_rch.config.scraping_settings import ScrapingSettings
+
+        settings = ScrapingSettings()
+        return ScrapingService(settings)
 
     def test_validate_url_valid_http(self, scraping_service):
         """Test validation with valid HTTP URL."""

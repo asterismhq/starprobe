@@ -11,6 +11,7 @@ workflow_settings = WorkflowSettings()
 
 __all__ = [
     # Classes
+    "BaseSettings",
     "OllamaSettings",
     "DDGSSettings",
     "ScrapingSettings",

@@ -1,8 +1,8 @@
 from langchain_core.runnables import RunnableConfig
 from langgraph.graph import END, START, StateGraph
 
-from olm_d_rch.config import workflow_settings
 from olm_d_rch.config.ollama_settings import OllamaSettings
+from olm_d_rch.config.workflow_settings import WorkflowSettings
 from olm_d_rch.container import DependencyContainer
 from olm_d_rch.nodes import (
     finalize_summary,
@@ -48,7 +48,7 @@ class ResearchGraph:
         return await reflect_on_summary(state, self.prompt_service, self.ollama_client)
 
     def route_research(self, state: SummaryState, config: RunnableConfig):
-        return route_research(state, workflow_settings)
+        return route_research(state, WorkflowSettings.from_runnable_config(config))
 
     def finalize_summary(self, state: SummaryState, config: RunnableConfig):
         return finalize_summary(state)

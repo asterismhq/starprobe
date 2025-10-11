@@ -1,4 +1,4 @@
-from pydantic import Field, field_validator
+from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -28,10 +28,3 @@ class ScrapingSettings(BaseSettings):
         description="Use the mock scraping service instead of the real implementation",
         alias="USE_MOCK_SCRAPING",
     )
-
-    @field_validator("use_mock_scraping", mode="before")
-    @classmethod
-    def parse_bool_flags(cls, v):
-        if isinstance(v, str):
-            return v.lower() in ("true", "1", "yes", "on")
-        return bool(v)

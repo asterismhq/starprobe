@@ -1,3 +1,4 @@
+import logging
 import sys
 from importlib import import_module
 from pathlib import Path
@@ -67,7 +68,9 @@ class DependencyContainer:
                 )
                 return MockOllamaClient()
             except (ImportError, AttributeError):
-                pass
+                logging.warning(
+                    "Failed to import mock Ollama client. Using real Ollama client."
+                )
         return OllamaClient(self.ollama_settings)
 
     def _create_search_client(self) -> "SearchClientProtocol":
@@ -78,7 +81,9 @@ class DependencyContainer:
                 )
                 return MockSearchClient()
             except (ImportError, AttributeError):
-                pass
+                logging.warning(
+                    "Failed to import mock Search client. Using real Search client."
+                )
         return DdgsClient(self.ddgs_settings)
 
     def _create_scraping_service(self) -> "ScrapingServiceProtocol":
@@ -89,7 +94,7 @@ class DependencyContainer:
                 )
                 return MockScrapingService()
             except (ImportError, AttributeError):
-                pass
+                logging.warning(
+                    "Failed to import mock Scraping service. Using real Scraping service."
+                )
         return ScrapingService(self.scraping_settings)
-
-    # ...existing code...

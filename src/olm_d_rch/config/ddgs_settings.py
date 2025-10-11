@@ -1,4 +1,4 @@
-from pydantic import Field, field_validator
+from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -36,10 +36,3 @@ class DDGSSettings(BaseSettings):
         description="Use the mock search client instead of the real implementation",
         alias="USE_MOCK_SEARCH",
     )
-
-    @field_validator("use_mock_search", mode="before")
-    @classmethod
-    def parse_bool_flags(cls, v):
-        if isinstance(v, str):
-            return v.lower() in ("true", "1", "yes", "on")
-        return bool(v)
