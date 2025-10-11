@@ -47,7 +47,7 @@ class WorkflowSettings(BaseSettings):
 
     @field_validator("debug", mode="before")
     @classmethod
-    def parse_debug(cls, v):
+    def parse_bool_flags(cls, v):
         if isinstance(v, str):
             return v.lower() in ("true", "1", "yes", "on")
         return bool(v)

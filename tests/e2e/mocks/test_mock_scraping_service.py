@@ -1,11 +1,12 @@
 from dev.mocks.mock_scraping_service import MockScrapingService
+from ollama_deep_researcher.config.scraping_settings import ScrapingSettings
 from ollama_deep_researcher.services import ScrapingService
 
 
 def test_validate_url():
     """Test URL validation behavior matches between real and mock."""
     print("Testing URL validation:")
-    real_service = ScrapingService()
+    real_service = ScrapingService(settings=ScrapingSettings())
     mock_service = MockScrapingService()
 
     test_urls = [
@@ -87,7 +88,7 @@ def test_scrape_tracking():
 def test_interface_compatibility():
     """Test that mock and real service have the same interface."""
     print("\n\nTesting interface compatibility:")
-    real_service = ScrapingService()
+    real_service = ScrapingService(settings=ScrapingSettings())
     mock_service = MockScrapingService()
 
     # Check methods exist

@@ -1,13 +1,14 @@
-import os
 import sys
-from typing import TYPE_CHECKING
+from importlib import import_module
+from pathlib import Path
+from typing import TYPE_CHECKING, Type, TypeVar
 
 from ollama_deep_researcher.clients import DdgsClient, OllamaClient
 from ollama_deep_researcher.config import (
-    ddgs_settings,
-    ollama_settings,
-    scraping_settings,
-    workflow_settings,
+    DDGSSettings,
+    OllamaSettings,
+    ScrapingSettings,
+    WorkflowSettings,
 )
 from ollama_deep_researcher.services import (
     PromptService,
@@ -24,43 +25,71 @@ if TYPE_CHECKING:
     )
 
 
+MockType = TypeVar("MockType")
+
+
 class DependencyContainer:
     """Container for managing dependencies based on settings."""
 
     def __init__(self):
-        if workflow_settings.debug:
-            # Try to use mock implementations, fall back to real if not available
-            dev_path = os.path.abspath(
-                os.path.join(os.path.dirname(__file__), "../../dev")
-            )
-            mocks_path = os.path.join(dev_path, "mocks")
-            if mocks_path not in sys.path:
-                sys.path.insert(0, mocks_path)
-            try:
-                MockSearchClient = __import__("mock_search_client", fromlist=["MockSearchClient"]).MockSearchClient  # type: ignore
-                MockOllamaClient = __import__("mock_ollama_client", fromlist=["MockOllamaClient"]).MockOllamaClient  # type: ignore
-                MockScrapingService = __import__("mock_scraping_service", fromlist=["MockScrapingService"]).MockScrapingService  # type: ignore
-                self.ollama_client: OllamaClientProtocol = MockOllamaClient()
-                self.search_client: SearchClientProtocol = MockSearchClient()
-                self.scraping_service: ScrapingServiceProtocol = MockScrapingService()
-            except ImportError:
-                # Fall back to real implementations if mocks are not available
-                self.ollama_client: OllamaClientProtocol = OllamaClient(ollama_settings)
-                self.search_client: SearchClientProtocol = DdgsClient(ddgs_settings)
-                self.scraping_service: ScrapingServiceProtocol = ScrapingService(
-                    scraping_settings
-                )
-        else:
-            # Use real implementations
-            self.ollama_client: OllamaClientProtocol = OllamaClient(ollama_settings)
-            self.search_client: SearchClientProtocol = DdgsClient(ddgs_settings)
-            self.scraping_service: ScrapingServiceProtocol = ScrapingService(
-                scraping_settings
-            )
+        # Instantiate settings with current environment variables
+        self.workflow_settings = WorkflowSettings()
+        self.ollama_settings = OllamaSettings()
+        self.ddgs_settings = DDGSSettings()
+        self.scraping_settings = ScrapingSettings()
+
+        self.ollama_client = self._create_ollama_client()
+        self.search_client = self._create_search_client()
+        self.scraping_service = self._create_scraping_service()
 
         # Instantiate services
-        self.prompt_service = PromptService(workflow_settings)
+        self.prompt_service = PromptService(self.workflow_settings)
         self.search_service = SearchService(self.search_client)
         self.research_service = ResearchService(
-            workflow_settings, self.search_service, self.scraping_service
+            self.workflow_settings, self.search_service, self.scraping_service
         )
+
+    def _ensure_repo_root_on_path(self) -> None:
+        repo_root = Path(__file__).resolve().parents[2]
+        if str(repo_root) not in sys.path:
+            sys.path.insert(0, str(repo_root))
+
+    def _import_mock_class(self, module_name: str, class_name: str) -> Type[MockType]:
+        self._ensure_repo_root_on_path()
+        module = import_module(module_name)
+        return getattr(module, class_name)
+
+    def _create_ollama_client(self) -> "OllamaClientProtocol":
+        if self.ollama_settings.use_mock_ollama or self.workflow_settings.debug:
+            try:
+                MockOllamaClient = self._import_mock_class(
+                    "dev.mocks.mock_ollama_client", "MockOllamaClient"
+                )
+                return MockOllamaClient()
+            except (ImportError, AttributeError):
+                pass
+        return OllamaClient(self.ollama_settings)
+
+    def _create_search_client(self) -> "SearchClientProtocol":
+        if self.ddgs_settings.use_mock_search or self.workflow_settings.debug:
+            try:
+                MockSearchClient = self._import_mock_class(
+                    "dev.mocks.mock_search_client", "MockSearchClient"
+                )
+                return MockSearchClient()
+            except (ImportError, AttributeError):
+                pass
+        return DdgsClient(self.ddgs_settings)
+
+    def _create_scraping_service(self) -> "ScrapingServiceProtocol":
+        if self.scraping_settings.use_mock_scraping or self.workflow_settings.debug:
+            try:
+                MockScrapingService = self._import_mock_class(
+                    "dev.mocks.mock_scraping_service", "MockScrapingService"
+                )
+                return MockScrapingService()
+            except (ImportError, AttributeError):
+                pass
+        return ScrapingService(self.scraping_settings)
+
+    # ...existing code...

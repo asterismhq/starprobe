@@ -1,7 +1,7 @@
 from typing import Any, Optional
 
 from langchain_core.runnables import RunnableConfig
-from pydantic import Field, field_validator
+from pydantic import Field, field_validator, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -27,6 +27,12 @@ class OllamaSettings(BaseSettings):
         description="Base URL for the Ollama instance",
         alias="OLLAMA_HOST",
     )
+    use_mock_ollama: bool = Field(
+        default=False,
+        title="Use Mock Ollama Client",
+        description="Use the mock Ollama client instead of the real implementation",
+        alias="USE_MOCK_OLLAMA",
+    )
 
     @field_validator("ollama_host", mode="before")
     @classmethod
@@ -39,6 +45,13 @@ class OllamaSettings(BaseSettings):
                 return None
             return trimmed.rstrip("/") + "/"
         return value
+
+    @field_validator("use_mock_ollama", mode="before")
+    @classmethod
+    def parse_bool_flags(cls, v):
+        if isinstance(v, str):
+            return v.lower() in ("true", "1", "yes", "on")
+        return bool(v)
 
     @field_validator("ollama_model", mode="before")
     @classmethod

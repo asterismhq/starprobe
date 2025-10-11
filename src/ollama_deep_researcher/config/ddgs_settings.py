@@ -1,4 +1,4 @@
-from pydantic import Field
+from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -30,3 +30,16 @@ class DDGSSettings(BaseSettings):
         description="Maximum number of results to fetch from DuckDuckGo per query",
         alias="DDGS_MAX_RESULTS",
     )
+    use_mock_search: bool = Field(
+        default=False,
+        title="Use Mock Search Client",
+        description="Use the mock search client instead of the real implementation",
+        alias="USE_MOCK_SEARCH",
+    )
+
+    @field_validator("use_mock_search", mode="before")
+    @classmethod
+    def parse_bool_flags(cls, v):
+        if isinstance(v, str):
+            return v.lower() in ("true", "1", "yes", "on")
+        return bool(v)
