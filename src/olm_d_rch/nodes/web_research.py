@@ -1,7 +1,7 @@
 import logging
 
-from ollama_deep_researcher.services.research_service import ResearchService
-from ollama_deep_researcher.state import SummaryState
+from olm_d_rch.services.research_service import ResearchService
+from olm_d_rch.state import SummaryState
 
 
 async def web_research(state: SummaryState, research_service: ResearchService):

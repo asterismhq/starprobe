@@ -1,16 +1,17 @@
+import logging
 import sys
 from importlib import import_module
 from pathlib import Path
 from typing import TYPE_CHECKING, Type, TypeVar
 
-from ollama_deep_researcher.clients import DdgsClient, OllamaClient
-from ollama_deep_researcher.config import (
+from olm_d_rch.clients import DdgsClient, OllamaClient
+from olm_d_rch.config import (
     DDGSSettings,
     OllamaSettings,
     ScrapingSettings,
     WorkflowSettings,
 )
-from ollama_deep_researcher.services import (
+from olm_d_rch.services import (
     PromptService,
     ResearchService,
     ScrapingService,
@@ -18,7 +19,7 @@ from ollama_deep_researcher.services import (
 )
 
 if TYPE_CHECKING:
-    from ollama_deep_researcher.protocols import (
+    from olm_d_rch.protocols import (
         OllamaClientProtocol,
         ScrapingServiceProtocol,
         SearchClientProtocol,
@@ -67,7 +68,9 @@ class DependencyContainer:
                 )
                 return MockOllamaClient()
             except (ImportError, AttributeError):
-                pass
+                logging.warning(
+                    "Failed to import mock Ollama client. Using real Ollama client."
+                )
         return OllamaClient(self.ollama_settings)
 
     def _create_search_client(self) -> "SearchClientProtocol":
@@ -78,7 +81,9 @@ class DependencyContainer:
                 )
                 return MockSearchClient()
             except (ImportError, AttributeError):
-                pass
+                logging.warning(
+                    "Failed to import mock Search client. Using real Search client."
+                )
         return DdgsClient(self.ddgs_settings)
 
     def _create_scraping_service(self) -> "ScrapingServiceProtocol":
@@ -89,7 +94,7 @@ class DependencyContainer:
                 )
                 return MockScrapingService()
             except (ImportError, AttributeError):
-                pass
+                logging.warning(
+                    "Failed to import mock Scraping service. Using real Scraping service."
+                )
         return ScrapingService(self.scraping_settings)
-
-    # ...existing code...

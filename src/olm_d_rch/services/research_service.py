@@ -1,14 +1,14 @@
 import logging
 from typing import Any, Dict, List
 
-from ollama_deep_researcher.config.workflow_settings import WorkflowSettings
-from ollama_deep_researcher.protocols.scraping_service_protocol import (
+from olm_d_rch.config.workflow_settings import WorkflowSettings
+from olm_d_rch.protocols.scraping_service_protocol import (
     ScrapingServiceProtocol,
 )
-from ollama_deep_researcher.protocols.search_client_protocol import (
+from olm_d_rch.protocols.search_client_protocol import (
     SearchClientProtocol,
 )
-from ollama_deep_researcher.services.text_processing_service import (
+from olm_d_rch.services.text_processing_service import (
     TextProcessingService,
 )
 

@@ -2,10 +2,10 @@
 
 from typing import TYPE_CHECKING, Any
 
-from ollama_deep_researcher.protocols.ollama_client_protocol import OllamaClientProtocol
+from olm_d_rch.protocols.ollama_client_protocol import OllamaClientProtocol
 
 if TYPE_CHECKING:
-    from ollama_deep_researcher.config.ollama_settings import OllamaSettings
+    from olm_d_rch.config.ollama_settings import OllamaSettings
 
 
 class OllamaClientAdapter(OllamaClientProtocol):

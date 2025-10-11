@@ -8,7 +8,7 @@ def test_ddgs_client_uses_unit_test_settings():
     """
     Ensure the DDGS client is initialized with automatically applied unit test settings.
     """
-    from ollama_deep_researcher.config.ddgs_settings import DDGSSettings
+    from olm_d_rch.config.ddgs_settings import DDGSSettings
 
     # Recreate settings instance to pick up monkeypatched env vars
     settings = DDGSSettings()
@@ -23,12 +23,12 @@ class TestDdgsClient:
     @pytest.fixture
     def client(self, mocker):
         """Create a DdgsClient instance with mocked DDGS."""
-        from ollama_deep_researcher.clients.ddgs_client import DdgsClient
-        from ollama_deep_researcher.config.ddgs_settings import DDGSSettings
+        from olm_d_rch.clients.ddgs_client import DdgsClient
+        from olm_d_rch.config.ddgs_settings import DDGSSettings
 
         mock_ddgs_instance = mocker.Mock()
         mocker.patch(
-            "ollama_deep_researcher.clients.ddgs_client.DDGS",
+            "olm_d_rch.clients.ddgs_client.DDGS",
             return_value=mock_ddgs_instance,
         )
 

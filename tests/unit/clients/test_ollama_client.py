@@ -4,11 +4,10 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from ollama_deep_researcher.clients.ollama_client import (
+from olm_d_rch.clients.ollama_client import (
     OllamaClient,
     OllamaClientAdapter,
 )
-from ollama_deep_researcher.container import DependencyContainer
 
 
 class TestOllamaClientAdapter:
@@ -49,12 +48,12 @@ class TestOllamaClient:
     @patch("langchain_ollama.ChatOllama")
     def test_init_with_defaults(self, mock_chat_ollama):
         """Test client initialization with default settings."""
-        from ollama_deep_researcher.config.ollama_settings import OllamaSettings
+        from olm_d_rch.config.ollama_settings import OllamaSettings
 
-        settings = OllamaSettings()
+        settings = OllamaSettings(ollama_host="http://mock-ollama:11434/")
         client = OllamaClient(settings)
 
-        assert client.base_url == "http://mock-ollama:11434"  # From BASE_ENVS
+        assert client.base_url == "http://mock-ollama:11434"
         assert client.temperature == 0
 
         # Verify ChatOllama was called with correct parameters
@@ -67,8 +66,10 @@ class TestOllamaClient:
     @patch("langchain_ollama.ChatOllama")
     def test_init_creates_adapter(self, mock_chat_ollama):
         """Test initialization creates OllamaClientAdapter."""
-        container = DependencyContainer()
-        client = container.ollama_client
+        from olm_d_rch.config.ollama_settings import OllamaSettings
+
+        settings = OllamaSettings()
+        client = OllamaClient(settings)
 
         assert hasattr(client, "_client")
         assert isinstance(client._client, OllamaClientAdapter)
@@ -77,14 +78,14 @@ class TestOllamaClient:
     @patch("langchain_ollama.ChatOllama")
     async def test_invoke_delegates_to_adapter(self, mock_chat_ollama):
         """Test invoke delegates to internal adapter."""
-        from unittest.mock import Mock
+        from olm_d_rch.config.ollama_settings import OllamaSettings
 
         mock_response = Mock()
         mock_chat_instance = mock_chat_ollama.return_value
         mock_chat_instance.invoke.return_value = mock_response
 
-        container = DependencyContainer()
-        client = container.ollama_client
+        settings = OllamaSettings()
+        client = OllamaClient(settings)
         messages = ["test message"]
         result = await client.invoke(messages, extra_param="value")
 

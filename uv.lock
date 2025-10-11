@@ -1710,7 +1710,7 @@ wheels = [
 ]
 
 [[package]]
-name = "ollama-deep-researcher"
+name = "olm-d-rch"
 version = "0.0.1"
 source = { editable = "." }
 dependencies = [

@@ -1,6 +1,6 @@
 from dev.mocks.mock_scraping_service import MockScrapingService
-from ollama_deep_researcher.config.scraping_settings import ScrapingSettings
-from ollama_deep_researcher.services import ScrapingService
+from olm_d_rch.config.scraping_settings import ScrapingSettings
+from olm_d_rch.services import ScrapingService
 
 
 def test_validate_url():

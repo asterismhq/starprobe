@@ -3,7 +3,7 @@ from typing import Any, Dict, List
 
 import tiktoken
 
-from ollama_deep_researcher.config.workflow_settings import WorkflowSettings
+from olm_d_rch.config.workflow_settings import WorkflowSettings
 
 
 class TextProcessingService:

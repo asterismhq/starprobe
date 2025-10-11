@@ -1,6 +1,6 @@
 import logging
 
-from ollama_deep_researcher.state import SummaryState
+from olm_d_rch.state import SummaryState
 
 logger = logging.getLogger(__name__)
 

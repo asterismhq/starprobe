@@ -8,52 +8,59 @@ The project introduces a Dependency Injection (DI) container called `DependencyC
 
 ## 🚀 Quick Start
 
-This service is designed to run as a Docker container.
+### Local Development (Recommended)
 
-1. **Clone the repository:**
-
-    ```shell
-    git clone https://github.com/langchain-ai/ollama-deep-researcher.git
-    cd ollama-deep-researcher
-    ```
-
-2. **Build the Docker image:**
+1. **Clone and setup:**
 
     ```shell
-    docker build -t ollama-deep-researcher-api .
+    git clone https://github.com/langchain-ai/olm-d-rch.git
+    cd olm-d-rch
+    just setup
     ```
 
-3. **Run the Docker container:**
-
-    To run the service, Ollama must be accessible over the network. The following command is an example of connecting to Ollama running on the host machine.
+2. **Start Ollama:**
 
     ```shell
-    docker run --rm -it -p 8000:8000 \
-      -e OLLAMA_HOST="http://host.docker.internal:11434" \
-      -e RESEARCH_API_OLLAMA_MODEL="llama3.2:3b" \
-      ollama-deep-researcher-api
+    ollama serve
     ```
 
-      * `OLLAMA_HOST`: Specifies the endpoint of the Ollama service.
-      * `RESEARCH_API_OLLAMA_MODEL`: Specifies the model name to use.
+3. **Run the service:**
 
-4. **Verify the service is running:**
+    ```shell
+    just dev
+    ```
 
-   You can send a request to the `/health` endpoint to confirm the API is running. This is the simplest way to check if the container has started successfully.
+4. **Verify the service:**
 
    ```shell
-   curl http://localhost:8000/health
+   curl http://localhost:8001/health
    ```
-   *Note: If you changed the port using the `RESEARCH_API_BIND_PORT` environment variable (e.g., to `8001`), replace `8000` with your chosen port.*
 
-   A successful response will look like this:
-   ```json
-   {"status":"ok"}
-   ```
+### Docker Deployment
+
+1. **Build and run:**
+
+    ```shell
+    docker build -t olm-d-rch-api .
+    docker run --rm -it -p 8000:8000 \
+      -e OLLAMA_HOST="http://host.docker.internal:11434" \
+      -e OLM_D_RCH_OLLAMA_MODEL="llama3.2:3b" \
+      olm-d-rch-api
+    ```
+
+2. **Or use docker compose:**
+
+    ```shell
+    just up
+    ```
 
 ## 🎯 Running the Demo
 
-You can run the demo script using the `just run-demo` command. This executes `demo/example.py` and saves the results in Markdown format to `demo/example.md`.
+```shell
+just demo
+```
+
+This executes `demo/example.py` and saves results to `demo/example.md`.
 
 ## ⚙️ API Usage
 
@@ -131,14 +138,14 @@ The application's behavior can be controlled via the following environment varia
 
 ### API Configuration
 
-  * `RESEARCH_API_BIND_IP`: IP address to bind the API server to. Default is `127.0.0.1`.
-  * `RESEARCH_API_BIND_PORT`: Port to bind the API server to. Default is `8000`.
-  * `RESEARCH_API_PROJECT_NAME`: Name of the project. Default is `ollama-deep-researcher`.
+  * `OLM_D_RCH_BIND_IP`: IP address to bind the API server to. Default is `127.0.0.1`.
+  * `OLM_D_RCH_BIND_PORT`: Port to bind the API server to. Default is `8000`.
+  * `OLM_D_RCH_PROJECT_NAME`: Name of the project. Default is `olm-d-rch`.
 
 ### Ollama Configuration
 
   * `OLLAMA_HOST`: (Required) The endpoint URL for the Ollama API.
-  * `RESEARCH_API_OLLAMA_MODEL`: The name of the Ollama model to use for research. Default is `llama3.2:3b`.
+  * `OLM_D_RCH_OLLAMA_MODEL`: The name of the Ollama model to use for research. Default is `llama3.2:3b`.
 
 ### Workflow Configuration
 

@@ -2,8 +2,8 @@
 
 import tiktoken
 
-from ollama_deep_researcher.config import workflow_settings
-from ollama_deep_researcher.services.text_processing_service import (
+from olm_d_rch.config import workflow_settings
+from olm_d_rch.services.text_processing_service import (
     TextProcessingService,
 )
 

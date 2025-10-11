@@ -37,30 +37,31 @@ The agent's logic is built as a state machine using **LangGraph**. It repeats th
 
 ### Running Demo Locally
 
--   Run `just run-demo`.
+-   Run `just demo`.
 -   Change `research_topic` in `demo/example.py` to research any topic.
 -   Results are saved to `demo/example.md`.
 
 ### Running via API
 
--   Start the Dockerized stack with `just up`.
--   Send a POST request to the `/api/v1/research` endpoint with the following JSON body:
-    ```json
-    {"topic": "your topic to research"}
-    ```
+**Local Development (Recommended):**
+-   Start local server: `just dev` (runs on port 8001)
+-   Send POST request to `/research` endpoint
 
-**Docker & Ollama Configuration**
--   The Ollama container is used only in CI. For local use, run `ollama serve`.
--   `OLLAMA_HOST` is `http://ollama:11434/` inside the container and `http://host.docker.internal:11434` locally.
+**Production-like Environment (Docker):**
+-   Start container: `just up`
+-   Send POST request to `/research` endpoint
+
+**Ollama Configuration:**
+-   For local use, run `ollama serve`.
+-   `OLLAMA_HOST` is `http://host.docker.internal:11434` (Docker) or `http://localhost:11434` (local).
 
 ---
 
 ## Configuration Management
 
-To prevent unintended overwrites, non-sensitive configuration values are defined as defaults in `settings.py`. Only environment-specific values like API keys or port numbers should be described in the `.env` file.
+Non-sensitive configuration values are defined as defaults in `settings.py`. Only environment-specific values like API keys or port numbers should be in the `.env` file.
 
 -   **Application & Deployment**: `.env` (ports, project names, etc.)
 -   **Application & Testing**: `settings.py` (model names, timeouts, etc.)
--   **Infrastructure**: Docker Compose files (environment sections, etc.)
 
 ---

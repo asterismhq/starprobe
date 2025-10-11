@@ -1,6 +1,6 @@
 from typing import Any, Dict, List, Optional
 
-from ollama_deep_researcher.protocols.search_client_protocol import (
+from olm_d_rch.protocols.search_client_protocol import (
     SearchClientProtocol,
 )
 

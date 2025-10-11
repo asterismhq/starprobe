@@ -2,15 +2,11 @@
 # justfile for FastAPI Project Automation
 # ==============================================================================
 
-set dotenv-load 
+set dotenv-load
 
-PROJECT_NAME := env("RESEARCH_API_PROJECT_NAME", "ollama-deep-researcher")
-
-DEV_PROJECT_NAME := PROJECT_NAME + "-dev"
-TEST_PROJECT_NAME := PROJECT_NAME + "-test"
-
-DEV_COMPOSE := "docker compose -f docker-compose.yml -f docker-compose.dev.override.yml --project-name " + DEV_PROJECT_NAME
-TEST_COMPOSE := "docker compose -f docker-compose.yml -f docker-compose.test.override.yml --project-name " + TEST_PROJECT_NAME
+PROJECT_NAME := env("OLM_D_RCH_PROJECT_NAME", "olm-d-rch")
+HOST_IP := env("OLM_D_RCH_BIND_IP", "127.0.0.1")
+DEV_PORT := env("OLM_D_RCH_DEV_PORT", "8001")
 
 # default target
 default: help
@@ -43,19 +39,24 @@ setup:
 # Development Environment Commands
 # ==============================================================================
 
-# Start development environment with Docker Compose
+# Run local development server (no Docker)
+dev:
+    @echo "Starting local development server..."
+    @uv run uvicorn olm_d_rch.api.main:app --reload --host {{HOST_IP}} --port {{DEV_PORT}}
+
+# Start production-like environment with Docker Compose
 up:
-  @{{DEV_COMPOSE}} up -d
+    @docker compose up -d
 
-# Stop development environment
+# Stop Docker Compose environment
 down:
-  @{{DEV_COMPOSE}} down --remove-orphans
+    @docker compose down --remove-orphans
 
-# Rebuild and restart the API service
+# Rebuild and restart the Docker service
 rebuild:
-    @echo "Rebuilding and restarting API service..."
-    @{{DEV_COMPOSE}} down --remove-orphans
-    @{{DEV_COMPOSE}} build --no-cache research-api
+    @echo "Rebuilding and restarting service..."
+    @docker compose down --remove-orphans
+    @docker compose build --no-cache {{PROJECT_NAME}}
 
 # ==============================================================================
 # CODE QUALITY
@@ -121,5 +122,5 @@ clean:
 # ==============================================================================
 
 # Run demo script
-run-demo:
+demo:
     @uv run demo/example.py

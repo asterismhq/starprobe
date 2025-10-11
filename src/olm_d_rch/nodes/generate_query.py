@@ -4,45 +4,40 @@ import logging
 from langchain_core.tools import tool
 from pydantic import BaseModel, Field
 
-from ollama_deep_researcher.protocols.ollama_client_protocol import OllamaClientProtocol
-from ollama_deep_researcher.services.prompt_service import PromptService
-from ollama_deep_researcher.state import SummaryState
+from olm_d_rch.protocols.ollama_client_protocol import OllamaClientProtocol
+from olm_d_rch.services.prompt_service import PromptService
+from olm_d_rch.state import SummaryState
 
 
-async def reflect_on_summary(
+async def generate_query(
     state: SummaryState,
     prompt_service: PromptService,
     ollama_client: OllamaClientProtocol,
 ):
-    """LangGraph node that identifies knowledge gaps and generates follow-up queries.
+    """LangGraph node that generates a search query based on the research topic.
 
-    Analyzes the current summary to identify areas for further research and generates
-    a new search query to address those gaps. Uses structured output to extract
-    the follow-up query in JSON format.
+    Uses an LLM to create an optimized search query for web research based on
+    the user's research topic. Uses Ollama as the LLM provider.
 
     Args:
-        state: Current graph state containing the running summary and research topic
+        state: Current graph state containing the research topic
         prompt_service: Service for generating prompts
         ollama_client: Client for LLM interactions
 
     Returns:
-        Dictionary with state update, including search_query key containing the generated follow-up query
+        Dictionary with state update, including search_query key containing the generated query
     """
-    messages = prompt_service.generate_reflect_prompt(
-        research_topic=state.research_topic, running_summary=state.running_summary
-    )
+    messages = prompt_service.generate_query_prompt(state.research_topic)
 
     @tool
-    class FollowUpQuery(BaseModel):
+    class Query(BaseModel):
         """
-        This tool is used to generate a follow-up query to address a knowledge gap.
+        This tool is used to generate a query for web search.
         """
 
-        follow_up_query: str = Field(
-            description="Write a specific question to address this gap"
-        )
-        knowledge_gap: str = Field(
-            description="Describe what information is missing or needs clarification"
+        query: str = Field(description="The actual search query string")
+        rationale: str = Field(
+            description="Brief explanation of why this query is relevant"
         )
 
     fallback_query = f"Tell me more about {state.research_topic}"
@@ -53,7 +48,7 @@ async def reflect_on_summary(
 
     try:
         if prompt_service.configurable.use_tool_calling:
-            llm = ollama_client.bind_tools([FollowUpQuery])
+            llm = ollama_client.bind_tools([Query])
             result = await llm.invoke(messages)
 
             if not result.tool_calls:
@@ -61,7 +56,7 @@ async def reflect_on_summary(
             else:
                 try:
                     tool_data = result.tool_calls[0]["args"]
-                    search_query = tool_data.get("follow_up_query", fallback_query)
+                    search_query = tool_data.get("query", fallback_query)
                 except (IndexError, KeyError):
                     search_query = fallback_query
         else:
@@ -71,16 +66,16 @@ async def reflect_on_summary(
 
             try:
                 parsed_json = json.loads(content)
-                search_query = parsed_json.get("follow_up_query")
+                search_query = parsed_json.get("query")
                 if not search_query:
                     search_query = fallback_query
             except (json.JSONDecodeError, KeyError):
                 search_query = fallback_query
     except Exception as exc:  # pragma: no cover - defensive guard
         search_query = fallback_query
-        error_messages = [f"Reflect query fallback triggered: {exc}"]
+        error_messages = [f"Generate query fallback triggered: {exc}"]
         logger.exception(
-            "Failed to generate follow-up query",
+            "Failed to generate search query",
             extra={"topic": state.research_topic, "error": str(exc)},
         )
 

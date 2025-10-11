@@ -5,13 +5,13 @@ import time
 
 from fastapi import APIRouter
 
-from ollama_deep_researcher.api.logger import logger
-from ollama_deep_researcher.api.schemas import (
+from olm_d_rch.api.logger import logger
+from olm_d_rch.api.schemas import (
     HealthResponse,
     ResearchRequest,
     ResearchResponse,
 )
-from ollama_deep_researcher.graph import build_graph
+from olm_d_rch.graph import build_graph
 
 router = APIRouter()
 

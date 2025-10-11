@@ -1,7 +1,7 @@
 from typing_extensions import Literal
 
-from ollama_deep_researcher.config.workflow_settings import WorkflowSettings
-from ollama_deep_researcher.state import SummaryState
+from olm_d_rch.config.workflow_settings import WorkflowSettings
+from olm_d_rch.state import SummaryState
 
 
 def route_research(

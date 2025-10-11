@@ -1,8 +1,8 @@
 from typing import Any, Dict
 
 
-class MockOllamaDeepResearcherClient:
-    """A mock client for OllamaDeepResearcher for testing purposes."""
+class MockOlmDRchClient:
+    """A mock client for OlmDRch for testing purposes."""
 
     def research(self, query: str) -> Dict[str, Any]:
         """Mocks a research call and returns a sample dictionary."""

@@ -4,16 +4,16 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
-from ollama_deep_researcher.api.logger import logger
-from ollama_deep_researcher.api.router import router
+from olm_d_rch.api.logger import logger
+from olm_d_rch.api.router import router
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Lifecycle manager for FastAPI app."""
-    logger.info("Starting ollama-deep-researcher API service")
+    logger.info("Starting olm-d-rch API service")
     yield
-    logger.info("Shutting down ollama-deep-researcher API service")
+    logger.info("Shutting down olm-d-rch API service")
 
 
 app = FastAPI(
