@@ -60,7 +60,7 @@ class DependencyContainer:
         return getattr(module, class_name)
 
     def _create_ollama_client(self) -> "OllamaClientProtocol":
-        if self.ollama_settings.use_mock_ollama or self.workflow_settings.debug:
+        if self.ollama_settings.use_mock_ollama:
             try:
                 MockOllamaClient = self._import_mock_class(
                     "dev.mocks.mock_ollama_client", "MockOllamaClient"
@@ -71,7 +71,7 @@ class DependencyContainer:
         return OllamaClient(self.ollama_settings)
 
     def _create_search_client(self) -> "SearchClientProtocol":
-        if self.ddgs_settings.use_mock_search or self.workflow_settings.debug:
+        if self.ddgs_settings.use_mock_search:
             try:
                 MockSearchClient = self._import_mock_class(
                     "dev.mocks.mock_search_client", "MockSearchClient"
@@ -82,7 +82,7 @@ class DependencyContainer:
         return DdgsClient(self.ddgs_settings)
 
     def _create_scraping_service(self) -> "ScrapingServiceProtocol":
-        if self.scraping_settings.use_mock_scraping or self.workflow_settings.debug:
+        if self.scraping_settings.use_mock_scraping:
             try:
                 MockScrapingService = self._import_mock_class(
                     "dev.mocks.mock_scraping_service", "MockScrapingService"

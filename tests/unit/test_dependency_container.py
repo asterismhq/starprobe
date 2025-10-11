@@ -53,8 +53,6 @@ def test_dependency_container_switches_between_mock_and_real(
 ):
     """DependencyContainer should select mock or real implementations per flag."""
 
-    monkeypatch.setenv("RESEARCH_API_DEBUG", "False")
-
     for variable, *_ in _COMPONENT_MATRIX:
         monkeypatch.setenv(
             variable, "True" if variable == env_var and use_mock else "False"

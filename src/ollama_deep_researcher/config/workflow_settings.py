@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING, Any, Optional
 
 from langchain_core.runnables import RunnableConfig
-from pydantic import Field, field_validator
+from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 if TYPE_CHECKING:
@@ -33,24 +33,11 @@ class WorkflowSettings(BaseSettings):
         title="Use Tool Calling",
         description="Use tool calling instead of JSON mode for structured output",
     )
-    debug: bool = Field(
-        default=False,
-        title="Debug Mode",
-        description="Enable mock client mode for development and testing",
-        alias="RESEARCH_API_DEBUG",
-    )
     max_tokens_per_source: int = Field(
         default=1000,
         title="Max Tokens Per Source",
         description="Maximum number of tokens to include for each source's content",
     )
-
-    @field_validator("debug", mode="before")
-    @classmethod
-    def parse_bool_flags(cls, v):
-        if isinstance(v, str):
-            return v.lower() in ("true", "1", "yes", "on")
-        return bool(v)
 
     @classmethod
     def from_runnable_config(

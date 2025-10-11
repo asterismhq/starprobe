@@ -21,15 +21,8 @@ async def main(output_file: str = "demo/example.md"):
     # Build the configuration the same way as the API server
     ollama_model = os.getenv("RESEARCH_API_OLLAMA_MODEL", "llama3.2:3b")
     ollama_host = os.getenv("OLLAMA_HOST")
-    debug = os.getenv("RESEARCH_API_DEBUG", "false").lower() in (
-        "true",
-        "1",
-        "yes",
-        "on",
-    )
 
-    # Check OLLAMA_HOST only if not in debug mode
-    if not debug and not ollama_host:
+    if not ollama_host:
         raise RuntimeError("OLLAMA_HOST must be set in the environment to run the demo")
 
     config = {
