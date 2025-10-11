@@ -5,6 +5,8 @@
 set dotenv-load
 
 PROJECT_NAME := env("OLM_D_RCH_PROJECT_NAME", "olm-d-rch")
+HOST_IP := env("OLM_D_RCH_BIND_IP", "127.0.0.1")
+DEV_PORT := env("OLM_D_RCH_DEV_PORT", "8001")
 
 # default target
 default: help
@@ -40,7 +42,7 @@ setup:
 # Run local development server (no Docker)
 dev:
     @echo "Starting local development server..."
-    @uv run uvicorn olm_d_rch.api.main:app --reload --host 0.0.0.0 --port 8001
+    @uv run uvicorn olm_d_rch.api.main:app --reload --host {{HOST_IP}} --port {{DEV_PORT}}
 
 # Start production-like environment with Docker Compose
 up:
