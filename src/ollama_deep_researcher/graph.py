@@ -1,8 +1,8 @@
-from typing import Optional
-
 from langchain_core.runnables import RunnableConfig
 from langgraph.graph import END, START, StateGraph
 
+from ollama_deep_researcher.config import workflow_settings
+from ollama_deep_researcher.config.ollama_settings import OllamaSettings
 from ollama_deep_researcher.container import DependencyContainer
 from ollama_deep_researcher.nodes import (
     finalize_summary,
@@ -12,7 +12,6 @@ from ollama_deep_researcher.nodes import (
     summarize_sources,
     web_research,
 )
-from ollama_deep_researcher.settings import OllamaDeepResearcherSettings
 from ollama_deep_researcher.state import (
     SummaryState,
     SummaryStateInput,
@@ -24,14 +23,13 @@ class ResearchGraph:
     def __init__(self, container: DependencyContainer):
         # Assign services from container
         self.container = container
-        self.settings = self.container.settings
         self.prompt_service = self.container.prompt_service
         self.research_service = self.container.research_service
         self.ollama_client = self.container.ollama_client
 
     def _configure_ollama_client(self, config: RunnableConfig):
         """Helper method to configure the Ollama client dynamically."""
-        settings = OllamaDeepResearcherSettings.from_runnable_config(config)
+        settings = OllamaSettings.from_runnable_config(config)
         self.ollama_client.configure(settings)
 
     async def generate_query(self, state: SummaryState, config: RunnableConfig):
@@ -50,8 +48,7 @@ class ResearchGraph:
         return await reflect_on_summary(state, self.prompt_service, self.ollama_client)
 
     def route_research(self, state: SummaryState, config: RunnableConfig):
-        settings = OllamaDeepResearcherSettings.from_runnable_config(config)
-        return route_research(state, settings)
+        return route_research(state, workflow_settings)
 
     def finalize_summary(self, state: SummaryState, config: RunnableConfig):
         return finalize_summary(state)
@@ -62,7 +59,7 @@ class ResearchGraph:
             SummaryState,
             input_schema=SummaryStateInput,
             output_schema=SummaryStateOutput,
-            context_schema=OllamaDeepResearcherSettings,
+            context_schema=OllamaSettings,
         )
 
         builder.add_node("generate_query", self.generate_query)
@@ -82,8 +79,7 @@ class ResearchGraph:
         return builder.compile()
 
 
-def build_graph(settings: Optional[OllamaDeepResearcherSettings] = None):
-    settings = settings or OllamaDeepResearcherSettings()
-    container = DependencyContainer(settings)
+def build_graph():
+    container = DependencyContainer()
     research_graph = ResearchGraph(container)
     return research_graph.build()

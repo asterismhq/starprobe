@@ -2,54 +2,24 @@
 
 import pytest
 
-from ollama_deep_researcher.settings import OllamaDeepResearcherSettings
+from dev.mocks.mock_ollama_client import MockOllamaClient
+from dev.mocks.mock_scraping_service import MockScrapingService
+from dev.mocks.mock_search_client import MockSearchClient
 
 
 @pytest.fixture
-def default_settings():
-    """
-    Provide a default OllamaDeepResearcherSettings instance for tests.
-    By default, this runs in debug mode (uses mocks).
-    """
-    base = OllamaDeepResearcherSettings(
-        ollama_host="http://ollama:11434/",
-        ollama_model="tinyllama:1.1b",
-    )
-    return base.model_copy(
-        update={
-            "max_web_research_loops": 3,
-            "ollama_model": "tinyllama:1.1b",
-            "ollama_host": "http://ollama:11434/",
-            "strip_thinking_tokens": True,
-            "use_tool_calling": False,
-            "debug": True,
-            "max_tokens_per_source": 1000,
-            "scraping_timeout_connect": 30,
-            "scraping_timeout_read": 90,
-        }
-    )
+def mock_search_client():
+    """Mock search client for testing."""
+    return MockSearchClient()
 
 
 @pytest.fixture
-def prod_settings():
-    """
-    Provide settings instance with DEBUG=False for tests.
-    This is useful for integration tests that need real clients.
-    """
-    base = OllamaDeepResearcherSettings(
-        ollama_host="http://ollama:11434/",
-        ollama_model="tinyllama:1.1bs",
-    )
-    return base.model_copy(
-        update={
-            "max_web_research_loops": 3,
-            "ollama_model": "tinyllama:1.1bs",
-            "ollama_host": "http://ollama:11434/",
-            "strip_thinking_tokens": True,
-            "use_tool_calling": False,
-            "debug": False,
-            "max_tokens_per_source": 1000,
-            "scraping_timeout_connect": 30,
-            "scraping_timeout_read": 90,
-        }
-    )
+def mock_ollama_client():
+    """Mock Ollama client for testing."""
+    return MockOllamaClient()
+
+
+@pytest.fixture
+def mock_scraping_service():
+    """Mock scraping service for testing."""
+    return MockScrapingService()

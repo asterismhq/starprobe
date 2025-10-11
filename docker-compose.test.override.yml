@@ -6,4 +6,3 @@ services:
       - "${RESEARCH_API_BIND_IP:-127.0.0.1}:${RESEARCH_API_TEST_PORT:-8002}:8000"
     environment:
       - CONTAINER_ENV=development
-      - RESEARCH_API_DEBUG=False

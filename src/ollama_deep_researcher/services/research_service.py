@@ -1,6 +1,7 @@
 import logging
 from typing import Any, Dict, List
 
+from ollama_deep_researcher.config.workflow_settings import WorkflowSettings
 from ollama_deep_researcher.protocols.scraping_service_protocol import (
     ScrapingServiceProtocol,
 )
@@ -10,7 +11,6 @@ from ollama_deep_researcher.protocols.search_client_protocol import (
 from ollama_deep_researcher.services.text_processing_service import (
     TextProcessingService,
 )
-from ollama_deep_researcher.settings import OllamaDeepResearcherSettings
 
 
 class ResearchService:
@@ -20,12 +20,12 @@ class ResearchService:
     - TextProcessingService: For formatting and deduplicating search results
     - SearchClientProtocol: For web search functionality
     - ScrapingServiceProtocol: For web scraping functionality
-    - OllamaDeepResearcherSettings: For configuration
+    - WorkflowSettings: For configuration
     """
 
     def __init__(
         self,
-        settings: OllamaDeepResearcherSettings,
+        settings: WorkflowSettings,
         search_client: SearchClientProtocol,
         scraper: ScrapingServiceProtocol,
     ):

@@ -3,6 +3,7 @@
 import pytest
 import requests
 
+from ollama_deep_researcher.container import DependencyContainer
 from ollama_deep_researcher.services.scraping_service import ScrapingService
 
 
@@ -12,7 +13,8 @@ class TestScrapingService:
     @pytest.fixture
     def scraping_service(self):
         """Create a ScrapingService instance for testing."""
-        return ScrapingService()
+        container = DependencyContainer()
+        return container.scraping_service
 
     def test_validate_url_valid_http(self, scraping_service):
         """Test validation with valid HTTP URL."""

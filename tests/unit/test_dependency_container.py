@@ -1,60 +1,69 @@
-from src.ollama_deep_researcher.container import DependencyContainer
-from src.ollama_deep_researcher.settings import OllamaDeepResearcherSettings
+import importlib
+from importlib import import_module
+
+import pytest
+
+from dev.mocks.mock_ollama_client import MockOllamaClient
+from dev.mocks.mock_scraping_service import MockScrapingService
+from dev.mocks.mock_search_client import MockSearchClient
+from ollama_deep_researcher.clients import DdgsClient, OllamaClient
+from ollama_deep_researcher.services import ScrapingService
+
+_COMPONENT_MATRIX = (
+    (
+        "USE_MOCK_OLLAMA",
+        "ollama_client",
+        MockOllamaClient,
+        OllamaClient,
+    ),
+    (
+        "USE_MOCK_SEARCH",
+        "search_client",
+        MockSearchClient,
+        DdgsClient,
+    ),
+    (
+        "USE_MOCK_SCRAPING",
+        "scraping_service",
+        MockScrapingService,
+        ScrapingService,
+    ),
+)
 
 
-class TestDependencyContainer:
-    """Test cases for DependencyContainer."""
+def _refresh_dependency_container_module():
+    """Reload config and container modules so new env vars take effect."""
 
-    def test_production_mode(self, monkeypatch):
-        """Test container in production mode (RESEARCH_API_DEBUG=false)."""
-        monkeypatch.setenv("RESEARCH_API_DEBUG", "False")
-        monkeypatch.setenv("OLLAMA_HOST", "http://dummy:11434/")
-        settings = OllamaDeepResearcherSettings()
-        container = DependencyContainer(settings)
+    workflow_settings_module = import_module(
+        "ollama_deep_researcher.config.workflow_settings"
+    )
+    importlib.reload(workflow_settings_module)
 
-        # Check that real implementations are used
-        assert hasattr(container.ollama_client, "_client")
-        # For real OllamaClient, _client should be OllamaClientAdapter
-        assert hasattr(container.ollama_client._client, "invoke")
+    config_module = import_module("ollama_deep_researcher.config")
+    importlib.reload(config_module)
 
-        # Search client should be DdgsClient with DDGS instance
-        assert hasattr(container.search_client, "_ddgs")
-        # Check it's not the mock implementation
-        assert not hasattr(container.search_client, "mock_results")
+    container_module = import_module("ollama_deep_researcher.container")
+    return importlib.reload(container_module)
 
-        # ScrapingService should be real
-        assert hasattr(container.scraping_service, "scrape")
 
-    def test_debug_mode(self, monkeypatch):
-        """Test container in debug mode (RESEARCH_API_DEBUG=true)."""
-        monkeypatch.setenv("RESEARCH_API_DEBUG", "True")
-        settings = OllamaDeepResearcherSettings()
-        container = DependencyContainer(settings)
+@pytest.mark.parametrize("env_var, attribute, mock_cls, real_cls", _COMPONENT_MATRIX)
+@pytest.mark.parametrize("use_mock", [True, False])
+def test_dependency_container_switches_between_mock_and_real(
+    monkeypatch, env_var, attribute, mock_cls, real_cls, use_mock
+):
+    """DependencyContainer should select mock or real implementations per flag."""
 
-        # Check that mock implementations are used
-        # MockOllamaClient does not have _client, it implements invoke directly
-        assert hasattr(container.ollama_client, "invoke")
+    for variable, *_ in _COMPONENT_MATRIX:
+        monkeypatch.setenv(
+            variable, "True" if variable == env_var and use_mock else "False"
+        )
 
-        # MockSearchClient exposes mock_results directly
-        assert hasattr(container.search_client, "search")
-        assert hasattr(container.search_client, "mock_results")
+    container_module = _refresh_dependency_container_module()
+    container = container_module.DependencyContainer()
 
-        # ScrapingService should be mock
-        assert hasattr(container.scraping_service, "scrape")
+    instance = getattr(container, attribute)
+    expected_cls = mock_cls if use_mock else real_cls
 
-    def test_services_initialization(self, monkeypatch):
-        """Test that services are properly initialized."""
-        monkeypatch.setenv("RESEARCH_API_DEBUG", "False")
-        monkeypatch.setenv("OLLAMA_HOST", "http://dummy:11434/")
-        settings = OllamaDeepResearcherSettings()
-        container = DependencyContainer(settings)
-
-        # Check services exist
-        assert container.prompt_service is not None
-        assert container.search_service is not None
-        assert container.research_service is not None
-
-        # Check service dependencies
-        assert container.search_service.search_client is container.search_client
-        assert container.research_service.search_client is container.search_service
-        assert container.research_service.scraper is container.scraping_service
+    assert isinstance(
+        instance, expected_cls
+    ), f"Expected {attribute} to be {expected_cls.__name__} when {env_var}={use_mock}"

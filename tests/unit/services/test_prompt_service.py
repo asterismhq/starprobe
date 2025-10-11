@@ -3,6 +3,7 @@
 import pytest
 from langchain_core.messages import HumanMessage, SystemMessage
 
+from ollama_deep_researcher.container import DependencyContainer
 from ollama_deep_researcher.services.prompt_service import PromptService
 
 
@@ -10,9 +11,10 @@ class TestPromptService:
     """Test cases for PromptService."""
 
     @pytest.fixture
-    def prompt_service(self, default_settings):
+    def prompt_service(self):
         """Create a PromptService instance for testing."""
-        return PromptService(default_settings)
+        container = DependencyContainer()
+        return container.prompt_service
 
     def test_get_current_date(self, mocker):
         """Test current date formatting."""

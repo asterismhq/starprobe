@@ -4,7 +4,7 @@ Ollama Deep Researcher is a fully local web research and summarization API servi
 
 ## 🏗️ Architecture Overview
 
-The project introduces a Dependency Injection (DI) container called `DependencyContainer` to manage dependencies. The `RESEARCH_API_DEBUG` flag allows switching between production implementations and mock implementations at the DI container level. The project is primarily composed of components such as `graph`, `nodes`, `services`, and `clients`.
+The project introduces a Dependency Injection (DI) container called `DependencyContainer` to manage dependencies. The project is primarily composed of components such as `graph`, `nodes`, `services`, and `clients`.
 
 ## 🚀 Quick Start
 
@@ -129,19 +129,44 @@ Once the service is running, the following endpoints are available.
 
 The application's behavior can be controlled via the following environment variables at container startup.
 
+### API Configuration
+
+  * `RESEARCH_API_BIND_IP`: IP address to bind the API server to. Default is `127.0.0.1`.
+  * `RESEARCH_API_BIND_PORT`: Port to bind the API server to. Default is `8000`.
+  * `RESEARCH_API_PROJECT_NAME`: Name of the project. Default is `ollama-deep-researcher`.
+
+### Ollama Configuration
+
   * `OLLAMA_HOST`: (Required) The endpoint URL for the Ollama API.
   * `RESEARCH_API_OLLAMA_MODEL`: The name of the Ollama model to use for research. Default is `llama3.2:3b`.
-  * `SCRAPING_TIMEOUT_CONNECT`: Timeout for connecting to scraping targets. Default is 30 seconds.
-  * `SCRAPING_TIMEOUT_READ`: Timeout for reading from scraping targets. Default is 90 seconds.
-  * `RESEARCH_API_DEBUG`: If set to `true`, the application will use mock objects instead of connecting to external services like Ollama server, allowing for testing without actual dependencies.
 
-### DuckDuckGo Search Configuration (Optional)
+### Workflow Configuration
+
+  * `max_web_research_loops`: Number of research iterations to perform. Default is `3`.
+  * `strip_thinking_tokens`: Whether to strip `<think>` tokens from model responses. Default is `true`.
+  * `use_tool_calling`: Use tool calling instead of JSON mode for structured output. Default is `false`.
+  * `max_tokens_per_source`: Maximum number of tokens to include for each source's content. Default is `1000`.
+
+### Scraping Configuration
+
+  * `SCRAPING_TIMEOUT_CONNECT`: Timeout for connecting to scraping targets in seconds. Default is `30`.
+  * `SCRAPING_TIMEOUT_READ`: Timeout for reading from scraping targets in seconds. Default is `90`.
+
+### DuckDuckGo Search Configuration
 
 The service uses DuckDuckGo for web searches via the [`ddgs`](https://pypi.org/project/ddgs/) Python library. The following optional environment variables allow you to customize search behavior:
 
   * `DDGS_REGION`: Region code for DuckDuckGo search (e.g., `wt-wt` for global, `us-en` for US). Default is `wt-wt`.
   * `DDGS_SAFESEARCH`: SafeSearch level for DuckDuckGo. Options are `off`, `moderate`, or `strict`. Default is `moderate`.
   * `DDGS_MAX_RESULTS`: Maximum number of results to fetch from DuckDuckGo per query. Default is `10`.
+
+### Mock Configuration
+
+For testing and development, you can enable mock implementations for various components:
+
+  * `USE_MOCK_OLLAMA`: Use mock Ollama client instead of real implementation. Default is `false`.
+  * `USE_MOCK_SEARCH`: Use mock search client instead of real DuckDuckGo search. Default is `false`.
+  * `USE_MOCK_SCRAPING`: Use mock scraping service instead of real web scraping. Default is `false`.
 
 ## 🧪 Testing
 

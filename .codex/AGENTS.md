@@ -20,7 +20,7 @@ The agent's logic is built as a state machine using **LangGraph**. It repeats th
 
 ## Main Components
 
--   **`container.py`**: A dependency container that switches between production and mock services based on the `RESEARCH_API_DEBUG` environment variable.
+-   **`container.py`**: A dependency container that switches between production and mock services based on individual `USE_MOCK_*` environment variables.
 -   **Services (`services/`)**:
     -   `ResearchService`: Manages searching and scraping.
     -   `PromptService`: Generates LLM prompts.

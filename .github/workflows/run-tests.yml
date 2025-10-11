@@ -45,7 +45,4 @@ jobs:
 
       - name: Run tests
         run: |
-          if [ "${{ matrix.test_target }}" = "e2e-test" ]; then
-            export RESEARCH_API_DEBUG=false
-          fi
           just ${{ matrix.test_target }}

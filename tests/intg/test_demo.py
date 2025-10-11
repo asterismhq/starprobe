@@ -39,28 +39,3 @@ class TestDemo:
             # Clean up
             if os.path.exists(temp_path):
                 os.unlink(temp_path)
-
-    @pytest.mark.asyncio
-    async def test_demo_with_debug_mode(self, monkeypatch):
-        """Test demo execution in debug mode."""
-        # Set RESEARCH_API_DEBUG environment variable
-        monkeypatch.setenv("RESEARCH_API_DEBUG", "true")
-
-        with tempfile.NamedTemporaryFile(
-            mode="w", suffix=".md", delete=False
-        ) as temp_file:
-            temp_path = temp_file.name
-
-        await main(output_file=temp_path)
-
-        assert os.path.exists(temp_path)
-        with open(temp_path, "r", encoding="utf-8") as f:
-            content = f.read()
-
-        assert (
-            "# Current state of AI technology in Japan and future prospects" in content
-        )
-        assert "**Success:** True" in content
-
-        if os.path.exists(temp_path):
-            os.unlink(temp_path)
