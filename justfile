@@ -2,15 +2,9 @@
 # justfile for FastAPI Project Automation
 # ==============================================================================
 
-set dotenv-load 
+set dotenv-load
 
 PROJECT_NAME := env("OLM_D_RCH_PROJECT_NAME", "olm-d-rch")
-
-DEV_PROJECT_NAME := PROJECT_NAME + "-dev"
-TEST_PROJECT_NAME := PROJECT_NAME + "-test"
-
-DEV_COMPOSE := "docker compose -f docker-compose.yml -f docker-compose.dev.override.yml --project-name " + DEV_PROJECT_NAME
-TEST_COMPOSE := "docker compose -f docker-compose.yml -f docker-compose.test.override.yml --project-name " + TEST_PROJECT_NAME
 
 # default target
 default: help
@@ -43,19 +37,24 @@ setup:
 # Development Environment Commands
 # ==============================================================================
 
-# Start development environment with Docker Compose
+# Run local development server (no Docker)
+dev:
+    @echo "Starting local development server..."
+    @uv run uvicorn olm_d_rch.main:app --reload --host 0.0.0.0 --port 8001
+
+# Start production-like environment with Docker Compose
 up:
-  @{{DEV_COMPOSE}} up -d
+    @docker compose up -d
 
-# Stop development environment
+# Stop Docker Compose environment
 down:
-  @{{DEV_COMPOSE}} down --remove-orphans
+    @docker compose down --remove-orphans
 
-# Rebuild and restart the API service
+# Rebuild and restart the Docker service
 rebuild:
-    @echo "Rebuilding and restarting API service..."
-    @{{DEV_COMPOSE}} down --remove-orphans
-    @{{DEV_COMPOSE}} build --no-cache olm-d-rch
+    @echo "Rebuilding and restarting service..."
+    @docker compose down --remove-orphans
+    @docker compose build --no-cache {{PROJECT_NAME}}
 
 # ==============================================================================
 # CODE QUALITY

@@ -8,19 +8,11 @@ import httpx
 import pytest
 from dotenv import load_dotenv
 
-from tests.envs import setup_intg_test_env
-
 # Load .env file to get port configuration
 load_dotenv()
 
 TEST_HOST = os.getenv("OLM_D_RCH_BIND_IP", "127.0.0.1")
 TEST_PORT = int(os.getenv("OLM_D_RCH_PORT", "8080"))
-
-
-@pytest.fixture(autouse=True)
-def set_intg_test_env(monkeypatch):
-    """Setup environment variables for integration tests."""
-    setup_intg_test_env(monkeypatch)
 
 
 @pytest.fixture
@@ -37,7 +29,7 @@ def api_config():
 async def http_client(api_config) -> AsyncGenerator[httpx.AsyncClient, None]:
     """Provide an async HTTP client for making requests to the API."""
     async with httpx.AsyncClient(
-        base_url=api_config["base_url"], timeout=120.0
+        base_url=api_config["base_url"], timeout=300.0
     ) as client:
         yield client
 
@@ -47,6 +39,11 @@ def start_server():
     process = None
     try:
         # Start server in subprocess instead of thread for proper cleanup
+        # Prepare environment variables for subprocess
+        env = os.environ.copy()
+        env["USE_MOCK_OLLAMA"] = "True"
+        env["USE_MOCK_SEARCH"] = "True"
+        env["USE_MOCK_SCRAPING"] = "True"
 
         process = subprocess.Popen(
             [
@@ -61,6 +58,7 @@ def start_server():
             ],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
+            env=env,
         )
 
         # Wait for server to be ready by polling health endpoint

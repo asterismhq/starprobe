@@ -16,23 +16,7 @@ COPY pyproject.toml uv.lock ./
 
 
 # ==============================================================================
-# Stage 2: Dev Dependencies
-# - Installs ALL dependencies (including development) to create a cached layer
-#   that can be leveraged by CI/CD for linting, testing, etc.
-# ==============================================================================
-FROM base as dev-deps
-
-# Install system dependencies required for the application
-# - curl: used for Ollama healthcheck and debugging
-RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
-
-# Install all dependencies, including development ones
-RUN --mount=type=cache,target=/root/.cache \
-    uv sync
-
-
-# ==============================================================================
-# Stage 3: Production Dependencies
+# Stage 2: Production Dependencies
 # - Creates a lean virtual environment with only production dependencies.
 # ==============================================================================
 FROM base as prod-deps
@@ -42,57 +26,8 @@ RUN --mount=type=cache,target=/root/.cache \
     uv sync --no-dev
 
 
-
 # ==============================================================================
-# Stage 4: Development
-# - Development environment with all dependencies and debugging tools
-# - Includes curl and other development utilities
-# ==============================================================================
-FROM python:3.12-slim AS development
-
-# Install development tools
-RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
-
-# Install uv
-RUN pip install uv
-
-# Create a non-root user for development
-RUN groupadd -r appgroup && useradd -r -g appgroup -d /home/appuser -m appuser
-
-WORKDIR /app
-RUN chown appuser:appgroup /app
-
-ENV PYTHONPATH="/app/src"
-
-# Copy the development virtual environment from dev-deps stage
-COPY --from=dev-deps --chown=appuser:appgroup /app/.venv ./.venv
-
-# Set the PATH to include the venv's bin directory
-ENV PATH="/app/.venv/bin:${PATH}"
-
-# Copy application code
-COPY --chown=appuser:appgroup src/ ./src
-COPY --chown=appuser:appgroup dev/ ./dev
-COPY --chown=appuser:appgroup pyproject.toml .
-COPY --chown=appuser:appgroup entrypoint.sh .
-
-RUN chmod +x entrypoint.sh
-
-# Switch to non-root user
-USER appuser
-
-EXPOSE 8000
-
-# Development healthcheck
-HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD python -c "import sys, urllib.request; sys.exit(0) if urllib.request.urlopen('http://localhost:8000/health').getcode() == 200 else sys.exit(1)"
-
-ENTRYPOINT ["/app/entrypoint.sh"]
-
-
-
-# ==============================================================================
-# Stage 5: Production
+# Stage 3: Production
 # - Creates the final, lightweight production image.
 # - Copies the lean venv and only necessary application files.
 # ==============================================================================

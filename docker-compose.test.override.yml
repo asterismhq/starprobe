@@ -1,8 +1,0 @@
-services:
-  olm-d-rch:
-    build:
-      target: development
-    ports: !override
-      - "${OLM_D_RCH_BIND_IP:-127.0.0.1}:${OLM_D_RCH_TEST_PORT:-8002}:8000"
-    environment:
-      - CONTAINER_ENV=development

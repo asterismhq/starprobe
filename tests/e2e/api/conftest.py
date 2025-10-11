@@ -55,14 +55,15 @@ def e2e_setup() -> Generator[None, None, None]:
     test_port = os.getenv("TEST_PORT", "8002")
     health_url = f"http://{host_bind_ip}:{test_port}/health"
 
-    # Define compose commands
+    # Prepare environment variables for docker compose
+    compose_env = os.environ.copy()
+    compose_env["OLM_D_RCH_BIND_IP"] = host_bind_ip
+    compose_env["OLM_D_RCH_BIND_PORT"] = test_port
+
+    # Define compose commands (simplified - no override files needed)
     compose_up_command = [
         "docker",
         "compose",
-        "-f",
-        "docker-compose.yml",
-        "-f",
-        "docker-compose.test.override.yml",
         "--project-name",
         "olm-d-rch-test",
         "up",
@@ -72,10 +73,6 @@ def e2e_setup() -> Generator[None, None, None]:
     compose_down_command = [
         "docker",
         "compose",
-        "-f",
-        "docker-compose.yml",
-        "-f",
-        "docker-compose.test.override.yml",
         "--project-name",
         "olm-d-rch-test",
         "down",
@@ -106,7 +103,9 @@ def e2e_setup() -> Generator[None, None, None]:
 
     try:
         print("\nStarting Docker Compose services for E2E testing...")
-        result = subprocess.run(compose_up_command, capture_output=False, text=True)
+        result = subprocess.run(
+            compose_up_command, capture_output=False, text=True, env=compose_env
+        )
         if result.returncode != 0:
             raise RuntimeError(
                 f"Failed to start services.\nSTDOUT:\n{result.stdout}\nSTDERR:\n{result.stderr}"
@@ -118,15 +117,13 @@ def e2e_setup() -> Generator[None, None, None]:
             logs_command = [
                 "docker",
                 "compose",
-                "-f",
-                "docker-compose.yml",
-                "-f",
-                "docker-compose.test.override.yml",
                 "--project-name",
                 "olm-d-rch-test",
                 "logs",
             ]
-            log_result = subprocess.run(logs_command, capture_output=True, text=True)
+            log_result = subprocess.run(
+                logs_command, capture_output=True, text=True, env=compose_env
+            )
             raise RuntimeError(
                 f"Application failed to become healthy within timeout.\nLogs:\n{log_result.stdout}\n{log_result.stderr}"
             )
@@ -137,7 +134,7 @@ def e2e_setup() -> Generator[None, None, None]:
     finally:
         print("\nStopping Docker Compose services...")
         cleanup_result = subprocess.run(
-            compose_down_command, capture_output=True, text=True
+            compose_down_command, capture_output=True, text=True, env=compose_env
         )
         if cleanup_result.returncode != 0:
             print(f"Warning: Failed during cleanup: {cleanup_result.stderr}")

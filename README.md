@@ -8,52 +8,59 @@ The project introduces a Dependency Injection (DI) container called `DependencyC
 
 ## 🚀 Quick Start
 
-This service is designed to run as a Docker container.
+### Local Development (Recommended)
 
-1. **Clone the repository:**
+1. **Clone and setup:**
 
     ```shell
     git clone https://github.com/langchain-ai/olm-d-rch.git
     cd olm-d-rch
+    just setup
     ```
 
-2. **Build the Docker image:**
+2. **Start Ollama:**
+
+    ```shell
+    ollama serve
+    ```
+
+3. **Run the service:**
+
+    ```shell
+    just dev
+    ```
+
+4. **Verify the service:**
+
+   ```shell
+   curl http://localhost:8001/health
+   ```
+
+### Docker Deployment
+
+1. **Build and run:**
 
     ```shell
     docker build -t olm-d-rch-api .
-    ```
-
-3. **Run the Docker container:**
-
-    To run the service, Ollama must be accessible over the network. The following command is an example of connecting to Ollama running on the host machine.
-
-    ```shell
     docker run --rm -it -p 8000:8000 \
       -e OLLAMA_HOST="http://host.docker.internal:11434" \
-      -e RESEARCH_API_OLLAMA_MODEL="llama3.2:3b" \
+      -e OLM_D_RCH_OLLAMA_MODEL="llama3.2:3b" \
       olm-d-rch-api
     ```
 
-      * `OLLAMA_HOST`: Specifies the endpoint of the Ollama service.
-      * `RESEARCH_API_OLLAMA_MODEL`: Specifies the model name to use.
+2. **Or use docker compose:**
 
-4. **Verify the service is running:**
-
-   You can send a request to the `/health` endpoint to confirm the API is running. This is the simplest way to check if the container has started successfully.
-
-   ```shell
-   curl http://localhost:8000/health
-   ```
-   *Note: If you changed the port using the `RESEARCH_API_BIND_PORT` environment variable (e.g., to `8001`), replace `8000` with your chosen port.*
-
-   A successful response will look like this:
-   ```json
-   {"status":"ok"}
-   ```
+    ```shell
+    just up
+    ```
 
 ## 🎯 Running the Demo
 
-You can run the demo script using the `just run-demo` command. This executes `demo/example.py` and saves the results in Markdown format to `demo/example.md`.
+```shell
+just demo
+```
+
+This executes `demo/example.py` and saves results to `demo/example.md`.
 
 ## ⚙️ API Usage
 
