@@ -91,12 +91,33 @@ class DependencyContainer:
             self._mlx_client = MLXClient(self.mlx_settings)
         return self._mlx_client
 
+    @property
     def ollama_client(self) -> "LLMClientProtocol":
-        """Return a cached Ollama client."""
+        """Return an Ollama client (mock or real) based on settings.
+
+        Tests expect `DependencyContainer().ollama_client` to be an instance
+        (not a bound method), so expose this as a property that returns the
+        mock implementation when `USE_MOCK_OLLAMA` is enabled.
+        """
+        if self.settings.use_mock_ollama:
+            try:
+                return self._create_mock_ollama_client()
+            except (ImportError, AttributeError):
+                logging.warning(
+                    "Failed to import mock Ollama client. Using real Ollama client."
+                )
         return self._get_or_create_ollama_client()
 
+    @property
     def mlx_client(self) -> "LLMClientProtocol":
-        """Return a cached MLX client."""
+        """Return an MLX client (mock or real) based on settings."""
+        if self.settings.use_mock_mlx:
+            try:
+                return self._create_mock_mlx_client()
+            except (ImportError, AttributeError):
+                logging.warning(
+                    "Failed to import mock MLX client. Using real MLX client."
+                )
         return self._get_or_create_mlx_client()
 
     def mock_ollama_client(self) -> "LLMClientProtocol":
