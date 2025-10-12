@@ -1,9 +1,9 @@
-from .ollama_client_protocol import OllamaClientProtocol
+from .llm_client_protocol import LLMClientProtocol
 from .scraping_service_protocol import ScrapingServiceProtocol
 from .search_client_protocol import SearchClientProtocol
 
 __all__ = [
     "SearchClientProtocol",
-    "OllamaClientProtocol",
+    "LLMClientProtocol",
     "ScrapingServiceProtocol",
 ]

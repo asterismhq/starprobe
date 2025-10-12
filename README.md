@@ -1,6 +1,6 @@
 # Ollama Deep Researcher API
 
-Ollama Deep Researcher is a fully local web research and summarization API service that leverages LLMs hosted by Ollama. Given a topic, it autonomously generates web search queries, collects and summarizes search results, and iteratively conducts additional research to fill knowledge gaps, ultimately providing a final summary and reference sources.
+Ollama Deep Researcher is a fully local web research and summarization API service that leverages pluggable local LLM backends (Ollama by default, MLX on Apple Silicon). Given a topic, it autonomously generates web search queries, collects and summarizes search results, and iteratively conducts additional research to fill knowledge gaps, ultimately providing a final summary and reference sources.
 
 ## 🏗️ Architecture Overview
 
@@ -73,10 +73,12 @@ Once the service is running, the following endpoints are available.
   * **Request Body:**
     ```json
     {
-      "query": "YOUR_RESEARCH_QUERY"
+      "query": "YOUR_RESEARCH_QUERY",
+      "backend": "ollama"
     }
     ```
     - `query` (string, required): The topic or search query to investigate. Must be at least 1 character long.
+    - `backend` (string, optional): LLM backend to use for this request. Supported values are `ollama` and `mlx`. When omitted, the server uses the default backend from configuration.
   * **Example using `curl`:**
     ```shell
     curl -X POST http://localhost:8000/research \
@@ -105,6 +107,13 @@ Once the service is running, the following endpoints are available.
     - `metadata` (object or null): Additional structured data such as source listings or counts.
     - `diagnostics` (array of strings): Warnings or informational messages collected during execution.
     - `error_message` (string or null): Error details if the research failed.
+
+  * **Example using `curl` with MLX backend override:**
+    ```shell
+    curl -X POST http://localhost:8000/research \
+    -H "Content-Type: application/json" \
+    -d '{"query": "Foundation models optimized for Apple Silicon", "backend": "mlx"}'
+    ```
   * **Response (on failure/timeout):**
     ```json
     {
@@ -115,6 +124,12 @@ Once the service is running, the following endpoints are available.
         "error_message": "Research request exceeded 5-minute timeout"
     }
     ```
+
+### Selecting an LLM Backend
+
+- Set `OLM_D_RCH_LLM_BACKEND` in your environment to define the default backend (`ollama` or `mlx`).
+- Override the backend for a single request by providing the optional `backend` field in the `POST /research` payload.
+- When using the MLX backend, ensure you are on Apple Silicon with [`mlx-lm`](https://pypi.org/project/mlx-lm/) installed or enable `USE_MOCK_MLX=true` for testing.
 
 ### Health Check
 
@@ -142,10 +157,19 @@ The application's behavior can be controlled via the following environment varia
   * `OLM_D_RCH_BIND_PORT`: Port to bind the API server to. Default is `8000`.
   * `OLM_D_RCH_PROJECT_NAME`: Name of the project. Default is `olm-d-rch`.
 
+### LLM Backend Configuration
+
+  * `OLM_D_RCH_LLM_BACKEND`: Default backend used when a request does not specify one. Valid options are `ollama` and `mlx`. Default is `ollama`.
+
 ### Ollama Configuration
 
-  * `OLLAMA_HOST`: (Required) The endpoint URL for the Ollama API.
+  * `OLLAMA_HOST`: (Required when using the Ollama backend) The endpoint URL for the Ollama API.
   * `OLM_D_RCH_OLLAMA_MODEL`: The name of the Ollama model to use for research. Default is `llama3.2:3b`.
+
+### MLX Configuration
+
+  * `OLM_D_RCH_MLX_MODEL`: Default MLX model identifier. Recommended default is `mlx-community/Llama-3.1-8B-Instruct-4bit`.
+  * `USE_MOCK_MLX`: When set to `true`, the MLX mock client is used instead of the real implementation (helpful for CI or when MLX is unavailable).
 
 ### Workflow Configuration
 
@@ -172,6 +196,7 @@ The service uses DuckDuckGo for web searches via the [`ddgs`](https://pypi.org/p
 For testing and development, you can enable mock implementations for various components:
 
   * `USE_MOCK_OLLAMA`: Use mock Ollama client instead of real implementation. Default is `false`.
+  * `USE_MOCK_MLX`: Use mock MLX client instead of real implementation. Default is `false`.
   * `USE_MOCK_SEARCH`: Use mock search client instead of real DuckDuckGo search. Default is `false`.
   * `USE_MOCK_SCRAPING`: Use mock scraping service instead of real web scraping. Default is `false`.
 
@@ -183,7 +208,7 @@ The project includes comprehensive test coverage across multiple test types:
 
 - **Unit Tests** (`tests/unit/`): Test individual components in isolation
   - `services/`: Tests for all service classes (PromptService, ResearchService, SearchService, ScrapingService, TextProcessingService)
-  - `clients/`: Tests for client classes (OllamaClient, DdgsClient)
+  - `clients/`: Tests for client classes (OllamaClient, MLXClient, DdgsClient)
 - **Mock Tests** (`tests/mock/`): Tests for mock implementations and dependency container
 - **Integration Tests** (`tests/intg/`): End-to-end tests with real workflows
 

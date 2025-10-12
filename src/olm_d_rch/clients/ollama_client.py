@@ -2,14 +2,14 @@
 
 from typing import TYPE_CHECKING, Any
 
-from olm_d_rch.protocols.ollama_client_protocol import OllamaClientProtocol
+from olm_d_rch.protocols.llm_client_protocol import LLMClientProtocol
 
 if TYPE_CHECKING:
     from olm_d_rch.config.ollama_settings import OllamaSettings
 
 
-class OllamaClientAdapter(OllamaClientProtocol):
-    """Adapter to make ChatOllama explicitly conform to OllamaClientProtocol."""
+class OllamaClientAdapter(LLMClientProtocol):
+    """Adapter to make ChatOllama explicitly conform to LLMClientProtocol."""
 
     def __init__(self, client: Any):
         self._client = client
@@ -19,12 +19,12 @@ class OllamaClientAdapter(OllamaClientProtocol):
 
         return await asyncio.to_thread(self._client.invoke, messages, **kwargs)
 
-    def bind_tools(self, tools: list[Any]) -> OllamaClientProtocol:
+    def bind_tools(self, tools: list[Any]) -> LLMClientProtocol:
         bound_client = self._client.bind_tools(tools)
         return OllamaClientAdapter(bound_client)
 
 
-class OllamaClient(OllamaClientProtocol):
+class OllamaClient(LLMClientProtocol):
     """Ollama client that automatically switches between real and mock implementations."""
 
     def __init__(

@@ -68,6 +68,22 @@ class TestIntgAPI:
         assert data["processing_time"] >= 0
 
     @pytest.mark.asyncio
+    async def test_research_success_with_mlx_backend(self):
+        """Test research request using the MLX backend succeeds."""
+        payload = {"query": "Climate change impacts", "backend": "mlx"}
+        response = await self.http_client.post(
+            self.api_config["research_url"], json=payload
+        )
+        assert response.status_code == 200
+        data = response.json()
+
+        assert data["success"] is True
+        assert data["error_message"] is None
+        assert isinstance(data["article"], (str, type(None)))
+        assert isinstance(data["metadata"], (dict, type(None)))
+        assert isinstance(data["diagnostics"], list)
+
+    @pytest.mark.asyncio
     async def test_research_empty_query(self):
         """Test research request with empty query fails."""
         payload = {"query": ""}

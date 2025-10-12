@@ -2,7 +2,7 @@
 
 from typing import Any
 
-from olm_d_rch.protocols.ollama_client_protocol import OllamaClientProtocol
+from olm_d_rch.protocols.llm_client_protocol import LLMClientProtocol
 
 
 class MockResponse:
@@ -18,8 +18,8 @@ class MockResponse:
         self.tool_calls = []
 
 
-class MockOllamaClient(OllamaClientProtocol):
-    """Mock implementation of the OllamaClientProtocol protocol.
+class MockOllamaClient(LLMClientProtocol):
+    """Mock implementation of the LLMClientProtocol protocol.
 
     This mock client returns predefined responses without making actual API calls,
     useful for development and testing without requiring a running Ollama server.

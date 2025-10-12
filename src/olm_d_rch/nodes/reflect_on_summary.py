@@ -4,7 +4,7 @@ import logging
 from langchain_core.tools import tool
 from pydantic import BaseModel, Field
 
-from olm_d_rch.protocols.ollama_client_protocol import OllamaClientProtocol
+from olm_d_rch.protocols.llm_client_protocol import LLMClientProtocol
 from olm_d_rch.services.prompt_service import PromptService
 from olm_d_rch.state import SummaryState
 
@@ -12,7 +12,7 @@ from olm_d_rch.state import SummaryState
 async def reflect_on_summary(
     state: SummaryState,
     prompt_service: PromptService,
-    ollama_client: OllamaClientProtocol,
+    llm_client: LLMClientProtocol,
 ):
     """LangGraph node that identifies knowledge gaps and generates follow-up queries.
 
@@ -23,7 +23,7 @@ async def reflect_on_summary(
     Args:
         state: Current graph state containing the running summary and research topic
         prompt_service: Service for generating prompts
-        ollama_client: Client for LLM interactions
+        llm_client: Client for LLM interactions
 
     Returns:
         Dictionary with state update, including search_query key containing the generated follow-up query
@@ -53,7 +53,7 @@ async def reflect_on_summary(
 
     try:
         if prompt_service.configurable.use_tool_calling:
-            llm = ollama_client.bind_tools([FollowUpQuery])
+            llm = llm_client.bind_tools([FollowUpQuery])
             result = await llm.invoke(messages)
 
             if not result.tool_calls:
@@ -66,7 +66,7 @@ async def reflect_on_summary(
                     search_query = fallback_query
         else:
             # Use JSON mode
-            result = await ollama_client.invoke(messages)
+            result = await llm_client.invoke(messages)
             content = result.content
 
             try:

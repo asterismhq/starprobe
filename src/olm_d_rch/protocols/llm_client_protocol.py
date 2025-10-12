@@ -1,13 +1,14 @@
-"""Protocol definition for Ollama client interface."""
+"""Protocol definition for language model client interface."""
 
 from typing import Any, Protocol
 
 
-class OllamaClientProtocol(Protocol):
-    """Protocol defining the interface for an Ollama-compatible LLM client.
+class LLMClientProtocol(Protocol):
+    """Protocol defining the interface for any LLM client implementation.
 
-    This protocol allows for dependency injection and easier testing by defining
-    a contract that both real and mock implementations must follow.
+    This protocol allows for dependency injection and easier testing by defining a
+    contract that both real and mock implementations must follow, regardless of the
+    underlying provider.
     """
 
     async def invoke(self, messages: Any, **kwargs: Any) -> Any:
@@ -23,7 +24,7 @@ class OllamaClientProtocol(Protocol):
         """
         ...
 
-    def bind_tools(self, tools: list[Any]) -> "OllamaClientProtocol":
+    def bind_tools(self, tools: list[Any]) -> "LLMClientProtocol":
         """Bind tools to the LLM client for function calling.
 
         Args:

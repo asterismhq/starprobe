@@ -2,7 +2,7 @@
 
 ## Overview
 
-**Ollama Deep Researcher** is an AI agent that autonomously conducts detailed research on a specified topic and generates a comprehensive report. It starts with initial research, identifies knowledge gaps, and iteratively refines the summary through additional investigations. It is optimized for local LLMs running on **Ollama**, minimizing dependence on paid APIs.
+**Ollama Deep Researcher** is an AI agent that autonomously conducts detailed research on a specified topic and generates a comprehensive report. It starts with initial research, identifies knowledge gaps, and iteratively refines the summary through additional investigations. It primarily targets local LLM backends (Ollama by default, MLX on Apple Silicon) to minimize dependence on paid APIs.
 
 ---
 
@@ -20,13 +20,13 @@ The agent's logic is built as a state machine using **LangGraph**. It repeats th
 
 ## Main Components
 
--   **`container.py`**: A dependency container that switches between production and mock services based on individual `USE_MOCK_*` environment variables.
+-   **`container.py`**: A dependency container that selects production or mock services using `USE_MOCK_*` env vars and supplies LLM clients via `provide_llm_client(backend)`.
 -   **Services (`services/`)**:
     -   `ResearchService`: Manages searching and scraping.
     -   `PromptService`: Generates LLM prompts.
     -   `ScrapingService`: Extracts content from URLs.
 -   **Clients (`clients/`)**:
-    -   `OllamaClient`: Communicates with the Ollama LLM.
+    -   `OllamaClient` / `MLXClient`: Implement the shared `LLMClientProtocol`.
     -   `DdgsClient`: Performs DuckDuckGo web searches using the `ddgs` library.
 -   **State (`state.py`)**:
     -   `SummaryState`: Shares information such as topics, queries, and summaries between states.
@@ -51,9 +51,10 @@ The agent's logic is built as a state machine using **LangGraph**. It repeats th
 -   Start container: `just up`
 -   Send POST request to `/research` endpoint
 
-**Ollama Configuration:**
--   For local use, run `ollama serve`.
--   `OLLAMA_HOST` is `http://host.docker.internal:11434` (Docker) or `http://localhost:11434` (local).
+**LLM Configuration:**
+-   Default backend is controlled by `OLM_D_RCH_LLM_BACKEND` (`ollama` or `mlx`).
+-   Requests can override the backend by setting `"backend": "ollama"|"mlx"` in the payload.
+-   For Ollama, run `ollama serve` and set `OLLAMA_HOST`. For MLX, ensure `mlx-lm` is available on Apple Silicon.
 
 ---
 

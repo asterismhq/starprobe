@@ -19,22 +19,30 @@ async def main(output_file: str = "demo/example.md"):
     print(f"Starting research on the topic '{research_topic}'...")
 
     # Build the configuration the same way as the API server
+    backend = os.getenv("OLM_D_RCH_LLM_BACKEND")
     ollama_model = os.getenv("OLM_D_RCH_OLLAMA_MODEL", "llama3.2:3b")
     ollama_host = os.getenv("OLLAMA_HOST")
+    mlx_model = os.getenv(
+        "OLM_D_RCH_MLX_MODEL", "mlx-community/Llama-3.1-8B-Instruct-4bit"
+    )
 
-    if not ollama_host:
-        raise RuntimeError("OLLAMA_HOST must be set in the environment to run the demo")
-
-    config = {
-        "configurable": {
+    if backend == "mlx":
+        configurable_settings = {"mlx_model": mlx_model}
+    else:
+        if not ollama_host:
+            raise RuntimeError(
+                "OLLAMA_HOST must be set in the environment to run the demo"
+            )
+        configurable_settings = {
             "ollama_model": ollama_model,
             "ollama_host": ollama_host,
         }
-    }
+
+    config = {"configurable": configurable_settings}
 
     try:
         # Build graph
-        graph = build_graph()
+        graph = build_graph(backend=backend)
 
         # Execute the graph (research process) asynchronously
         result = await graph.ainvoke({"research_topic": research_topic}, config=config)

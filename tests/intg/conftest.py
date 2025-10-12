@@ -42,6 +42,7 @@ def start_server():
         # Prepare environment variables for subprocess
         env = os.environ.copy()
         env["USE_MOCK_OLLAMA"] = "True"
+        env["USE_MOCK_MLX"] = "True"
         env["USE_MOCK_SEARCH"] = "True"
         env["USE_MOCK_SCRAPING"] = "True"
 

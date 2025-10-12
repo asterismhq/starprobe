@@ -1,6 +1,6 @@
 import logging
 
-from olm_d_rch.protocols.ollama_client_protocol import OllamaClientProtocol
+from olm_d_rch.protocols.llm_client_protocol import LLMClientProtocol
 from olm_d_rch.services.prompt_service import PromptService
 from olm_d_rch.services.text_processing_service import (
     TextProcessingService,
@@ -11,7 +11,7 @@ from olm_d_rch.state import SummaryState
 async def summarize_sources(
     state: SummaryState,
     prompt_service: PromptService,
-    ollama_client: OllamaClientProtocol,
+    llm_client: LLMClientProtocol,
 ):
     """LangGraph node that summarizes web research results.
 
@@ -23,7 +23,7 @@ async def summarize_sources(
         state: Current graph state containing research topic, running summary,
               and web research results
         prompt_service: Service for generating prompts
-        ollama_client: Client for LLM interactions
+        llm_client: Client for LLM interactions
 
     Returns:
         Dictionary with state update, including running_summary key containing the updated summary
@@ -35,7 +35,7 @@ async def summarize_sources(
             existing_summary=state.running_summary,
             new_context=state.web_research_results[-1],
         )
-        result = await ollama_client.invoke(messages)
+        result = await llm_client.invoke(messages)
 
         # Strip thinking tokens if configured
         running_summary = result.content

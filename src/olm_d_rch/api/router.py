@@ -26,14 +26,18 @@ async def health_check():
 async def run_research(request: ResearchRequest):
     """Execute deep research on a given topic."""
     start_time = time.time()
-    logger.info("Research request received", extra={"query": request.query})
+    backend = request.backend
+    logger.info(
+        "Research request received",
+        extra={"query": request.query, "backend": backend or "default"},
+    )
 
     try:
         # Loading Settings from the Settings Class
         # Settings are now loaded as singletons
 
         # Build graph with injected services
-        graph = build_graph()
+        graph = build_graph(backend=backend)
 
         # Execute graph with timeout
         result = await asyncio.wait_for(
@@ -56,6 +60,7 @@ async def run_research(request: ResearchRequest):
             extra={
                 "query": request.query,
                 "success": response.success,
+                "backend": backend or "default",
                 "article_length": len(response.article) if response.article else 0,
                 "error_message": response.error_message,
                 "diagnostics": response.diagnostics,
@@ -66,7 +71,10 @@ async def run_research(request: ResearchRequest):
         return response
 
     except asyncio.TimeoutError:
-        logger.error("Research timeout", extra={"query": request.query})
+        logger.error(
+            "Research timeout",
+            extra={"query": request.query, "backend": backend or "default"},
+        )
         return ResearchResponse(
             success=False,
             article=None,
@@ -75,7 +83,14 @@ async def run_research(request: ResearchRequest):
             processing_time=time.time() - start_time,
         )
     except Exception as e:
-        logger.error("Research failed", extra={"query": request.query, "error": str(e)})
+        logger.error(
+            "Research failed",
+            extra={
+                "query": request.query,
+                "backend": backend or "default",
+                "error": str(e),
+            },
+        )
         return ResearchResponse(
             success=False,
             article=None,
