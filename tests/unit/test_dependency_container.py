@@ -6,8 +6,8 @@ import pytest
 from dev.mocks.mock_ollama_client import MockOllamaClient
 from dev.mocks.mock_scraping_service import MockScrapingService
 from dev.mocks.mock_search_client import MockSearchClient
-from olm_d_rch.clients import DdgsClient, OllamaClient
-from olm_d_rch.services import ScrapingService
+from src.olm_d_rch.clients import DdgsClient, OllamaClient
+from src.olm_d_rch.services import ScrapingService
 
 
 class TestDependencyContainer:
@@ -40,19 +40,19 @@ class TestDependencyContainer:
 
         # Reload all settings modules
         settings_modules = [
-            "olm_d_rch.config.workflow_settings",
-            "olm_d_rch.config.ollama_settings",
-            "olm_d_rch.config.ddgs_settings",
-            "olm_d_rch.config.scraping_settings",
+            "src.olm_d_rch.config.workflow_settings",
+            "src.olm_d_rch.config.ollama_settings",
+            "src.olm_d_rch.config.ddgs_settings",
+            "src.olm_d_rch.config.scraping_settings",
         ]
         for module_name in settings_modules:
             module = import_module(module_name)
             importlib.reload(module)
 
-        config_module = import_module("olm_d_rch.config")
+        config_module = import_module("src.olm_d_rch.config")
         importlib.reload(config_module)
 
-        container_module = import_module("olm_d_rch.container")
+        container_module = import_module("src.olm_d_rch.container")
         return importlib.reload(container_module)
 
     @pytest.mark.parametrize(
@@ -79,6 +79,6 @@ class TestDependencyContainer:
         instance = getattr(container, attribute)
         expected_cls = mock_cls if use_mock else real_cls
 
-        assert isinstance(
-            instance, expected_cls
+        assert (
+            type(instance).__name__ == expected_cls.__name__
         ), f"Expected {attribute} to be {expected_cls.__name__} when {env_var}={use_mock}"

@@ -2,7 +2,7 @@
 
 import pytest
 
-from olm_d_rch.services.search_service import SearchService
+from src.olm_d_rch.services.search_service import SearchService
 
 
 class TestSearchService:

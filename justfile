@@ -80,28 +80,44 @@ lint:
 test: unit-test intg-test build-test e2e-test 
     @echo "✅ All tests passed!"
 
-# Run unit tests locally (no external dependencies)
+local-test: 
+    @just unit-test
+    @just sdk-test
+    @just intg-test
+    @echo "✅ All local tests passed!"
+
+# Run unit tests
 unit-test:
-    @echo "🚀 Running unit tests (local)..."
+    @echo "🚀 Running unit tests..."
     @uv run pytest tests/unit
 
-# Run integration tests (requires Ollama)
+# Run SDK tests
+sdk-test:
+    @echo "🚀 Running SDK tests..."
+    @uv run pytest tests/sdk
+
+# Run integration tests 
 intg-test:
-    @echo "🚀 Running integration tests (requires Ollama)..."
+    @echo "🚀 Running integration tests..."
     @uv run pytest tests/intg
 
-# Run e2e tests (requires Ollama)
-e2e-test:
-    @echo "🚀 Running e2e tests (requires Ollama)..."
-    @uv run pytest tests/e2e
+docker-test: 
+    @just build-test
+    @just e2e-test
+    @echo "✅ All Docker tests passed!"
 
 # Build Docker image for testing without leaving artifacts
 build-test:
-    @echo "Building Docker image for testing (clean build)..."
+    @echo "Building Docker image for testing..."
     @TEMP_IMAGE_TAG=$(date +%s)-build-test; \
     docker build --target production --tag temp-build-test:$TEMP_IMAGE_TAG . && \
     echo "Build successful. Cleaning up temporary image..." && \
     docker rmi temp-build-test:$TEMP_IMAGE_TAG || true
+
+# Run e2e tests
+e2e-test:
+    @echo "🚀 Running e2e tests..."
+    @uv run pytest tests/e2e
 
 # ==============================================================================
 # CLEANUP

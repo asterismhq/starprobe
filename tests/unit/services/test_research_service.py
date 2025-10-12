@@ -2,7 +2,7 @@
 
 import pytest
 
-from olm_d_rch.container import DependencyContainer
+from src.olm_d_rch.container import DependencyContainer
 
 
 class TestResearchService:

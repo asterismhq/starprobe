@@ -4,7 +4,7 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from olm_d_rch.clients.ollama_client import (
+from src.olm_d_rch.clients.ollama_client import (
     OllamaClient,
     OllamaClientAdapter,
 )
@@ -48,7 +48,7 @@ class TestOllamaClient:
     @patch("langchain_ollama.ChatOllama")
     def test_init_with_defaults(self, mock_chat_ollama):
         """Test client initialization with default settings."""
-        from olm_d_rch.config.ollama_settings import OllamaSettings
+        from src.olm_d_rch.config.ollama_settings import OllamaSettings
 
         settings = OllamaSettings(ollama_host="http://mock-ollama:11434/")
         client = OllamaClient(settings)
@@ -66,7 +66,7 @@ class TestOllamaClient:
     @patch("langchain_ollama.ChatOllama")
     def test_init_creates_adapter(self, mock_chat_ollama):
         """Test initialization creates OllamaClientAdapter."""
-        from olm_d_rch.config.ollama_settings import OllamaSettings
+        from src.olm_d_rch.config.ollama_settings import OllamaSettings
 
         settings = OllamaSettings()
         client = OllamaClient(settings)
@@ -78,7 +78,7 @@ class TestOllamaClient:
     @patch("langchain_ollama.ChatOllama")
     async def test_invoke_delegates_to_adapter(self, mock_chat_ollama):
         """Test invoke delegates to internal adapter."""
-        from olm_d_rch.config.ollama_settings import OllamaSettings
+        from src.olm_d_rch.config.ollama_settings import OllamaSettings
 
         mock_response = Mock()
         mock_chat_instance = mock_chat_ollama.return_value
