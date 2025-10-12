@@ -4,7 +4,7 @@ import logging
 from langchain_core.tools import tool
 from pydantic import BaseModel, Field
 
-from olm_d_rch.protocols.ollama_client_protocol import OllamaClientProtocol
+from olm_d_rch.protocols.llm_client_protocol import LLMClientProtocol
 from olm_d_rch.services.prompt_service import PromptService
 from olm_d_rch.state import SummaryState
 
@@ -12,17 +12,17 @@ from olm_d_rch.state import SummaryState
 async def generate_query(
     state: SummaryState,
     prompt_service: PromptService,
-    ollama_client: OllamaClientProtocol,
+    llm_client: LLMClientProtocol,
 ):
     """LangGraph node that generates a search query based on the research topic.
 
     Uses an LLM to create an optimized search query for web research based on
-    the user's research topic. Uses Ollama as the LLM provider.
+    the user's research topic via the configured backend (e.g., Ollama, MLX).
 
     Args:
         state: Current graph state containing the research topic
         prompt_service: Service for generating prompts
-        ollama_client: Client for LLM interactions
+        llm_client: Client for LLM interactions
 
     Returns:
         Dictionary with state update, including search_query key containing the generated query
@@ -48,7 +48,7 @@ async def generate_query(
 
     try:
         if prompt_service.configurable.use_tool_calling:
-            llm = ollama_client.bind_tools([Query])
+            llm = llm_client.bind_tools([Query])
             result = await llm.invoke(messages)
 
             if not result.tool_calls:
@@ -61,7 +61,7 @@ async def generate_query(
                     search_query = fallback_query
         else:
             # Use JSON mode
-            result = await ollama_client.invoke(messages)
+            result = await llm_client.invoke(messages)
             content = result.content
 
             try:

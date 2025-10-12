@@ -1,6 +1,7 @@
 from langchain_core.runnables import RunnableConfig
 from langgraph.graph import END, START, StateGraph
 
+from olm_d_rch.config.mlx_settings import MLXSettings
 from olm_d_rch.config.ollama_settings import OllamaSettings
 from olm_d_rch.config.workflow_settings import WorkflowSettings
 from olm_d_rch.container import DependencyContainer
@@ -20,32 +21,39 @@ from olm_d_rch.state import (
 
 
 class ResearchGraph:
-    def __init__(self, container: DependencyContainer):
+    def __init__(self, container: DependencyContainer, backend: str | None = None):
         # Assign services from container
         self.container = container
+        self.backend = backend or container.settings.llm_backend
         self.prompt_service = self.container.prompt_service
         self.research_service = self.container.research_service
-        self.ollama_client = self.container.ollama_client
+        self.llm_client = self.container.provide_llm_client(self.backend)
 
-    def _configure_ollama_client(self, config: RunnableConfig):
-        """Helper method to configure the Ollama client dynamically."""
-        settings = OllamaSettings.from_runnable_config(config)
-        self.ollama_client.configure(settings)
+    def _configure_llm_client(self, config: RunnableConfig):
+        """Helper method to configure the active LLM client dynamically."""
+        backend = (self.backend or "ollama").lower()
+        if backend == "mlx":
+            settings = MLXSettings.from_runnable_config(config)
+        else:
+            settings = OllamaSettings.from_runnable_config(config)
+
+        if hasattr(self.llm_client, "configure"):
+            self.llm_client.configure(settings)
 
     async def generate_query(self, state: SummaryState, config: RunnableConfig):
-        self._configure_ollama_client(config)
-        return await generate_query(state, self.prompt_service, self.ollama_client)
+        self._configure_llm_client(config)
+        return await generate_query(state, self.prompt_service, self.llm_client)
 
     async def web_research(self, state: SummaryState, config: RunnableConfig):
         return await web_research(state, self.research_service)
 
     async def summarize_sources(self, state: SummaryState, config: RunnableConfig):
-        self._configure_ollama_client(config)
-        return await summarize_sources(state, self.prompt_service, self.ollama_client)
+        self._configure_llm_client(config)
+        return await summarize_sources(state, self.prompt_service, self.llm_client)
 
     async def reflect_on_summary(self, state: SummaryState, config: RunnableConfig):
-        self._configure_ollama_client(config)
-        return await reflect_on_summary(state, self.prompt_service, self.ollama_client)
+        self._configure_llm_client(config)
+        return await reflect_on_summary(state, self.prompt_service, self.llm_client)
 
     def route_research(self, state: SummaryState, config: RunnableConfig):
         return route_research(state, WorkflowSettings.from_runnable_config(config))
@@ -59,7 +67,6 @@ class ResearchGraph:
             SummaryState,
             input_schema=SummaryStateInput,
             output_schema=SummaryStateOutput,
-            context_schema=OllamaSettings,
         )
 
         builder.add_node("generate_query", self.generate_query)
@@ -79,7 +86,7 @@ class ResearchGraph:
         return builder.compile()
 
 
-def build_graph():
+def build_graph(backend: str | None = None):
     container = DependencyContainer()
-    research_graph = ResearchGraph(container)
+    research_graph = ResearchGraph(container, backend=backend)
     return research_graph.build()
