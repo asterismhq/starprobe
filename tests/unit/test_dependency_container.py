@@ -79,5 +79,6 @@ class TestDependencyContainer:
         instance = getattr(container, attribute)
         expected_cls = mock_cls if use_mock else real_cls
 
-        assert type(instance).__name__ == expected_cls.__name__, \
-            f"Expected {attribute} to be {expected_cls.__name__} when {env_var}={use_mock}"
+        assert (
+            type(instance).__name__ == expected_cls.__name__
+        ), f"Expected {attribute} to be {expected_cls.__name__} when {env_var}={use_mock}"

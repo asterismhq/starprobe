@@ -1,10 +1,10 @@
 """Tests for verifying mock SDK schema compatibility with production API."""
 
 import pytest
+from mock_olm_d_rch_client.mock_olm_d_rch_client import MockOlmDRchClient
 from pydantic import ValidationError
 
 from src.olm_d_rch.api.schemas import ResearchResponse
-from mock_olm_d_rch_client.mock_olm_d_rch_client import MockOlmDRchClient
 
 
 class TestMockSdkSchemaCompatibility:
