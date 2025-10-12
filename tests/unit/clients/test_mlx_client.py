@@ -4,7 +4,7 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from olm_d_rch.clients.mlx_client import MLXClient, MLXClientAdapter
+from src.olm_d_rch.clients.mlx_client import MLXClient, MLXClientAdapter
 
 
 class TestMLXClientAdapter:
@@ -43,7 +43,7 @@ class TestMLXClient:
     @patch("langchain_community.chat_models.mlx.ChatMLX")
     def test_init_with_defaults(self, mock_chat_mlx):
         """Test client initialization with default settings."""
-        from olm_d_rch.config.mlx_settings import MLXSettings
+        from src.olm_d_rch.config.mlx_settings import MLXSettings
 
         settings = MLXSettings()
         client = MLXClient(settings)
@@ -61,7 +61,7 @@ class TestMLXClient:
     @patch("langchain_community.chat_models.mlx.ChatMLX")
     async def test_invoke_delegates_to_adapter(self, mock_chat_mlx):
         """Test invoke delegates to internal adapter."""
-        from olm_d_rch.config.mlx_settings import MLXSettings
+        from src.olm_d_rch.config.mlx_settings import MLXSettings
 
         mock_response = Mock()
         mock_chat_instance = mock_chat_mlx.return_value
@@ -80,7 +80,7 @@ class TestMLXClient:
     def test_bind_tools_delegates_and_returns_adapter(self, mock_chat_mlx):
         """Ensure MLXClient.bind_tools delegates to the internal adapter and returns an adapter."""
         # Create a dummy MLXClient with a mock internal adapter
-        from olm_d_rch.config.mlx_settings import MLXSettings
+        from src.olm_d_rch.config.mlx_settings import MLXSettings
 
         settings = MLXSettings()
         client = MLXClient(settings)

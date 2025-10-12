@@ -3,7 +3,7 @@
 import pytest
 import requests
 
-from olm_d_rch.services.scraping_service import ScrapingService
+from src.olm_d_rch.services.scraping_service import ScrapingService
 
 
 class TestScrapingService:
@@ -12,7 +12,7 @@ class TestScrapingService:
     @pytest.fixture
     def scraping_service(self):
         """Create a ScrapingService instance for testing."""
-        from olm_d_rch.config.scraping_settings import ScrapingSettings
+        from src.olm_d_rch.config.scraping_settings import ScrapingSettings
 
         settings = ScrapingSettings()
         return ScrapingService(settings)

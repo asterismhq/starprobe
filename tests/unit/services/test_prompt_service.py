@@ -3,8 +3,8 @@
 import pytest
 from langchain_core.messages import HumanMessage, SystemMessage
 
-from olm_d_rch.container import DependencyContainer
-from olm_d_rch.services.prompt_service import PromptService
+from src.olm_d_rch.container import DependencyContainer
+from src.olm_d_rch.services.prompt_service import PromptService
 
 
 class TestPromptService:
@@ -21,7 +21,7 @@ class TestPromptService:
         from datetime import datetime
 
         # Mock datetime.now() to return a fixed date
-        mock_datetime = mocker.patch("olm_d_rch.services.prompt_service.datetime")
+        mock_datetime = mocker.patch("src.olm_d_rch.services.prompt_service.datetime")
         mock_now = datetime(2024, 7, 26)
         mock_datetime.now.return_value = mock_now
 
