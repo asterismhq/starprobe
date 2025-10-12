@@ -45,5 +45,15 @@ class MLXClient(LLMClientProtocol):
 
         self._client = MLXClientAdapter(ChatMLX(**kwargs))
 
+    def bind_tools(self, tools: list[Any]) -> LLMClientProtocol:
+        """Bind tools to the underlying client and return an adapter wrapping the bound client.
+
+        This mirrors the OllamaClient behaviour so callers can do:
+            llm = mlx_client.bind_tools([...])
+            await llm.invoke(...)
+        """
+        bound_client = self._client.bind_tools(tools)
+        return MLXClientAdapter(bound_client)
+
     async def invoke(self, messages: Any, **kwargs: Any) -> Any:
         return await self._client.invoke(messages, **kwargs)

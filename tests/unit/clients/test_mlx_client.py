@@ -75,3 +75,26 @@ class TestMLXClient:
 
         mock_chat_instance.invoke.assert_called_once_with(messages, extra_param="value")
         assert result == mock_response
+
+    @patch("langchain_community.chat_models.mlx.ChatMLX")
+    def test_bind_tools_delegates_and_returns_adapter(self, mock_chat_mlx):
+        """Ensure MLXClient.bind_tools delegates to the internal adapter and returns an adapter."""
+        # Create a dummy MLXClient with a mock internal adapter
+        from olm_d_rch.config.mlx_settings import MLXSettings
+
+        settings = MLXSettings()
+        client = MLXClient(settings)
+
+        # Replace internal adapter with a mock that has bind_tools
+        mock_adapter = Mock()
+        mock_bound = Mock()
+        mock_adapter.bind_tools.return_value = mock_bound
+        client._client = mock_adapter
+
+        tools = [Mock()]
+        result = client.bind_tools(tools)
+
+        mock_adapter.bind_tools.assert_called_once_with(tools)
+        # Result should be an adapter that wraps the bound client
+        assert isinstance(result, MLXClientAdapter)
+        assert result._client == mock_bound
