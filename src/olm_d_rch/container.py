@@ -77,7 +77,7 @@ class DependencyContainer:
             "dev.mocks.mock_mlx_client", "MockMLXClient"
         )
         return MockMLXClient(
-            model=self.mlx_settings.mlx_model,
+            model=self.mlx_settings.model,
             temperature=self.mlx_settings.temperature,
         )
 

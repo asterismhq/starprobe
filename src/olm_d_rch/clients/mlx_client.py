@@ -33,7 +33,7 @@ class MLXClient(LLMClientProtocol):
     def configure(self, settings: "MLXSettings"):
         """Configure the client with new settings and recreate the internal client."""
         self.settings = settings
-        self.model = settings.mlx_model
+        self.model = settings.model
         self.temperature = settings.temperature
 
         from langchain_community.chat_models.mlx import ChatMLX

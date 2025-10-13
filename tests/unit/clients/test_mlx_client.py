@@ -48,11 +48,11 @@ class TestMLXClient:
         settings = MLXSettings()
         client = MLXClient(settings)
 
-        assert client.model == settings.mlx_model
+        assert client.model == settings.model
         assert client.temperature == settings.temperature
 
         mock_chat_mlx.assert_called_once_with(
-            model=settings.mlx_model,
+            model=settings.model,
             temperature=settings.temperature,
         )
         assert isinstance(client._client, MLXClientAdapter)

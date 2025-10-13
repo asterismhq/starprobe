@@ -15,11 +15,11 @@ class MLXSettings(BaseSettings):
         populate_by_name=True,
     )
 
-    mlx_model: str = Field(
-        default="mlx-community/Llama-3.1-8B-Instruct-4bit",
+    model: str = Field(
+        default="mlx-community/TinyLlama-1.1B-Chat-v1.0-4bit",
         title="MLX Model Name",
         description="Name of the MLX model to use",
-        alias="OLM_D_RCH_MLX_MODEL",
+        alias="MLX_MODEL",
     )
     temperature: float = Field(
         default=0.0,
@@ -28,11 +28,11 @@ class MLXSettings(BaseSettings):
         alias="OLM_D_RCH_MLX_TEMPERATURE",
     )
 
-    @field_validator("mlx_model", mode="before")
+    @field_validator("model", mode="before")
     @classmethod
-    def normalize_mlx_model(cls, value: Any) -> Any:
+    def normalize_model(cls, value: Any) -> Any:
         if isinstance(value, str) and not value.strip():
-            return "mlx-community/Llama-3.1-8B-Instruct-4bit"
+            return "mlx-community/TinyLlama-1.1B-Chat-v1.0-4bit"
         return value
 
     @field_validator("temperature", mode="before")
@@ -55,7 +55,7 @@ class MLXSettings(BaseSettings):
         configurable = config.get("configurable", {}) if config else {}
 
         init_kwargs: dict[str, Any] = {}
-        for field in ("mlx_model", "temperature"):
+        for field in ("model", "temperature"):
             if field in configurable:
                 init_kwargs[field] = configurable[field]
 
