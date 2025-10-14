@@ -22,7 +22,25 @@ class StlConnLangChainAdapter:
 
     async def invoke(self, messages: Any, **_kwargs: Any) -> LangChainResponse:
         """Invoke the LLM and return a LangChain-compatible response."""
-        input_data = {"input_data": {"input": messages}}
+        # Convert LangChain messages to dict format if needed
+        if isinstance(messages, list) and messages:
+            serialized_messages = []
+            for msg in messages:
+                if hasattr(msg, "type") and hasattr(msg, "content"):
+                    # LangChain message object
+                    serialized_messages.append(
+                        {"role": msg.type, "content": msg.content}
+                    )
+                elif isinstance(msg, dict):
+                    # Already a dict
+                    serialized_messages.append(msg)
+                else:
+                    # Fallback: convert to string
+                    serialized_messages.append({"role": "user", "content": str(msg)})
+        else:
+            serialized_messages = messages
+
+        input_data = {"input_data": {"input": serialized_messages}}
         result = await self._client.invoke(input_data)
 
         # Extract content from stl-conn response format
