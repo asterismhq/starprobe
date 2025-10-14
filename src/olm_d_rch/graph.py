@@ -6,7 +6,6 @@ from langgraph.graph import END, START, StateGraph
 from olm_d_rch.config.mlx_settings import MLXSettings
 from olm_d_rch.config.ollama_settings import OllamaSettings
 from olm_d_rch.config.workflow_settings import WorkflowSettings
-from olm_d_rch.container import DependencyContainer
 from olm_d_rch.nodes import (
     finalize_summary,
     generate_query,
@@ -15,6 +14,8 @@ from olm_d_rch.nodes import (
     summarize_sources,
     web_research,
 )
+from olm_d_rch.protocols import LLMClientProtocol
+from olm_d_rch.services import PromptService, ResearchService
 from olm_d_rch.state import (
     SummaryState,
     SummaryStateInput,
@@ -23,13 +24,18 @@ from olm_d_rch.state import (
 
 
 class ResearchGraph:
-    def __init__(self, container: DependencyContainer, backend: Optional[str] = None):
-        # Assign services from container
-        self.container = container
-        self.backend = backend or container.settings.llm_backend
-        self.prompt_service = self.container.prompt_service
-        self.research_service = self.container.research_service
-        self.llm_client = self.container.provide_llm_client(self.backend)
+    def __init__(
+        self,
+        prompt_service: PromptService,
+        research_service: ResearchService,
+        llm_client: LLMClientProtocol,
+        backend: Optional[str] = None,
+    ):
+        # Assign services directly
+        self.backend = backend
+        self.prompt_service = prompt_service
+        self.research_service = research_service
+        self.llm_client = llm_client
 
     def _configure_llm_client(self, config: RunnableConfig):
         """Helper method to configure the active LLM client dynamically."""
@@ -88,7 +94,13 @@ class ResearchGraph:
         return builder.compile()
 
 
-def build_graph(backend: Optional[str] = None):
-    container = DependencyContainer()
-    research_graph = ResearchGraph(container, backend=backend)
+def build_graph(
+    prompt_service: PromptService,
+    research_service: ResearchService,
+    llm_client: LLMClientProtocol,
+    backend: Optional[str] = None,
+):
+    research_graph = ResearchGraph(
+        prompt_service, research_service, llm_client, backend=backend
+    )
     return research_graph.build()

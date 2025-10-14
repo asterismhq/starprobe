@@ -3,7 +3,7 @@
 import asyncio
 import time
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 
 from olm_d_rch.api.logger import logger
 from olm_d_rch.api.schemas import (
@@ -11,7 +11,16 @@ from olm_d_rch.api.schemas import (
     ResearchRequest,
     ResearchResponse,
 )
+from olm_d_rch.dependencies import (
+    _create_llm_client,
+    get_app_settings,
+    get_mlx_settings,
+    get_ollama_settings,
+    get_prompt_service,
+    get_research_service,
+)
 from olm_d_rch.graph import build_graph
+from olm_d_rch.services import PromptService, ResearchService
 
 router = APIRouter()
 
@@ -23,7 +32,14 @@ async def health_check():
 
 
 @router.post("/research", response_model=ResearchResponse)
-async def run_research(request: ResearchRequest):
+async def run_research(
+    request: ResearchRequest,
+    prompt_service: PromptService = Depends(get_prompt_service),
+    research_service: ResearchService = Depends(get_research_service),
+    app_settings=Depends(get_app_settings),
+    ollama_settings=Depends(get_ollama_settings),
+    mlx_settings=Depends(get_mlx_settings),
+):
     """Execute deep research on a given topic."""
     start_time = time.time()
     backend = request.backend
@@ -33,11 +49,18 @@ async def run_research(request: ResearchRequest):
     )
 
     try:
-        # Loading Settings from the Settings Class
-        # Settings are now loaded as singletons
+        # Create LLM client based on request backend
+        llm_client = _create_llm_client(
+            backend or app_settings.llm_backend,
+            app_settings,
+            ollama_settings,
+            mlx_settings,
+        )
 
         # Build graph with injected services
-        graph = build_graph(backend=backend)
+        graph = build_graph(
+            prompt_service, research_service, llm_client, backend=backend
+        )
 
         # Execute graph with timeout
         result = await asyncio.wait_for(
