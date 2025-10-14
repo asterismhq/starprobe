@@ -1,11 +1,12 @@
-from typing import Any, Dict
+import logging
 
 from .research_client_protocol import ResearchClientProtocol
+from .schemas import ResearchResponse
 
 
 class MockResearchApiClient:
-    def research(self, topic: str) -> Dict[str, Any]:
-        print(f"Mock research called with: {topic}")
+    def research(self, topic: str) -> ResearchResponse:
+        logging.info(f"Mock research called with: {topic}")
         article = (
             f"# Mock Research Article\n\n"
             f"## Summary\n"
@@ -18,14 +19,14 @@ class MockResearchApiClient:
             ],
             "source_count": 2,
         }
-        return {
-            "success": True,
-            "article": article,
-            "metadata": metadata,
-            "error_message": None,
-            "diagnostics": [],
-            "processing_time": 0.1,
-        }
+        return ResearchResponse(
+            success=True,
+            article=article,
+            metadata=metadata,
+            error_message=None,
+            diagnostics=[],
+            processing_time=0.1,
+        )
 
 
 # Interface check

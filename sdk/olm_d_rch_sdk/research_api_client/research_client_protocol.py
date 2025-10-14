@@ -1,5 +1,7 @@
-from typing import Any, Dict, Protocol
+from typing import Protocol
+
+from .schemas import ResearchResponse
 
 
 class ResearchClientProtocol(Protocol):
-    def research(self, topic: str) -> Dict[str, Any]: ...
+    def research(self, topic: str) -> ResearchResponse: ...

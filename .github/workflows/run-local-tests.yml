@@ -14,7 +14,7 @@ jobs:
       OLM_D_RCH_OLLAMA_MODEL: "tinyllama:1.1b"
     strategy:
       matrix:
-        test_target: [local-test]
+        test_target: [unit-test, sdk-test, intg-test]
       fail-fast: false
 
     steps:

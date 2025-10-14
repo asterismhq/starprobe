@@ -5,9 +5,11 @@ from .research_api_client import (
     ResearchApiClient,
     ResearchClientProtocol,
 )
+from .research_api_client.schemas import ResearchResponse
 
 __all__ = [
     "ResearchApiClient",
     "MockResearchApiClient",
     "ResearchClientProtocol",
+    "ResearchResponse",
 ]

@@ -90,14 +90,5 @@ exclude = [
 select = ["E", "F", "I"]
 ignore = ["E501"] # E501 (line too long) is ignored
 
-[tool.poetry]
-packages = [
-    { include = "olm_d_rch", from = "src" },
-    { include = "olm_d_rch_sdk", from = "sdk" },
-]
-
-[tool.poetry.dependencies]
-httpx = "^0.27.0"
-
-[tool.poetry.group.sdk.dependencies]
-httpx = "^0.27.0"
+[project.optional-dependencies]
+sdk = ["httpx>=0.27.0"]
