@@ -2,7 +2,7 @@ from typing import Any, Dict
 
 import httpx
 
-from olm_d_rch_sdk.protocols.research_client_protocol import ResearchClientProtocol
+from .research_client_protocol import ResearchClientProtocol
 
 
 class ResearchApiClient:

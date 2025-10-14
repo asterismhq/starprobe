@@ -1,11 +1,10 @@
 [project]
 name = "olm-d-rch"
 version = "0.0.1"
-description = "A FastAPI service for web research and summarization using ollama."
+description = "A FastAPI service for web research and summarization."
 authors = [
-    { name = "Lance Martin" }
+    { name = "akitorahayashi" }
 ]
-license = { text = "MIT" }
 requires-python = ">=3.9"
 dependencies = [
     "langgraph>=0.2.55",
@@ -40,14 +39,14 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/olm_d_rch", "sdk/mock_olm_d_rch_client"]
+packages = ["src/olm_d_rch", "sdk/olm_d_rch_sdk"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = "test_*.py"
 asyncio_mode = "auto"
 addopts = "-v -s --tb=short"
-pythonpath = [".", "sdk"]
+pythonpath = ["."]
 
 [tool.black]
 target-version = ['py312']

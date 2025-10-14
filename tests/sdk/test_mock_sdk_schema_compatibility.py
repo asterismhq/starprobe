@@ -1,9 +1,9 @@
 """Tests for verifying mock SDK schema compatibility with production API."""
 
 import pytest
-from mock_olm_d_rch_client.mock_olm_d_rch_client import MockOlmDRchClient
 from pydantic import ValidationError
 
+from sdk.olm_d_rch_sdk import MockResearchApiClient
 from src.olm_d_rch.api.schemas import ResearchResponse
 
 
@@ -12,11 +12,11 @@ class TestMockSdkSchemaCompatibility:
 
     def test_research_response_schema_compatibility(self):
         """Test that mock research response matches ResearchResponse schema."""
-        client = MockOlmDRchClient()
-        query = "test query"
+        client = MockResearchApiClient()
+        topic = "test topic"
 
         # Call mock research method
-        response_dict = client.research(query)
+        response_dict = client.research(topic)
 
         # Validate response against ResearchResponse schema
         try:
@@ -30,18 +30,14 @@ class TestMockSdkSchemaCompatibility:
         except ValidationError as e:
             pytest.fail(f"Mock response does not match ResearchResponse schema: {e}")
 
-    def test_research_method_signature_difference(self):
-        """Test that highlights the difference in method signatures."""
-        client = MockOlmDRchClient()
+    def test_research_method_signature(self):
+        """Test the method signature."""
+        client = MockResearchApiClient()
 
-        # Mock only accepts query, not backend
-        # This test documents the incompatibility
+        # Mock accepts topic
         response = client.research("test")
 
-        # Check that backend is not handled (mock doesn't accept it)
-        # In production, backend is optional in request
-        # But mock doesn't support it at all
-        assert "backend" not in response  # Mock response doesn't include backend info
-
-        # Note: This test passes but documents the limitation
-        # In a real scenario, you might want to update mock to accept backend
+        # Check response structure
+        assert response["success"] is True
+        assert "article" in response
+        assert "metadata" in response

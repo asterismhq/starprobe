@@ -215,7 +215,7 @@ poetry add olm-d-rch --group dev --extras "sdk"
 ### Usage
 
 ```python
-from olm_d_rch_sdk.client.research_api_client import ResearchApiClient
+from olm_d_rch_sdk import ResearchApiClient
 
 client = ResearchApiClient(base_url="http://localhost:8001")
 response = client.research(topic="Example research topic")

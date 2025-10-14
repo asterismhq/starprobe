@@ -1,15 +1,15 @@
 from typing import Any, Dict
 
+from .research_client_protocol import ResearchClientProtocol
 
-class MockOlmDRchClient:
-    """A mock client for OlmDRch for testing purposes."""
 
-    def research(self, query: str) -> Dict[str, Any]:
-        """Mocks a research call and returns a sample dictionary."""
+class MockResearchApiClient:
+    def research(self, topic: str) -> Dict[str, Any]:
+        print(f"Mock research called with: {topic}")
         article = (
             f"# Mock Research Article\n\n"
             f"## Summary\n"
-            f"This is a mock research summary for the query: {query}."
+            f"This is a mock research summary for the topic: {topic}."
         )
         metadata = {
             "sources": [
@@ -26,3 +26,7 @@ class MockOlmDRchClient:
             "diagnostics": [],
             "processing_time": 0.1,
         }
+
+
+# Interface check
+_: ResearchClientProtocol = MockResearchApiClient()

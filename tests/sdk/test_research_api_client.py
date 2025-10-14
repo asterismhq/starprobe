@@ -4,8 +4,7 @@ from typing import Any, Dict
 import httpx
 import pytest
 
-from olm_d_rch_sdk.client.research_api_client import ResearchApiClient
-from olm_d_rch_sdk.mocks.mock_research_api_client import MockResearchApiClient
+from sdk.olm_d_rch_sdk import MockResearchApiClient, ResearchApiClient
 
 
 class DummyResponse(httpx.Response):
@@ -41,13 +40,18 @@ def test_research_api_client_posts_to_api(monkeypatch: pytest.MonkeyPatch):
     assert response == {"result": "ok"}
 
 
-def test_mock_research_api_client_returns_static_payload(capsys: pytest.CaptureFixture[str]):
+def test_mock_research_api_client_returns_static_payload(
+    capsys: pytest.CaptureFixture[str],
+):
     client = MockResearchApiClient()
 
     result = client.research("example topic")
     captured = capsys.readouterr()
 
     assert "Mock research called with: example topic" in captured.out
-    assert result["summary"] == "This is a mock summary for the topic."
-    assert len(result["queries"]) == 2
-    assert len(result["urls"]) == 2
+    assert result["success"]
+    assert "article" in result
+    assert result["metadata"] is not None
+    assert result["error_message"] is None
+    assert result["diagnostics"] == []
+    assert result["processing_time"] == 0.1
