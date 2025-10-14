@@ -10,6 +10,7 @@ jobs:
   test:
     runs-on: ubuntu-latest
     env:
+      UV_CACHE_DIR: ./.uv-cache
       OLLAMA_HOST: ${{ secrets.OLLAMA_HOST }}
       OLM_D_RCH_OLLAMA_MODEL: "tinyllama:1.1b"
     strategy:
