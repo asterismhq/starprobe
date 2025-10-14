@@ -3,7 +3,7 @@
 import pytest
 from pydantic import ValidationError
 
-from sdk.olm_d_rch_sdk import MockResearchApiClient
+from olm_d_rch_sdk import MockResearchApiClient
 from src.olm_d_rch.api.schemas import ResearchResponse
 
 

@@ -4,7 +4,7 @@ from typing import Any, Dict
 import httpx
 import pytest
 
-from sdk.olm_d_rch_sdk import MockResearchApiClient, ResearchApiClient
+from olm_d_rch_sdk import ResearchApiClient, MockResearchApiClient
 
 
 class DummyResponse(httpx.Response):
