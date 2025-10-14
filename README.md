@@ -200,6 +200,28 @@ For testing and development, you can enable mock implementations for various com
   * `USE_MOCK_SEARCH`: Use mock search client instead of real DuckDuckGo search. Default is `false`.
   * `USE_MOCK_SCRAPING`: Use mock scraping service instead of real web scraping. Default is `false`.
 
+## SDK
+
+This repository includes a Python SDK for interacting with the olm-d-rch API.
+
+### Installation
+
+To install the SDK, add it as a dependency using Poetry:
+
+```bash
+poetry add olm-d-rch --group dev --extras "sdk"
+```
+
+### Usage
+
+```python
+from olm_d_rch_sdk.client.research_api_client import ResearchApiClient
+
+client = ResearchApiClient(base_url="http://localhost:8001")
+response = client.research(topic="Example research topic")
+print(response)
+```
+
 ## 🧪 Testing
 
 The project includes comprehensive test coverage across multiple test types:
