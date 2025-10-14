@@ -2,11 +2,9 @@ from functools import lru_cache
 
 from fastapi import Depends
 
-from .clients import (
-    DdgsClient,
-    MockStlConnLangChainAdapter,
-    StlConnLangChainAdapter,
-)
+from stl_conn_sdk.stl_conn_client import MockStlConnClient, StlConnClient
+
+from .clients import DdgsClient
 from .config import (
     AppSettings,
     DDGSSettings,
@@ -45,9 +43,10 @@ def get_workflow_settings() -> WorkflowSettings:
 
 def _create_llm_client(stl_conn_settings: StlConnSettings) -> LLMClientProtocol:
     if stl_conn_settings.use_mock_stl_conn:
-        return MockStlConnLangChainAdapter()
-    return StlConnLangChainAdapter(
+        return MockStlConnClient(response_format="langchain")
+    return StlConnClient(
         base_url=stl_conn_settings.stl_conn_base_url,
+        response_format="langchain",
         timeout=stl_conn_settings.stl_conn_timeout,
     )
 

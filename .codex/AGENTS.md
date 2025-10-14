@@ -20,13 +20,12 @@ The agent's logic is built as a state machine using **LangGraph**. It repeats th
 
 ## Main Components
 
--   **`dependencies.py`**: Dependency injection that provides services and clients. Uses `USE_MOCK_*` env vars to toggle between real and mock implementations.
+-   **`dependencies.py`**: Dependency injection that provides services and clients. Uses `USE_MOCK_*` env vars to toggle between real and mock implementations. Instantiates the stl-conn SDK directly (v1.2.0) with `response_format="langchain"`.
 -   **Services (`services/`)**:
     -   `ResearchService`: Manages searching and scraping.
     -   `PromptService`: Generates LLM prompts.
     -   `ScrapingService`: Extracts content from URLs.
 -   **Clients (`clients/`)**:
-    -   `StlConnLangChainAdapter`: Thin wrapper around Stella Connector SDK v1.1.0+ client with LangChain interface compatibility. The SDK natively supports LangChain responses via `response_format="langchain"`.
     -   `DdgsClient`: Performs DuckDuckGo web searches using the `ddgs` library.
 -   **State (`state.py`)**:
     -   `SummaryState`: Shares information such as topics, queries, and summaries between states.
@@ -70,7 +69,7 @@ Non-sensitive configuration values are defined as defaults in `settings.py`. Onl
 
 ## Development Notes
 
--   **Submodules are read-only**: Code in `submodules/` is for reference only. Do not modify submodule code.
--   **Dependencies**: Actual libraries used in production are installed from Git repositories specified in `pyproject.toml`, not from local submodules.
+-   **stl-conn submodule**: We now edit `submodules/stl-conn` in tandem with this repo to keep SDK changes synchronized. Ensure version numbers stay aligned (`pyproject.toml` references v1.2.0).
+-   **Dependencies**: Actual libraries used in production are installed from Git repositories specified in `pyproject.toml`. Keep the git reference updated when releasing a new stl-conn version.
 
 ---
