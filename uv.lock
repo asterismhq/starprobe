@@ -1205,19 +1205,6 @@ wheels = [
 ]
 
 [[package]]
-name = "langchain-ollama"
-version = "0.3.10"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "langchain-core" },
-    { name = "ollama" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/73/c9/ff996fc5fa2d8d23136f07c56e88a1013fe1e03a35ef3e65899baa73c49e/langchain_ollama-0.3.10.tar.gz", hash = "sha256:5d942d331c44351bae5c5c5965603ceb20b0ee4d70082290f4b15bc638559756", size = 35771, upload-time = "2025-10-02T15:53:20.974Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/4b/f2/d87767a106021206fb53faf7ae4517d365d353dc29a1649b9f3e47eef940/langchain_ollama-0.3.10-py3-none-any.whl", hash = "sha256:7550792872e8f86d362568e9ceb0f8085428bc59946c7b44e726358ba4b280f9", size = 27646, upload-time = "2025-10-02T15:53:19.89Z" },
-]
-
-[[package]]
 name = "langchain-text-splitters"
 version = "0.3.11"
 source = { registry = "https://pypi.org/simple" }
@@ -1999,9 +1986,7 @@ dependencies = [
     { name = "httpx" },
     { name = "jinja2" },
     { name = "langchain-community" },
-    { name = "langchain-ollama" },
     { name = "langgraph" },
-    { name = "mlx-lm", marker = "platform_machine == 'arm64' and sys_platform == 'darwin'" },
     { name = "pydantic-settings" },
     { name = "python-dotenv" },
     { name = "python-json-logger" },
@@ -2034,9 +2019,7 @@ requires-dist = [
     { name = "httpx", marker = "extra == 'sdk'", specifier = ">=0.27.0" },
     { name = "jinja2", specifier = ">=3.1.0" },
     { name = "langchain-community", specifier = ">=0.3.9" },
-    { name = "langchain-ollama", specifier = ">=0.3.6" },
     { name = "langgraph", specifier = ">=0.2.55" },
-    { name = "mlx-lm", marker = "platform_machine == 'arm64' and sys_platform == 'darwin'", specifier = ">=0.1.0" },
     { name = "pydantic-settings", specifier = ">=2.0.0" },
     { name = "python-dotenv", specifier = "==1.0.1" },
     { name = "python-json-logger", specifier = ">=2.0.0" },
