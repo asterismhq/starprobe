@@ -1,0 +1,48 @@
+name: Run Docker Tests
+
+on:
+  workflow_call:
+    secrets:
+      OLLAMA_HOST:
+        required: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      OLLAMA_HOST: ${{ secrets.OLLAMA_HOST }}
+      OLM_D_RCH_OLLAMA_MODEL: "tinyllama:1.1b"
+    strategy:
+      matrix:
+        test_target: [build-test, e2e-test]
+      fail-fast: false
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version-file: '.python-version'
+
+      - name: Install uv
+        run: pipx install uv
+
+      - name: Install dependencies
+        run: uv sync --frozen
+
+      - name: Install just
+        uses: extractions/setup-just@v2
+
+      - name: Create .env file from example
+        run: cp .env.example .env
+
+      - name: Configure environment variables
+        run: |
+          echo "OLLAMA_HOST=${{ secrets.OLLAMA_HOST }}" >> .env
+          echo "OLM_D_RCH_OLLAMA_MODEL=${{ env.OLM_D_RCH_OLLAMA_MODEL }}" >> .env
+
+      - name: Run tests
+        run: |
+          just ${{ matrix.test_target }}

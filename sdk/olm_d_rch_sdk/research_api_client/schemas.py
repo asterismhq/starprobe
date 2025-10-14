@@ -1,18 +1,8 @@
-"""Pydantic models for API request/response validation."""
+"""Pydantic models for SDK."""
 
-from typing import Any, Dict, List, Literal, Optional
+from typing import Any, Dict, List, Optional
 
 from pydantic import BaseModel, Field
-
-
-class ResearchRequest(BaseModel):
-    """Request model for research endpoint."""
-
-    query: str = Field(..., min_length=1, description="Search query to research")
-    backend: Optional[Literal["ollama", "mlx"]] = Field(
-        default=None,
-        description="Preferred LLM backend for this request",
-    )
 
 
 class ResearchResponse(BaseModel):
@@ -33,9 +23,3 @@ class ResearchResponse(BaseModel):
     processing_time: float = Field(
         ..., description="Time taken to process the request in seconds"
     )
-
-
-class HealthResponse(BaseModel):
-    """Response model for health check."""
-
-    status: str = Field(default="ok")

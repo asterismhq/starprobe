@@ -1,10 +1,6 @@
 """Tests for verifying mock SDK schema compatibility with production API."""
 
-import pytest
-from mock_olm_d_rch_client.mock_olm_d_rch_client import MockOlmDRchClient
-from pydantic import ValidationError
-
-from src.olm_d_rch.api.schemas import ResearchResponse
+from olm_d_rch_sdk import MockResearchApiClient, ResearchResponse
 
 
 class TestMockSdkSchemaCompatibility:
@@ -12,36 +8,30 @@ class TestMockSdkSchemaCompatibility:
 
     def test_research_response_schema_compatibility(self):
         """Test that mock research response matches ResearchResponse schema."""
-        client = MockOlmDRchClient()
-        query = "test query"
+        client = MockResearchApiClient()
+        topic = "test topic"
 
         # Call mock research method
-        response_dict = client.research(query)
+        response = client.research(topic)
 
-        # Validate response against ResearchResponse schema
-        try:
-            research_response = ResearchResponse(**response_dict)
-            assert research_response.success is True
-            assert research_response.article is not None
-            assert research_response.metadata is not None
-            assert research_response.error_message is None
-            assert research_response.diagnostics == []
-            assert research_response.processing_time == 0.1
-        except ValidationError as e:
-            pytest.fail(f"Mock response does not match ResearchResponse schema: {e}")
+        # Validate response is ResearchResponse instance
+        assert isinstance(response, ResearchResponse)
+        assert response.success is True
+        assert response.article is not None
+        assert response.metadata is not None
+        assert response.error_message is None
+        assert response.diagnostics == []
+        assert response.processing_time == 0.1
 
-    def test_research_method_signature_difference(self):
-        """Test that highlights the difference in method signatures."""
-        client = MockOlmDRchClient()
+    def test_research_method_signature(self):
+        """Test the method signature."""
+        client = MockResearchApiClient()
 
-        # Mock only accepts query, not backend
-        # This test documents the incompatibility
+        # Mock accepts topic
         response = client.research("test")
 
-        # Check that backend is not handled (mock doesn't accept it)
-        # In production, backend is optional in request
-        # But mock doesn't support it at all
-        assert "backend" not in response  # Mock response doesn't include backend info
-
-        # Note: This test passes but documents the limitation
-        # In a real scenario, you might want to update mock to accept backend
+        # Check response structure
+        assert isinstance(response, ResearchResponse)
+        assert response.success is True
+        assert response.article is not None
+        assert response.metadata is not None
