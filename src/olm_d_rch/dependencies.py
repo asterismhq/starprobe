@@ -1,7 +1,6 @@
 from functools import lru_cache
 
 from fastapi import Depends
-
 from stl_conn_sdk.stl_conn_client import MockStlConnClient, StlConnClient
 
 from .clients import DdgsClient

@@ -3018,8 +3018,8 @@ wheels = [
 
 [[package]]
 name = "stl-conn"
-version = "0.1.0"
-source = { git = "https://github.com/asterismhq/stl-conn.git#891f8b203177bf17a42f010f0d6e5cdcd9b89f0f" }
+version = "1.2.0"
+source = { git = "https://github.com/asterismhq/stl-conn.git#0cd95cdb58c058ecc9f8c5e40bdb86c4392c44bd" }
 dependencies = [
     { name = "fastapi" },
     { name = "httpx" },
