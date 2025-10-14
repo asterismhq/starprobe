@@ -7,6 +7,12 @@ FROM python:3.12-slim as base
 
 WORKDIR /app
 
+# Install system dependencies including Git (required for Git-based dependencies)
+RUN apt-get update && \
+    apt-get install -y git && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
 # Install uv
 RUN --mount=type=cache,target=/root/.cache \
     pip install uv

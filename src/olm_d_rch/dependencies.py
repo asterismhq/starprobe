@@ -1,17 +1,17 @@
 from functools import lru_cache
 
 from fastapi import Depends
+from stl_conn_sdk.stl_conn_client import MockStlConnClient, StlConnClient
 
-from .clients import DdgsClient, MLXClient, OllamaClient
+from .clients import DdgsClient
 from .config import (
     AppSettings,
     DDGSSettings,
-    MLXSettings,
-    OllamaSettings,
     ScrapingSettings,
+    StlConnSettings,
     WorkflowSettings,
 )
-from .protocols import LLMClientProtocol, ScrapingServiceProtocol, SearchClientProtocol
+from .protocols import DDGSClientProtocol, LLMClientProtocol, ScrapingServiceProtocol
 from .services import PromptService, ResearchService, ScrapingService
 
 
@@ -21,13 +21,8 @@ def get_app_settings() -> AppSettings:
 
 
 @lru_cache()
-def get_ollama_settings() -> OllamaSettings:
-    return OllamaSettings()
-
-
-@lru_cache()
-def get_mlx_settings() -> MLXSettings:
-    return MLXSettings()
+def get_stl_conn_settings() -> StlConnSettings:
+    return StlConnSettings()
 
 
 @lru_cache()
@@ -45,43 +40,23 @@ def get_workflow_settings() -> WorkflowSettings:
     return WorkflowSettings()
 
 
-def _create_llm_client(
-    backend: str,
-    settings: AppSettings,
-    ollama_settings: OllamaSettings,
-    mlx_settings: MLXSettings,
-) -> LLMClientProtocol:
-    # Include mock usage logic here
-    if settings.use_mock_ollama:
-        from dev.mocks.mock_ollama_client import MockOllamaClient
-
-        return MockOllamaClient()
-    if settings.use_mock_mlx:
-        from dev.mocks.mock_mlx_client import MockMLXClient
-
-        return MockMLXClient(
-            model=mlx_settings.model,
-            temperature=mlx_settings.temperature,
-        )
-
-    backend = backend.lower()
-    if backend == "mlx":
-        return MLXClient(mlx_settings)
-    # Default to ollama
-    return OllamaClient(ollama_settings)
-
-
-def get_llm_client(
-    settings: AppSettings = Depends(get_app_settings),
-    ollama_settings: OllamaSettings = Depends(get_ollama_settings),
-    mlx_settings: MLXSettings = Depends(get_mlx_settings),
-) -> LLMClientProtocol:
-    return _create_llm_client(
-        settings.llm_backend, settings, ollama_settings, mlx_settings
+def _create_llm_client(stl_conn_settings: StlConnSettings) -> LLMClientProtocol:
+    if stl_conn_settings.use_mock_stl_conn:
+        return MockStlConnClient(response_format="langchain")
+    return StlConnClient(
+        base_url=stl_conn_settings.stl_conn_base_url,
+        response_format="langchain",
+        timeout=stl_conn_settings.stl_conn_timeout,
     )
 
 
-def _create_search_client(ddgs_settings: DDGSSettings) -> SearchClientProtocol:
+def get_llm_client(
+    stl_conn_settings: StlConnSettings = Depends(get_stl_conn_settings),
+) -> LLMClientProtocol:
+    return _create_llm_client(stl_conn_settings)
+
+
+def _create_search_client(ddgs_settings: DDGSSettings) -> DDGSClientProtocol:
     if ddgs_settings.use_mock_search:
         from dev.mocks.mock_search_client import MockSearchClient
 
@@ -91,7 +66,7 @@ def _create_search_client(ddgs_settings: DDGSSettings) -> SearchClientProtocol:
 
 def get_search_client(
     ddgs_settings: DDGSSettings = Depends(get_ddgs_settings),
-) -> SearchClientProtocol:
+) -> DDGSClientProtocol:
     return _create_search_client(ddgs_settings)
 
 
@@ -123,7 +98,7 @@ def get_prompt_service(
 
 def _create_research_service(
     workflow_settings: WorkflowSettings,
-    search_client: SearchClientProtocol,
+    search_client: DDGSClientProtocol,
     scraping_service: ScrapingServiceProtocol,
 ) -> ResearchService:
     return ResearchService(workflow_settings, search_client, scraping_service)
@@ -131,7 +106,7 @@ def _create_research_service(
 
 def get_research_service(
     workflow_settings: WorkflowSettings = Depends(get_workflow_settings),
-    search_client: SearchClientProtocol = Depends(get_search_client),
+    search_client: DDGSClientProtocol = Depends(get_search_client),
     scraping_service: ScrapingServiceProtocol = Depends(get_scraping_service),
 ) -> ResearchService:
     return _create_research_service(workflow_settings, search_client, scraping_service)

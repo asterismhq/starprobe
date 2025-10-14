@@ -6,6 +6,18 @@ Ollama Deep Researcher is a fully local web research and summarization API servi
 
 The project introduces a Dependency Injection (DI) container called `DependencyContainer` to manage dependencies. The project is primarily composed of components such as `graph`, `nodes`, `services`, and `clients`.
 
+## What's New
+
+- **stl-conn SDK v1.2.0** is now consumed directly: LangChain message inputs and tool binding are handled in the SDK, allowing this project to drop its local adapter wrapper.
+
+### Stella Connector Integration
+
+The application now consumes the **stl-conn SDK v1.2.0** directly. The LangChain adapter layer that previously lived in this repo has been removed because the SDK now:
+
+- Accepts LangChain message objects (`AIMessage`, `HumanMessage`, etc.) without extra serialization.
+- Exposes `bind_tools()` on both real and mock clients so LangChain tool calling can be chained natively.
+- Automatically wraps payloads under the expected `{"input": ...}` structure while forwarding bound tools.
+
 ## 🚀 Quick Start
 
 ### Local Development (Recommended)
@@ -73,12 +85,10 @@ Once the service is running, the following endpoints are available.
   * **Request Body:**
     ```json
     {
-      "query": "YOUR_RESEARCH_QUERY",
-      "backend": "ollama"
+      "query": "YOUR_RESEARCH_QUERY"
     }
     ```
     - `query` (string, required): The topic or search query to investigate. Must be at least 1 character long.
-    - `backend` (string, optional): LLM backend to use for this request. Supported values are `ollama` and `mlx`. When omitted, the server uses the default backend from configuration.
   * **Example using `curl`:**
     ```shell
     curl -X POST http://localhost:8000/research \

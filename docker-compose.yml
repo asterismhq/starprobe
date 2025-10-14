@@ -8,5 +8,7 @@ services:
       - .env
     environment:
       - CONTAINER_ENV=production
-      - OLLAMA_HOST=${OLLAMA_HOST}
-      - OLM_D_RCH_OLLAMA_MODEL=${OLM_D_RCH_OLLAMA_MODEL}
+      # Mock settings - these override .env file when passed from environment
+      - USE_MOCK_STL_CONN=${USE_MOCK_STL_CONN}
+      - USE_MOCK_SEARCH=${USE_MOCK_SEARCH}
+      - USE_MOCK_SCRAPING=${USE_MOCK_SCRAPING}

@@ -6,12 +6,12 @@ from ddgs import DDGS
 from ddgs.exceptions import DDGSException
 
 from ..config.ddgs_settings import DDGSSettings
-from ..protocols.search_client_protocol import SearchClientProtocol
+from ..protocols.ddgs_client_protocol import DDGSClientProtocol
 
 logger = logging.getLogger(__name__)
 
 
-class DdgsClient(SearchClientProtocol):
+class DdgsClient(DDGSClientProtocol):
     """Client for performing web searches using DuckDuckGo via the ddgs library."""
 
     def __init__(self, settings: DDGSSettings) -> None:

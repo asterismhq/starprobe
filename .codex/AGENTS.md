@@ -2,7 +2,7 @@
 
 ## Overview
 
-**Ollama Deep Researcher** is an AI agent that autonomously conducts detailed research on a specified topic and generates a comprehensive report. It starts with initial research, identifies knowledge gaps, and iteratively refines the summary through additional investigations. It primarily targets local LLM backends (Ollama by default, MLX on Apple Silicon) to minimize dependence on paid APIs.
+**Ollama Deep Researcher** is an AI agent that autonomously conducts detailed research on a specified topic and generates a comprehensive report. It starts with initial research, identifies knowledge gaps, and iteratively refines the summary through additional investigations. It delegates LLM invocation to the **Stella Connector** API service.
 
 ---
 
@@ -20,13 +20,12 @@ The agent's logic is built as a state machine using **LangGraph**. It repeats th
 
 ## Main Components
 
--   **`container.py`**: A dependency container that selects production or mock services using `USE_MOCK_*` env vars and supplies LLM clients via `provide_llm_client(backend)`.
+-   **`dependencies.py`**: Dependency injection that provides services and clients. Uses `USE_MOCK_*` env vars to toggle between real and mock implementations. Instantiates the stl-conn SDK directly (v1.2.0) with `response_format="langchain"`.
 -   **Services (`services/`)**:
     -   `ResearchService`: Manages searching and scraping.
     -   `PromptService`: Generates LLM prompts.
     -   `ScrapingService`: Extracts content from URLs.
 -   **Clients (`clients/`)**:
-    -   `OllamaClient` / `MLXClient`: Implement the shared `LLMClientProtocol`.
     -   `DdgsClient`: Performs DuckDuckGo web searches using the `ddgs` library.
 -   **State (`state.py`)**:
     -   `SummaryState`: Shares information such as topics, queries, and summaries between states.
@@ -52,9 +51,10 @@ The agent's logic is built as a state machine using **LangGraph**. It repeats th
 -   Send POST request to `/research` endpoint
 
 **LLM Configuration:**
--   Default backend is controlled by `OLM_D_RCH_LLM_BACKEND` (`ollama` or `mlx`).
--   Requests can override the backend by setting `"backend": "ollama"|"mlx"` in the payload.
--   For Ollama, run `ollama serve` and set `OLLAMA_HOST`. For MLX, ensure `mlx-lm` is available on Apple Silicon.
+-   LLM invocation is delegated to the Stella Connector API service.
+-   Configure the Stella Connector endpoint via `STL_CONN_BASE_URL` (default: `http://localhost:8000`).
+-   Backend selection (Ollama/MLX) is configured at the Stella Connector service level, not in this project.
+-   Requires Stella Connector service to be running and accessible.
 
 ---
 
@@ -64,5 +64,12 @@ Non-sensitive configuration values are defined as defaults in `settings.py`. Onl
 
 -   **Application & Deployment**: `.env` (ports, project names, etc.)
 -   **Application & Testing**: `settings.py` (model names, timeouts, etc.)
+
+---
+
+## Development Notes
+
+-   **stl-conn submodule**: We now edit `submodules/stl-conn` in tandem with this repo to keep SDK changes synchronized. Ensure version numbers stay aligned (`pyproject.toml` references v1.2.0).
+-   **Dependencies**: Actual libraries used in production are installed from Git repositories specified in `pyproject.toml`. Keep the git reference updated when releasing a new stl-conn version.
 
 ---
