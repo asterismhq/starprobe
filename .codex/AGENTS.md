@@ -66,3 +66,10 @@ Non-sensitive configuration values are defined as defaults in `settings.py`. Onl
 -   **Application & Testing**: `settings.py` (model names, timeouts, etc.)
 
 ---
+
+## Development Notes
+
+-   **Submodules are read-only**: Code in `submodules/` is for reference only. Do not modify submodule code.
+-   **Dependencies**: Actual libraries used in production are installed from Git repositories specified in `pyproject.toml`, not from local submodules.
+
+---
