@@ -8,7 +8,6 @@ from src.olm_d_rch.dependencies import (
     _create_research_service,
     _create_scraping_service,
     _create_search_client,
-    _create_search_service,
     get_app_settings,
     get_ddgs_settings,
     get_mlx_settings,
@@ -74,7 +73,9 @@ class TestDependencyProviders:
         app_settings = get_app_settings()
         ollama_settings = get_ollama_settings()
         mlx_settings = get_mlx_settings()
-        client = _create_llm_client(app_settings, ollama_settings, mlx_settings)
+        client = _create_llm_client(
+            app_settings.llm_backend, app_settings, ollama_settings, mlx_settings
+        )
         assert client is not None
         assert hasattr(client, "invoke")
         assert hasattr(client, "bind_tools")
@@ -104,14 +105,6 @@ class TestDependencyProviders:
         assert hasattr(service, "generate_summarize_prompt")
         assert hasattr(service, "generate_reflect_prompt")
 
-    def test_create_search_service_returns_service(self):
-        """Test that _create_search_service returns a SearchService instance."""
-        ddgs_settings = get_ddgs_settings()
-        search_client = _create_search_client(ddgs_settings)
-        service = _create_search_service(search_client)
-        assert service is not None
-        assert hasattr(service, "search")
-
     def test_create_research_service_returns_service(self):
         """Test that _create_research_service returns a ResearchService instance."""
         workflow_settings = get_workflow_settings()
@@ -128,18 +121,18 @@ class TestDependencyProviders:
     @pytest.mark.parametrize("use_mock", [True, False])
     def test_create_llm_client_respects_mock_settings(self, monkeypatch, use_mock):
         """Test that _create_llm_client switches between mock and real based on settings."""
-        app_settings = get_app_settings()
+        if use_mock:
+            monkeypatch.setenv("USE_MOCK_OLLAMA", "true")
+        else:
+            monkeypatch.setenv("USE_MOCK_OLLAMA", "false")
+        get_app_settings.cache_clear()
+        app_settings = get_app_settings()  # Re-get to pick up env change
         ollama_settings = get_ollama_settings()
         mlx_settings = get_mlx_settings()
 
-        if use_mock:
-            monkeypatch.setenv("USE_MOCK_OLLAMA", "true")
-            app_settings = get_app_settings()  # Re-get to pick up env change
-        else:
-            monkeypatch.setenv("USE_MOCK_OLLAMA", "false")
-            app_settings = get_app_settings()
-
-        client = _create_llm_client(app_settings, ollama_settings, mlx_settings)
+        client = _create_llm_client(
+            app_settings.llm_backend, app_settings, ollama_settings, mlx_settings
+        )
         assert client is not None
 
     @pytest.mark.parametrize("use_mock", [True, False])
@@ -149,7 +142,7 @@ class TestDependencyProviders:
             monkeypatch.setenv("USE_MOCK_SEARCH", "true")
         else:
             monkeypatch.setenv("USE_MOCK_SEARCH", "false")
-
+        get_ddgs_settings.cache_clear()
         ddgs_settings = get_ddgs_settings()
         client = _create_search_client(ddgs_settings)
         assert client is not None
@@ -163,7 +156,7 @@ class TestDependencyProviders:
             monkeypatch.setenv("USE_MOCK_SCRAPING", "true")
         else:
             monkeypatch.setenv("USE_MOCK_SCRAPING", "false")
-
+        get_scraping_settings.cache_clear()
         scraping_settings = get_scraping_settings()
         service = _create_scraping_service(scraping_settings)
         assert service is not None

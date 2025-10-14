@@ -12,12 +12,14 @@ from olm_d_rch.api.schemas import (
     ResearchResponse,
 )
 from olm_d_rch.dependencies import (
-    get_llm_client,
+    _create_llm_client,
+    get_app_settings,
+    get_mlx_settings,
+    get_ollama_settings,
     get_prompt_service,
     get_research_service,
 )
 from olm_d_rch.graph import build_graph
-from olm_d_rch.protocols import LLMClientProtocol
 from olm_d_rch.services import PromptService, ResearchService
 
 router = APIRouter()
@@ -34,7 +36,9 @@ async def run_research(
     request: ResearchRequest,
     prompt_service: PromptService = Depends(get_prompt_service),
     research_service: ResearchService = Depends(get_research_service),
-    llm_client: LLMClientProtocol = Depends(get_llm_client),
+    app_settings=Depends(get_app_settings),
+    ollama_settings=Depends(get_ollama_settings),
+    mlx_settings=Depends(get_mlx_settings),
 ):
     """Execute deep research on a given topic."""
     start_time = time.time()
@@ -45,6 +49,14 @@ async def run_research(
     )
 
     try:
+        # Create LLM client based on request backend
+        llm_client = _create_llm_client(
+            backend or app_settings.llm_backend,
+            app_settings,
+            ollama_settings,
+            mlx_settings,
+        )
+
         # Build graph with injected services
         graph = build_graph(
             prompt_service, research_service, llm_client, backend=backend

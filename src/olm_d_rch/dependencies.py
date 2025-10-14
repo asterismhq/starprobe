@@ -12,7 +12,7 @@ from .config import (
     WorkflowSettings,
 )
 from .protocols import LLMClientProtocol, ScrapingServiceProtocol, SearchClientProtocol
-from .services import PromptService, ResearchService, ScrapingService, SearchService
+from .services import PromptService, ResearchService, ScrapingService
 
 
 @lru_cache()
@@ -46,6 +46,7 @@ def get_workflow_settings() -> WorkflowSettings:
 
 
 def _create_llm_client(
+    backend: str,
     settings: AppSettings,
     ollama_settings: OllamaSettings,
     mlx_settings: MLXSettings,
@@ -63,21 +64,11 @@ def _create_llm_client(
             temperature=mlx_settings.temperature,
         )
 
-    backend = settings.llm_backend.lower()
-    factory = CLIENT_FACTORIES.get(backend)
-    if factory:
-        if backend == "ollama":
-            return factory(ollama_settings)
-        elif backend == "mlx":
-            return factory(mlx_settings)
+    backend = backend.lower()
+    if backend == "mlx":
+        return MLXClient(mlx_settings)
     # Default to ollama
     return OllamaClient(ollama_settings)
-
-
-CLIENT_FACTORIES = {
-    "ollama": lambda settings: OllamaClient(settings),
-    "mlx": lambda settings: MLXClient(settings),
-}
 
 
 def get_llm_client(
@@ -85,7 +76,9 @@ def get_llm_client(
     ollama_settings: OllamaSettings = Depends(get_ollama_settings),
     mlx_settings: MLXSettings = Depends(get_mlx_settings),
 ) -> LLMClientProtocol:
-    return _create_llm_client(settings, ollama_settings, mlx_settings)
+    return _create_llm_client(
+        settings.llm_backend, settings, ollama_settings, mlx_settings
+    )
 
 
 def _create_search_client(ddgs_settings: DDGSSettings) -> SearchClientProtocol:
@@ -126,16 +119,6 @@ def get_prompt_service(
     workflow_settings: WorkflowSettings = Depends(get_workflow_settings),
 ) -> PromptService:
     return _create_prompt_service(workflow_settings)
-
-
-def _create_search_service(search_client: SearchClientProtocol) -> SearchService:
-    return SearchService(search_client)
-
-
-def get_search_service(
-    search_client: SearchClientProtocol = Depends(get_search_client),
-) -> SearchService:
-    return _create_search_service(search_client)
 
 
 def _create_research_service(
