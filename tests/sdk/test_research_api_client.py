@@ -3,8 +3,7 @@ from typing import Any, Dict
 
 import httpx
 import pytest
-
-from olm_d_rch_sdk import ResearchApiClient, MockResearchApiClient
+from olm_d_rch_sdk import MockResearchApiClient, ResearchApiClient
 
 
 class DummyResponse(httpx.Response):

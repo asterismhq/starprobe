@@ -1,4 +1,4 @@
-name: Run Tests
+name: Run Local Tests
 
 on:
   workflow_call:
@@ -14,7 +14,7 @@ jobs:
       OLM_D_RCH_OLLAMA_MODEL: "tinyllama:1.1b"
     strategy:
       matrix:
-        test_target: [local-test, build-test, e2e-test]
+        test_target: [local-test]
       fail-fast: false
 
     steps:

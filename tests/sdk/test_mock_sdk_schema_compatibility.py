@@ -1,9 +1,9 @@
 """Tests for verifying mock SDK schema compatibility with production API."""
 
 import pytest
+from olm_d_rch_sdk import MockResearchApiClient
 from pydantic import ValidationError
 
-from olm_d_rch_sdk import MockResearchApiClient
 from src.olm_d_rch.api.schemas import ResearchResponse
 
 
