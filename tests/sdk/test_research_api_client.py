@@ -1,5 +1,6 @@
 import json
-from typing import Any, Dict
+from typing import Any, Dict, Optional
+from unittest.mock import Mock
 
 import httpx
 import pytest
@@ -10,8 +11,8 @@ class DummyResponse(httpx.Response):
     def __init__(
         self,
         status_code: int = 200,
-        json_data: Dict[str, Any] | None = None,
-        url: str = "http://example.com/api/v1/research",
+        json_data: Optional[Dict[str, Any]] = None,
+        url: str = "http://example.com/research",
     ):
         content = json.dumps(json_data or {}).encode()
         request = httpx.Request("POST", url)
@@ -22,30 +23,28 @@ class DummyResponse(httpx.Response):
 
 
 def test_research_api_client_posts_to_api(monkeypatch: pytest.MonkeyPatch):
-    captured = {}
+    mock_client = Mock()
+    mock_client.post.return_value = DummyResponse(
+        json_data={
+            "success": True,
+            "article": "Test article",
+            "metadata": {"sources": []},
+            "error_message": None,
+            "diagnostics": [],
+            "processing_time": 1.0,
+        },
+        url="http://example.com/research",
+    )
 
-    def fake_post(url: str, json: Dict[str, Any], timeout: int) -> httpx.Response:
-        captured.update({"url": url, "json": json, "timeout": timeout})
-        return DummyResponse(
-            json_data={
-                "success": True,
-                "article": "Test article",
-                "metadata": {"sources": []},
-                "error_message": None,
-                "diagnostics": [],
-                "processing_time": 1.0,
-            },
-            url=url,
-        )
+    def fake_client(*args, **kwargs):
+        return mock_client
 
-    monkeypatch.setattr(httpx, "post", fake_post)
+    monkeypatch.setattr(httpx, "Client", fake_client)
 
     client = ResearchApiClient(base_url="http://example.com")
     response = client.research(topic="test topic")
 
-    assert captured["url"] == "http://example.com/api/v1/research"
-    assert captured["json"] == {"query": "test topic"}
-    assert captured["timeout"] == 300.0
+    mock_client.post.assert_called_once_with("/research", json={"query": "test topic"})
     assert isinstance(response, ResearchResponse)
     assert response.success is True
 

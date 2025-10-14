@@ -1,6 +1,6 @@
 import operator
 from dataclasses import dataclass, field
-from typing import Any, Dict
+from typing import Any, Dict, List, Optional
 
 from typing_extensions import Annotated
 
@@ -24,7 +24,7 @@ class SummaryStateInput:
 @dataclass(kw_only=True)
 class SummaryStateOutput:
     success: bool = field(default=False)
-    article: str | None = field(default=None)
-    metadata: Dict[str, Any] | None = field(default=None)
+    article: Optional[str] = field(default=None)
+    metadata: Optional[Dict[str, Any]] = field(default=None)
     error_message: str = field(default=None)
-    diagnostics: list[str] = field(default_factory=list)
+    diagnostics: List[str] = field(default_factory=list)

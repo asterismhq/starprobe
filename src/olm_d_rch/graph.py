@@ -1,3 +1,5 @@
+from typing import Optional
+
 from langchain_core.runnables import RunnableConfig
 from langgraph.graph import END, START, StateGraph
 
@@ -21,7 +23,7 @@ from olm_d_rch.state import (
 
 
 class ResearchGraph:
-    def __init__(self, container: DependencyContainer, backend: str | None = None):
+    def __init__(self, container: DependencyContainer, backend: Optional[str] = None):
         # Assign services from container
         self.container = container
         self.backend = backend or container.settings.llm_backend
@@ -86,7 +88,7 @@ class ResearchGraph:
         return builder.compile()
 
 
-def build_graph(backend: str | None = None):
+def build_graph(backend: Optional[str] = None):
     container = DependencyContainer()
     research_graph = ResearchGraph(container, backend=backend)
     return research_graph.build()

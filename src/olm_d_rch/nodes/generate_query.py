@@ -1,5 +1,6 @@
 import json
 import logging
+from typing import List, Optional
 
 from langchain_core.tools import tool
 from pydantic import BaseModel, Field
@@ -44,7 +45,7 @@ async def generate_query(
 
     logger = logging.getLogger(__name__)
 
-    error_messages: list[str] | None = None
+    error_messages: Optional[List[str]] = None
 
     try:
         if prompt_service.configurable.use_tool_calling:
