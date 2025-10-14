@@ -26,7 +26,7 @@ The agent's logic is built as a state machine using **LangGraph**. It repeats th
     -   `PromptService`: Generates LLM prompts.
     -   `ScrapingService`: Extracts content from URLs.
 -   **Clients (`clients/`)**:
-    -   `StlConnClient`: LLM client from Stella Connector SDK (imported from `stl-conn` package).
+    -   `StlConnLangChainAdapter`: Thin wrapper around Stella Connector SDK v1.1.0+ client with LangChain interface compatibility. The SDK natively supports LangChain responses via `response_format="langchain"`.
     -   `DdgsClient`: Performs DuckDuckGo web searches using the `ddgs` library.
 -   **State (`state.py`)**:
     -   `SummaryState`: Shares information such as topics, queries, and summaries between states.

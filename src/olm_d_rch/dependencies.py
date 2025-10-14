@@ -46,7 +46,10 @@ def get_workflow_settings() -> WorkflowSettings:
 def _create_llm_client(stl_conn_settings: StlConnSettings):
     if stl_conn_settings.use_mock_stl_conn:
         return MockStlConnLangChainAdapter()
-    return StlConnLangChainAdapter(base_url=stl_conn_settings.stl_conn_base_url)
+    return StlConnLangChainAdapter(
+        base_url=stl_conn_settings.stl_conn_base_url,
+        timeout=stl_conn_settings.stl_conn_timeout,
+    )
 
 
 def get_llm_client(
