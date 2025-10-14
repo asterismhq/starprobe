@@ -22,7 +22,7 @@ dependencies = [
     "jinja2>=3.1.0",
     "ddgs>=6.0.0",
     "mlx-lm>=0.1.0; platform_system == \"Darwin\" and platform_machine == \"arm64\"",
-    "stl-conn @ git+https://github.com/asterismhq/stl-conn.git#v1.0.3",
+    "stl-conn @ git+https://github.com/asterismhq/stl-conn.git#v1.1.0",
 ]
 
 [dependency-groups]
