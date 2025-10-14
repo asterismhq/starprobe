@@ -1,10 +1,6 @@
-from typing import Optional
-
 from langchain_core.runnables import RunnableConfig
 from langgraph.graph import END, START, StateGraph
 
-from olm_d_rch.config.mlx_settings import MLXSettings
-from olm_d_rch.config.ollama_settings import OllamaSettings
 from olm_d_rch.config.workflow_settings import WorkflowSettings
 from olm_d_rch.nodes import (
     finalize_summary,
@@ -29,38 +25,22 @@ class ResearchGraph:
         prompt_service: PromptService,
         research_service: ResearchService,
         llm_client: LLMClientProtocol,
-        backend: Optional[str] = None,
     ):
         # Assign services directly
-        self.backend = backend
         self.prompt_service = prompt_service
         self.research_service = research_service
         self.llm_client = llm_client
 
-    def _configure_llm_client(self, config: RunnableConfig):
-        """Helper method to configure the active LLM client dynamically."""
-        backend = (self.backend or "ollama").lower()
-        if backend == "mlx":
-            settings = MLXSettings.from_runnable_config(config)
-        else:
-            settings = OllamaSettings.from_runnable_config(config)
-
-        if hasattr(self.llm_client, "configure"):
-            self.llm_client.configure(settings)
-
     async def generate_query(self, state: SummaryState, config: RunnableConfig):
-        self._configure_llm_client(config)
         return await generate_query(state, self.prompt_service, self.llm_client)
 
     async def web_research(self, state: SummaryState, config: RunnableConfig):
         return await web_research(state, self.research_service)
 
     async def summarize_sources(self, state: SummaryState, config: RunnableConfig):
-        self._configure_llm_client(config)
         return await summarize_sources(state, self.prompt_service, self.llm_client)
 
     async def reflect_on_summary(self, state: SummaryState, config: RunnableConfig):
-        self._configure_llm_client(config)
         return await reflect_on_summary(state, self.prompt_service, self.llm_client)
 
     def route_research(self, state: SummaryState, config: RunnableConfig):
@@ -98,9 +78,6 @@ def build_graph(
     prompt_service: PromptService,
     research_service: ResearchService,
     llm_client: LLMClientProtocol,
-    backend: Optional[str] = None,
 ):
-    research_graph = ResearchGraph(
-        prompt_service, research_service, llm_client, backend=backend
-    )
+    research_graph = ResearchGraph(prompt_service, research_service, llm_client)
     return research_graph.build()

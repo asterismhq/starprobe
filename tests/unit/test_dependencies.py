@@ -10,9 +10,8 @@ from src.olm_d_rch.dependencies import (
     _create_search_client,
     get_app_settings,
     get_ddgs_settings,
-    get_mlx_settings,
-    get_ollama_settings,
     get_scraping_settings,
+    get_stl_conn_settings,
     get_workflow_settings,
 )
 
@@ -28,20 +27,12 @@ class TestDependencyProviders:
         settings2 = get_app_settings()
         assert settings is settings2
 
-    def test_get_ollama_settings_returns_settings_instance(self):
-        """Test that get_ollama_settings returns an OllamaSettings instance."""
-        settings = get_ollama_settings()
+    def test_get_stl_conn_settings_returns_settings_instance(self):
+        """Test that get_stl_conn_settings returns a StlConnSettings instance."""
+        settings = get_stl_conn_settings()
         assert settings is not None
         # Should be cached
-        settings2 = get_ollama_settings()
-        assert settings is settings2
-
-    def test_get_mlx_settings_returns_settings_instance(self):
-        """Test that get_mlx_settings returns an MLXSettings instance."""
-        settings = get_mlx_settings()
-        assert settings is not None
-        # Should be cached
-        settings2 = get_mlx_settings()
+        settings2 = get_stl_conn_settings()
         assert settings is settings2
 
     def test_get_ddgs_settings_returns_settings_instance(self):
@@ -69,16 +60,11 @@ class TestDependencyProviders:
         assert settings is settings2
 
     def test_create_llm_client_returns_client(self):
-        """Test that _create_llm_client returns an LLM client."""
-        app_settings = get_app_settings()
-        ollama_settings = get_ollama_settings()
-        mlx_settings = get_mlx_settings()
-        client = _create_llm_client(
-            app_settings.llm_backend, app_settings, ollama_settings, mlx_settings
-        )
+        """Test that _create_llm_client returns an LLM client from stl-conn SDK."""
+        stl_conn_settings = get_stl_conn_settings()
+        client = _create_llm_client(stl_conn_settings)
         assert client is not None
         assert hasattr(client, "invoke")
-        assert hasattr(client, "bind_tools")
 
     def test_create_search_client_returns_client(self):
         """Test that _create_search_client returns a search client."""
@@ -122,17 +108,13 @@ class TestDependencyProviders:
     def test_create_llm_client_respects_mock_settings(self, monkeypatch, use_mock):
         """Test that _create_llm_client switches between mock and real based on settings."""
         if use_mock:
-            monkeypatch.setenv("USE_MOCK_OLLAMA", "true")
+            monkeypatch.setenv("USE_MOCK_STL_CONN", "true")
         else:
-            monkeypatch.setenv("USE_MOCK_OLLAMA", "false")
-        get_app_settings.cache_clear()
-        app_settings = get_app_settings()  # Re-get to pick up env change
-        ollama_settings = get_ollama_settings()
-        mlx_settings = get_mlx_settings()
+            monkeypatch.setenv("USE_MOCK_STL_CONN", "false")
+        get_stl_conn_settings.cache_clear()
+        stl_conn_settings = get_stl_conn_settings()  # Re-get to pick up env change
 
-        client = _create_llm_client(
-            app_settings.llm_backend, app_settings, ollama_settings, mlx_settings
-        )
+        client = _create_llm_client(stl_conn_settings)
         assert client is not None
 
     @pytest.mark.parametrize("use_mock", [True, False])

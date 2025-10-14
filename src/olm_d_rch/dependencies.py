@@ -2,16 +2,19 @@ from functools import lru_cache
 
 from fastapi import Depends
 
-from .clients import DdgsClient, MLXClient, OllamaClient
+from .clients import (
+    DdgsClient,
+    MockStlConnLangChainAdapter,
+    StlConnLangChainAdapter,
+)
 from .config import (
     AppSettings,
     DDGSSettings,
-    MLXSettings,
-    OllamaSettings,
     ScrapingSettings,
+    StlConnSettings,
     WorkflowSettings,
 )
-from .protocols import LLMClientProtocol, ScrapingServiceProtocol, SearchClientProtocol
+from .protocols import ScrapingServiceProtocol, SearchClientProtocol
 from .services import PromptService, ResearchService, ScrapingService
 
 
@@ -21,13 +24,8 @@ def get_app_settings() -> AppSettings:
 
 
 @lru_cache()
-def get_ollama_settings() -> OllamaSettings:
-    return OllamaSettings()
-
-
-@lru_cache()
-def get_mlx_settings() -> MLXSettings:
-    return MLXSettings()
+def get_stl_conn_settings() -> StlConnSettings:
+    return StlConnSettings()
 
 
 @lru_cache()
@@ -45,40 +43,16 @@ def get_workflow_settings() -> WorkflowSettings:
     return WorkflowSettings()
 
 
-def _create_llm_client(
-    backend: str,
-    settings: AppSettings,
-    ollama_settings: OllamaSettings,
-    mlx_settings: MLXSettings,
-) -> LLMClientProtocol:
-    # Include mock usage logic here
-    if settings.use_mock_ollama:
-        from dev.mocks.mock_ollama_client import MockOllamaClient
-
-        return MockOllamaClient()
-    if settings.use_mock_mlx:
-        from dev.mocks.mock_mlx_client import MockMLXClient
-
-        return MockMLXClient(
-            model=mlx_settings.model,
-            temperature=mlx_settings.temperature,
-        )
-
-    backend = backend.lower()
-    if backend == "mlx":
-        return MLXClient(mlx_settings)
-    # Default to ollama
-    return OllamaClient(ollama_settings)
+def _create_llm_client(stl_conn_settings: StlConnSettings):
+    if stl_conn_settings.use_mock_stl_conn:
+        return MockStlConnLangChainAdapter()
+    return StlConnLangChainAdapter(base_url=stl_conn_settings.stl_conn_base_url)
 
 
 def get_llm_client(
-    settings: AppSettings = Depends(get_app_settings),
-    ollama_settings: OllamaSettings = Depends(get_ollama_settings),
-    mlx_settings: MLXSettings = Depends(get_mlx_settings),
-) -> LLMClientProtocol:
-    return _create_llm_client(
-        settings.llm_backend, settings, ollama_settings, mlx_settings
-    )
+    stl_conn_settings: StlConnSettings = Depends(get_stl_conn_settings),
+):
+    return _create_llm_client(stl_conn_settings)
 
 
 def _create_search_client(ddgs_settings: DDGSSettings) -> SearchClientProtocol:

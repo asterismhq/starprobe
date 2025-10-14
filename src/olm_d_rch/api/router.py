@@ -12,10 +12,7 @@ from olm_d_rch.api.schemas import (
     ResearchResponse,
 )
 from olm_d_rch.dependencies import (
-    _create_llm_client,
-    get_app_settings,
-    get_mlx_settings,
-    get_ollama_settings,
+    get_llm_client,
     get_prompt_service,
     get_research_service,
 )
@@ -36,31 +33,19 @@ async def run_research(
     request: ResearchRequest,
     prompt_service: PromptService = Depends(get_prompt_service),
     research_service: ResearchService = Depends(get_research_service),
-    app_settings=Depends(get_app_settings),
-    ollama_settings=Depends(get_ollama_settings),
-    mlx_settings=Depends(get_mlx_settings),
+    llm_client=Depends(get_llm_client),
 ):
     """Execute deep research on a given topic."""
     start_time = time.time()
     backend = request.backend
     logger.info(
         "Research request received",
-        extra={"query": request.query, "backend": backend or "default"},
+        extra={"query": request.query, "backend": backend or "stl-conn"},
     )
 
     try:
-        # Create LLM client based on request backend
-        llm_client = _create_llm_client(
-            backend or app_settings.llm_backend,
-            app_settings,
-            ollama_settings,
-            mlx_settings,
-        )
-
         # Build graph with injected services
-        graph = build_graph(
-            prompt_service, research_service, llm_client, backend=backend
-        )
+        graph = build_graph(prompt_service, research_service, llm_client)
 
         # Execute graph with timeout
         result = await asyncio.wait_for(
@@ -83,7 +68,7 @@ async def run_research(
             extra={
                 "query": request.query,
                 "success": response.success,
-                "backend": backend or "default",
+                "backend": backend or "stl-conn",
                 "article_length": len(response.article) if response.article else 0,
                 "error_message": response.error_message,
                 "diagnostics": response.diagnostics,
@@ -96,7 +81,7 @@ async def run_research(
     except asyncio.TimeoutError:
         logger.error(
             "Research timeout",
-            extra={"query": request.query, "backend": backend or "default"},
+            extra={"query": request.query, "backend": backend or "stl-conn"},
         )
         return ResearchResponse(
             success=False,
@@ -110,7 +95,7 @@ async def run_research(
             "Research failed",
             extra={
                 "query": request.query,
-                "backend": backend or "default",
+                "backend": backend or "stl-conn",
                 "error": str(e),
             },
         )

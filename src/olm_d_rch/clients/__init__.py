@@ -1,9 +1,8 @@
 from .ddgs_client import DdgsClient
-from .mlx_client import MLXClient
-from .ollama_client import OllamaClient
+from .stl_conn_adapter import MockStlConnLangChainAdapter, StlConnLangChainAdapter
 
 __all__ = [
     "DdgsClient",
-    "OllamaClient",
-    "MLXClient",
+    "MockStlConnLangChainAdapter",
+    "StlConnLangChainAdapter",
 ]
