@@ -3,7 +3,7 @@
 import pytest
 from langchain_core.messages import HumanMessage, SystemMessage
 
-from src.olm_d_rch.container import DependencyContainer
+from src.olm_d_rch.dependencies import _create_prompt_service, get_workflow_settings
 from src.olm_d_rch.services.prompt_service import PromptService
 
 
@@ -13,8 +13,8 @@ class TestPromptService:
     @pytest.fixture
     def prompt_service(self):
         """Create a PromptService instance for testing."""
-        container = DependencyContainer()
-        return container.prompt_service
+        workflow_settings = get_workflow_settings()
+        return _create_prompt_service(workflow_settings)
 
     def test_get_current_date(self, mocker):
         """Test current date formatting."""

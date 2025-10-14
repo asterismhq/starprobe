@@ -2,7 +2,14 @@
 
 import pytest
 
-from src.olm_d_rch.container import DependencyContainer
+from src.olm_d_rch.dependencies import (
+    _create_research_service,
+    _create_scraping_service,
+    _create_search_client,
+    get_ddgs_settings,
+    get_scraping_settings,
+    get_workflow_settings,
+)
 
 
 class TestResearchService:
@@ -11,8 +18,14 @@ class TestResearchService:
     @pytest.fixture
     async def research_service(self):
         """Create a ResearchService instance with mocked dependencies."""
-        container = DependencyContainer()
-        return container.research_service
+        workflow_settings = get_workflow_settings()
+        ddgs_settings = get_ddgs_settings()
+        scraping_settings = get_scraping_settings()
+        search_client = _create_search_client(ddgs_settings)
+        scraping_service = _create_scraping_service(scraping_settings)
+        return _create_research_service(
+            workflow_settings, search_client, scraping_service
+        )
 
     @pytest.mark.asyncio
     async def test_search_and_scrape_success(self, mocker, research_service):
