@@ -18,7 +18,7 @@ class ResearchService:
 
     Dependencies:
     - TextProcessingService: For formatting and deduplicating search results
-    - SearchClientProtocol: For web search functionality
+    - DDGSClientProtocol: For web search functionality
     - ScrapingServiceProtocol: For web scraping functionality
     - WorkflowSettings: For configuration
     """

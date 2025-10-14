@@ -10,7 +10,7 @@ class SearchService:
     """Service for performing web searches using a pluggable search client.
 
     Dependencies:
-    - SearchClientProtocol: For executing web searches (e.g., DuckDuckGo via ddgs)
+    - DDGSClientProtocol: For executing web searches (e.g., DuckDuckGo via ddgs)
     """
 
     def __init__(self, search_client: DDGSClientProtocol):
