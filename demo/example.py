@@ -38,7 +38,9 @@ async def main(output_file: str = "demo/example.md"):
     mlx_settings = get_mlx_settings()
     workflow_settings = get_workflow_settings()
 
-    llm_client = _create_llm_client(app_settings, ollama_settings, mlx_settings)
+    llm_client = _create_llm_client(
+        backend or app_settings.llm_backend, app_settings, ollama_settings, mlx_settings
+    )
     prompt_service = _create_prompt_service(workflow_settings)
     research_service = _create_research_service(
         workflow_settings,
