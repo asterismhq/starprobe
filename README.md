@@ -85,12 +85,10 @@ Once the service is running, the following endpoints are available.
   * **Request Body:**
     ```json
     {
-      "query": "YOUR_RESEARCH_QUERY",
-      "backend": "ollama"
+      "query": "YOUR_RESEARCH_QUERY"
     }
     ```
     - `query` (string, required): The topic or search query to investigate. Must be at least 1 character long.
-    - `backend` (string, optional): LLM backend to use for this request. Supported values are `ollama` and `mlx`. When omitted, the server uses the default backend from configuration.
   * **Example using `curl`:**
     ```shell
     curl -X POST http://localhost:8000/research \

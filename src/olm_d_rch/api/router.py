@@ -37,10 +37,9 @@ async def run_research(
 ):
     """Execute deep research on a given topic."""
     start_time = time.time()
-    backend = request.backend
     logger.info(
         "Research request received",
-        extra={"query": request.query, "backend": backend or "stl-conn"},
+        extra={"query": request.query},
     )
 
     try:
@@ -68,7 +67,6 @@ async def run_research(
             extra={
                 "query": request.query,
                 "success": response.success,
-                "backend": backend or "stl-conn",
                 "article_length": len(response.article) if response.article else 0,
                 "error_message": response.error_message,
                 "diagnostics": response.diagnostics,
@@ -81,7 +79,7 @@ async def run_research(
     except asyncio.TimeoutError:
         logger.error(
             "Research timeout",
-            extra={"query": request.query, "backend": backend or "stl-conn"},
+            extra={"query": request.query},
         )
         return ResearchResponse(
             success=False,
@@ -95,7 +93,6 @@ async def run_research(
             "Research failed",
             extra={
                 "query": request.query,
-                "backend": backend or "stl-conn",
                 "error": str(e),
             },
         )
