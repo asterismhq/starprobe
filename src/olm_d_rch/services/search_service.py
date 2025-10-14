@@ -3,7 +3,7 @@ from typing import Any, Dict, List
 
 from langsmith import traceable
 
-from ..protocols.search_client_protocol import SearchClientProtocol
+from ..protocols.ddgs_client_protocol import DDGSClientProtocol
 
 
 class SearchService:
@@ -13,7 +13,7 @@ class SearchService:
     - SearchClientProtocol: For executing web searches (e.g., DuckDuckGo via ddgs)
     """
 
-    def __init__(self, search_client: SearchClientProtocol):
+    def __init__(self, search_client: DDGSClientProtocol):
         self.search_client = search_client
 
     @traceable

@@ -1,9 +1,9 @@
+from .ddgs_client_protocol import DDGSClientProtocol
 from .llm_client_protocol import LLMClientProtocol
 from .scraping_service_protocol import ScrapingServiceProtocol
-from .search_client_protocol import SearchClientProtocol
 
 __all__ = [
-    "SearchClientProtocol",
+    "DDGSClientProtocol",
     "LLMClientProtocol",
     "ScrapingServiceProtocol",
 ]

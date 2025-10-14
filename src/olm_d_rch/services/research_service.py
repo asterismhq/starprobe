@@ -2,11 +2,11 @@ import logging
 from typing import Any, Dict, List
 
 from olm_d_rch.config.workflow_settings import WorkflowSettings
+from olm_d_rch.protocols.ddgs_client_protocol import (
+    DDGSClientProtocol,
+)
 from olm_d_rch.protocols.scraping_service_protocol import (
     ScrapingServiceProtocol,
-)
-from olm_d_rch.protocols.search_client_protocol import (
-    SearchClientProtocol,
 )
 from olm_d_rch.services.text_processing_service import (
     TextProcessingService,
@@ -26,7 +26,7 @@ class ResearchService:
     def __init__(
         self,
         settings: WorkflowSettings,
-        search_client: SearchClientProtocol,
+        search_client: DDGSClientProtocol,
         scraper: ScrapingServiceProtocol,
     ):
         self.settings = settings

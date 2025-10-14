@@ -1,11 +1,11 @@
 from typing import Any, Dict, List, Optional
 
-from olm_d_rch.protocols.search_client_protocol import (
-    SearchClientProtocol,
+from olm_d_rch.protocols.ddgs_client_protocol import (
+    DDGSClientProtocol,
 )
 
 
-class MockSearchClient(SearchClientProtocol):
+class MockSearchClient(DDGSClientProtocol):
     """Mock implementation of the search client for testing purposes."""
 
     def __init__(self, mock_results: Optional[List[Dict[str, Any]]] = None):

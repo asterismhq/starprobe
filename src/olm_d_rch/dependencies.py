@@ -11,7 +11,7 @@ from .config import (
     StlConnSettings,
     WorkflowSettings,
 )
-from .protocols import LLMClientProtocol, ScrapingServiceProtocol, SearchClientProtocol
+from .protocols import DDGSClientProtocol, LLMClientProtocol, ScrapingServiceProtocol
 from .services import PromptService, ResearchService, ScrapingService
 
 
@@ -56,7 +56,7 @@ def get_llm_client(
     return _create_llm_client(stl_conn_settings)
 
 
-def _create_search_client(ddgs_settings: DDGSSettings) -> SearchClientProtocol:
+def _create_search_client(ddgs_settings: DDGSSettings) -> DDGSClientProtocol:
     if ddgs_settings.use_mock_search:
         from dev.mocks.mock_search_client import MockSearchClient
 
@@ -66,7 +66,7 @@ def _create_search_client(ddgs_settings: DDGSSettings) -> SearchClientProtocol:
 
 def get_search_client(
     ddgs_settings: DDGSSettings = Depends(get_ddgs_settings),
-) -> SearchClientProtocol:
+) -> DDGSClientProtocol:
     return _create_search_client(ddgs_settings)
 
 
@@ -98,7 +98,7 @@ def get_prompt_service(
 
 def _create_research_service(
     workflow_settings: WorkflowSettings,
-    search_client: SearchClientProtocol,
+    search_client: DDGSClientProtocol,
     scraping_service: ScrapingServiceProtocol,
 ) -> ResearchService:
     return ResearchService(workflow_settings, search_client, scraping_service)
@@ -106,7 +106,7 @@ def _create_research_service(
 
 def get_research_service(
     workflow_settings: WorkflowSettings = Depends(get_workflow_settings),
-    search_client: SearchClientProtocol = Depends(get_search_client),
+    search_client: DDGSClientProtocol = Depends(get_search_client),
     scraping_service: ScrapingServiceProtocol = Depends(get_scraping_service),
 ) -> ResearchService:
     return _create_research_service(workflow_settings, search_client, scraping_service)
