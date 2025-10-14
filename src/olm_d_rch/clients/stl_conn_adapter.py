@@ -24,8 +24,11 @@ class StlConnLangChainAdapter:
         """Invoke the LLM with message serialization."""
         # Serialize LangChain message objects to dicts
         serialized_messages = self._serialize_messages(messages)
-        # SDK expects {"input": messages} format
-        return await self._client.invoke({"input": serialized_messages})
+        # SDK expects {"input": messages} format, and optionally tools
+        payload = {"input": serialized_messages}
+        if self._tools:
+            payload["tools"] = self._tools
+        return await self._client.invoke(payload)
 
     def _serialize_messages(self, messages: Any) -> Any:
         """Convert LangChain message objects to dict format."""
@@ -62,8 +65,22 @@ class MockStlConnLangChainAdapter:
         # Use the SDK mock but override content with JSON for testing
         from stl_conn_sdk.stl_conn_client.response import LangChainResponse
 
-        # Return JSON that matches what our nodes expect
-        mock_json_content = '{"query": "test query", "rationale": "test rationale"}'
+        # Provide different mock responses based on context
+        message_str = str(messages).lower()
+
+        if "query" in message_str or "search" in message_str:
+            # Mock search query generation
+            mock_json_content = '{"query": "mock search query for testing", "rationale": "This is a mock query"}'
+        elif "reflect" in message_str or "evaluation" in message_str:
+            # Mock reflection/evaluation
+            mock_json_content = '{"reflection": "This is a mock reflection.", "evaluation": "continue", "rationale": "Mock evaluation for testing"}'
+        elif "summary" in message_str or "summarize" in message_str:
+            # Mock summary generation
+            mock_json_content = '{"summary": "This is a mock summary of the research. The mock client has generated this response for testing purposes."}'
+        else:
+            # Default mock response
+            mock_json_content = '{"query": "test query", "rationale": "test rationale"}'
+
         return LangChainResponse(
             content=mock_json_content,
             tool_calls=[],

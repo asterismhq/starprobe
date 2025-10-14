@@ -65,6 +65,7 @@ class TestDependencyProviders:
         client = _create_llm_client(stl_conn_settings)
         assert client is not None
         assert hasattr(client, "invoke")
+        assert hasattr(client, "bind_tools")
 
     def test_create_search_client_returns_client(self):
         """Test that _create_search_client returns a search client."""

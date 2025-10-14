@@ -14,7 +14,7 @@ from .config import (
     StlConnSettings,
     WorkflowSettings,
 )
-from .protocols import ScrapingServiceProtocol, SearchClientProtocol
+from .protocols import LLMClientProtocol, ScrapingServiceProtocol, SearchClientProtocol
 from .services import PromptService, ResearchService, ScrapingService
 
 
@@ -43,7 +43,7 @@ def get_workflow_settings() -> WorkflowSettings:
     return WorkflowSettings()
 
 
-def _create_llm_client(stl_conn_settings: StlConnSettings):
+def _create_llm_client(stl_conn_settings: StlConnSettings) -> LLMClientProtocol:
     if stl_conn_settings.use_mock_stl_conn:
         return MockStlConnLangChainAdapter()
     return StlConnLangChainAdapter(
@@ -54,7 +54,7 @@ def _create_llm_client(stl_conn_settings: StlConnSettings):
 
 def get_llm_client(
     stl_conn_settings: StlConnSettings = Depends(get_stl_conn_settings),
-):
+) -> LLMClientProtocol:
     return _create_llm_client(stl_conn_settings)
 
 

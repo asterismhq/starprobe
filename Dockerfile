@@ -61,7 +61,6 @@ ENV PATH="/app/.venv/bin:${PATH}"
 
 # Copy only the necessary application code and configuration, excluding tests
 COPY --chown=appuser:appgroup src/ ./src
-COPY --chown=appuser:appgroup dev/ ./dev
 COPY --chown=appuser:appgroup pyproject.toml .
 COPY --chown=appuser:appgroup entrypoint.sh .
 
