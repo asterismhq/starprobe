@@ -7,28 +7,27 @@ from pydantic import BaseModel, Field
 
 from olm_d_rch.protocols.llm_client_protocol import LLMClientProtocol
 from olm_d_rch.services.prompt_service import PromptService
-from olm_d_rch.state import SummaryState
 
 
-async def generate_query(
-    state: SummaryState,
+async def refine_query(
+    research_topic: str,
     prompt_service: PromptService,
     llm_client: LLMClientProtocol,
 ):
-    """LangGraph node that generates a search query based on the research topic.
+    """LangGraph node that refines a search query based on the research topic.
 
     Uses an LLM to create an optimized search query for web research based on
     the user's research topic via the configured backend (e.g., Ollama, MLX).
 
     Args:
-        state: Current graph state containing the research topic
+        research_topic: The topic to generate a search query for
         prompt_service: Service for generating prompts
         llm_client: Client for LLM interactions
 
     Returns:
         Dictionary with state update, including search_query key containing the generated query
     """
-    messages = prompt_service.generate_query_prompt(state.research_topic)
+    messages = prompt_service.generate_query_prompt(research_topic)
 
     @tool
     class Query(BaseModel):
@@ -41,7 +40,7 @@ async def generate_query(
             description="Brief explanation of why this query is relevant"
         )
 
-    fallback_query = f"Tell me more about {state.research_topic}"
+    fallback_query = f"Tell me more about {research_topic}"
 
     logger = logging.getLogger(__name__)
 
@@ -77,7 +76,7 @@ async def generate_query(
         error_messages = [f"Generate query fallback triggered: {exc}"]
         logger.exception(
             "Failed to generate search query",
-            extra={"topic": state.research_topic, "error": str(exc)},
+            extra={"topic": research_topic, "error": str(exc)},
         )
 
     response = {"search_query": search_query}
