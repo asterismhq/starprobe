@@ -1,22 +1,18 @@
-# Ollama Deep Researcher Agent
+# Starprobe API
 
 ## Overview
 
-**Ollama Deep Researcher** is an AI agent that autonomously conducts detailed research on a specified topic and generates a comprehensive report. It starts with initial research, identifies knowledge gaps, and iteratively refines the summary through additional investigations. It delegates LLM invocation to the **Stella Connector** API service.
-
----
+Starprobe API is an AI agent that autonomously conducts detailed research on a specified topic and generates a comprehensive report. It starts with initial research, identifies knowledge gaps, and iteratively refines the summary through additional investigations. It delegates LLM invocation to the Stella Connector API service.
 
 ## Architecture and Workflow
 
-The agent's logic is built as a state machine using **LangGraph**. It repeats the following cycle:
+The agent's logic is built as a state machine using LangGraph. It repeats the following cycle:
 
 1.  **Query Generation**: Creates initial search queries from the user's topic.
 2.  **Web Research**: Performs searches using `DuckDuckGo` and extracts content with `ScrapingService`.
 3.  **Summarization**: Integrates research results into the existing summary.
 4.  **Evaluation and Reflection**: Assesses knowledge gaps in the summary and generates new search queries if necessary.
 5.  **Completion Decision**: Decides whether to continue research (up to the maximum loop count) or generate the final report and end the process.
-
----
 
 ## Main Components
 
@@ -29,8 +25,6 @@ The agent's logic is built as a state machine using **LangGraph**. It repeats th
     -   `DdgsClient`: Performs DuckDuckGo web searches using the `ddgs` library.
 -   **State (`state.py`)**:
     -   `SummaryState`: Shares information such as topics, queries, and summaries between states.
-
----
 
 ## Usage
 
@@ -56,8 +50,6 @@ The agent's logic is built as a state machine using **LangGraph**. It repeats th
 -   Backend selection (Ollama/MLX) is configured at the Stella Connector service level, not in this project.
 -   Requires Stella Connector service to be running and accessible.
 
----
-
 ## Configuration Management
 
 Non-sensitive configuration values are defined as defaults in `settings.py`. Only environment-specific values like API keys or port numbers should be in the `.env` file.
@@ -65,11 +57,14 @@ Non-sensitive configuration values are defined as defaults in `settings.py`. Onl
 -   **Application & Deployment**: `.env` (ports, project names, etc.)
 -   **Application & Testing**: `settings.py` (model names, timeouts, etc.)
 
----
+## 📦 Submodules
+
+This project uses Git submodules to manage external dependencies. Submodules are located in the `submodules/` directory and should never be edited directly. If changes are required, please contact the respective repository maintainers or request updates from the user.
+
+### stl-conn (submodules/stl-conn)
+Provides a unified interface for connecting to various Large Language Models, handling authentication, and managing API interactions as the Stella Connector for LLM integration.
 
 ## Development Notes
 
 -   **stl-conn submodule**: We now edit `submodules/stl-conn` in tandem with this repo to keep SDK changes synchronized. Ensure version numbers stay aligned (`pyproject.toml` references v1.2.0).
 -   **Dependencies**: Actual libraries used in production are installed from Git repositories specified in `pyproject.toml`. Keep the git reference updated when releasing a new stl-conn version.
-
----
