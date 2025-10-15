@@ -44,7 +44,7 @@ def finalize_summary(state: SummaryState):
 
     article = "\n".join(article_sections).strip()
 
-    has_summary = bool(summary_body and len(summary_body) > 10)
+    has_summary = bool(summary_body)
     has_sources = len(source_urls) > 0
     has_errors = bool(state.errors)
     success = has_summary and has_sources and not has_errors
