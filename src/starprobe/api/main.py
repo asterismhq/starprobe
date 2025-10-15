@@ -4,8 +4,8 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
-from olm_d_rch.api.logger import logger
-from olm_d_rch.api.router import router
+from starprobe.api.logger import logger
+from starprobe.api.router import router
 
 
 @asynccontextmanager

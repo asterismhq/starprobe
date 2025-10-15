@@ -1,6 +1,6 @@
 from typing import Any, Dict, List, Optional
 
-from olm_d_rch.protocols.ddgs_client_protocol import (
+from starprobe.protocols.ddgs_client_protocol import (
     DDGSClientProtocol,
 )
 

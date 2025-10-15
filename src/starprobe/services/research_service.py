@@ -1,14 +1,14 @@
 import logging
 from typing import Any, Dict, List
 
-from olm_d_rch.config.workflow_settings import WorkflowSettings
-from olm_d_rch.protocols.ddgs_client_protocol import (
+from starprobe.config.workflow_settings import WorkflowSettings
+from starprobe.protocols.ddgs_client_protocol import (
     DDGSClientProtocol,
 )
-from olm_d_rch.protocols.scraping_service_protocol import (
+from starprobe.protocols.scraping_service_protocol import (
     ScrapingServiceProtocol,
 )
-from olm_d_rch.services.text_processing_service import (
+from starprobe.services.text_processing_service import (
     TextProcessingService,
 )
 

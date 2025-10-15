@@ -1,6 +1,6 @@
 from dev.mocks.mock_scraping_service import MockScrapingService
-from olm_d_rch.config.scraping_settings import ScrapingSettings
-from olm_d_rch.services import ScrapingService
+from starprobe.config.scraping_settings import ScrapingSettings
+from starprobe.services import ScrapingService
 
 
 def test_validate_url():

@@ -1,15 +1,15 @@
 from langchain_core.runnables import RunnableConfig
 from langgraph.graph import END, START, StateGraph
 
-from olm_d_rch.nodes import (
+from starprobe.nodes import (
     conduct_web_search,
     finalize_summary,
     refine_query,
     summarize_sources,
 )
-from olm_d_rch.protocols import LLMClientProtocol
-from olm_d_rch.services import PromptService, ResearchService
-from olm_d_rch.state import (
+from starprobe.protocols import LLMClientProtocol
+from starprobe.services import PromptService, ResearchService
+from starprobe.state import (
     SummaryState,
     SummaryStateInput,
     SummaryStateOutput,

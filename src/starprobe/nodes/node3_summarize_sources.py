@@ -1,8 +1,8 @@
 import logging
 
-from olm_d_rch.protocols.llm_client_protocol import LLMClientProtocol
-from olm_d_rch.services.prompt_service import PromptService
-from olm_d_rch.services.text_processing_service import (
+from starprobe.protocols.llm_client_protocol import LLMClientProtocol
+from starprobe.services.prompt_service import PromptService
+from starprobe.services.text_processing_service import (
     TextProcessingService,
 )
 

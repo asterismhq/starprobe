@@ -1,6 +1,6 @@
 """Tests for verifying mock SDK schema compatibility with production API."""
 
-from olm_d_rch_sdk import MockResearchApiClient, ResearchResponse
+from starprobe_sdk import MockResearchApiClient, ResearchResponse
 
 
 class TestMockSdkSchemaCompatibility:

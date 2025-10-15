@@ -3,7 +3,7 @@ name: Run Docker Tests
 on:
   workflow_call:
     secrets:
-      OLM_D_RCH_TOKEN:
+      STARPROBE_TOKEN:
         required: true
 
 jobs:
@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       UV_CACHE_DIR: ./.uv-cache
-      OLM_D_RCH_TOKEN: ${{ secrets.OLM_D_RCH_TOKEN }}
+      STARPROBE_TOKEN: ${{ secrets.STARPROBE_TOKEN }}
     strategy:
       matrix:
         test_target: [build-test, e2e-test]
@@ -31,10 +31,10 @@ jobs:
 
       - name: Configure Git for private repositories
         env:
-          AUTH_TOKEN: ${{ secrets.OLM_D_RCH_TOKEN }}
+          AUTH_TOKEN: ${{ secrets.STARPROBE_TOKEN }}
         run: |
           if [ -z "$AUTH_TOKEN" ]; then
-            echo "OLM_D_RCH_TOKEN secret is required to access private repositories." >&2
+            echo "STARPROBE_TOKEN secret is required to access private repositories." >&2
             exit 1
           fi
           git config --global url."https://oauth2:${AUTH_TOKEN}@github.com/".insteadOf "https://github.com/"
@@ -51,7 +51,7 @@ jobs:
       - name: Configure environment variables
         run: |
           echo "OLLAMA_HOST=${{ secrets.OLLAMA_HOST }}" >> .env
-          echo "OLM_D_RCH_OLLAMA_MODEL=${{ env.OLM_D_RCH_OLLAMA_MODEL }}" >> .env
+          echo "STARPROBE_OLLAMA_MODEL=${{ env.STARPROBE_OLLAMA_MODEL }}" >> .env
 
       - name: Run tests
         run: |

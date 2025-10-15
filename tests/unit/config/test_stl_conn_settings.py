@@ -1,6 +1,6 @@
 """Unit tests for StlConnSettings."""
 
-from src.olm_d_rch.config.stl_conn_settings import StlConnSettings
+from src.starprobe.config.stl_conn_settings import StlConnSettings
 
 
 class TestStlConnSettings:
@@ -8,7 +8,7 @@ class TestStlConnSettings:
 
     def test_default_values(self, monkeypatch):
         """Test that default values are set correctly."""
-        monkeypatch.delenv("USE_MOCK_STL_CONN", raising=False)
+        monkeypatch.delenv("STARPROBE_USE_MOCK_STL_CONN", raising=False)
         settings = StlConnSettings()
         assert settings.stl_conn_base_url == "http://localhost:8000"
         assert settings.stl_conn_timeout == 30.0
@@ -18,7 +18,7 @@ class TestStlConnSettings:
         """Test that environment variables override defaults."""
         monkeypatch.setenv("STL_CONN_BASE_URL", "http://example.com:9000")
         monkeypatch.setenv("STL_CONN_TIMEOUT", "60.0")
-        monkeypatch.setenv("USE_MOCK_STL_CONN", "true")
+        monkeypatch.setenv("STARPROBE_USE_MOCK_STL_CONN", "true")
 
         settings = StlConnSettings()
         assert settings.stl_conn_base_url == "http://example.com:9000"
@@ -39,7 +39,7 @@ class TestStlConnSettings:
         ]
 
         for env_value, expected in test_cases:
-            monkeypatch.setenv("USE_MOCK_STL_CONN", env_value)
+            monkeypatch.setenv("STARPROBE_USE_MOCK_STL_CONN", env_value)
             settings = StlConnSettings()
             assert settings.use_mock_stl_conn is expected
 

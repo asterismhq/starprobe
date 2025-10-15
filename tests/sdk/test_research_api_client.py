@@ -4,7 +4,7 @@ from unittest.mock import Mock
 
 import httpx
 import pytest
-from olm_d_rch_sdk import MockResearchApiClient, ResearchApiClient, ResearchResponse
+from starprobe_sdk import MockResearchApiClient, ResearchApiClient, ResearchResponse
 
 
 class DummyResponse(httpx.Response):

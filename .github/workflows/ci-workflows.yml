@@ -17,4 +17,4 @@ jobs:
   run-docker-tests:
     uses: ./.github/workflows/run-docker-tests.yml
     secrets:
-      OLM_D_RCH_TOKEN: ${{ secrets.OLM_D_RCH_TOKEN }}
+      STARPROBE_TOKEN: ${{ secrets.STARPROBE_TOKEN }}

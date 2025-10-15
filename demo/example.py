@@ -1,23 +1,20 @@
 import asyncio
-import os
 from pprint import pprint
 
 from dotenv import load_dotenv
 
-from olm_d_rch.dependencies import (
+from starprobe.dependencies import (
     _create_llm_client,
     _create_prompt_service,
     _create_research_service,
     _create_scraping_service,
     _create_search_client,
-    get_app_settings,
     get_ddgs_settings,
-    get_mlx_settings,
-    get_ollama_settings,
     get_scraping_settings,
+    get_stl_conn_settings,
     get_workflow_settings,
 )
-from olm_d_rch.graph import build_graph
+from starprobe.graph import build_graph
 
 load_dotenv()
 
@@ -32,15 +29,10 @@ async def main(output_file: str = "demo/example.md"):
     print(f"Starting research on the topic '{research_topic}'...")
 
     # Get services using dependency injection
-    backend = os.getenv("OLM_D_RCH_LLM_BACKEND")
-    app_settings = get_app_settings()
-    ollama_settings = get_ollama_settings()
-    mlx_settings = get_mlx_settings()
+    stl_conn_settings = get_stl_conn_settings()
     workflow_settings = get_workflow_settings()
 
-    llm_client = _create_llm_client(
-        backend or app_settings.llm_backend, app_settings, ollama_settings, mlx_settings
-    )
+    llm_client = _create_llm_client(stl_conn_settings)
     prompt_service = _create_prompt_service(workflow_settings)
     research_service = _create_research_service(
         workflow_settings,
@@ -49,31 +41,11 @@ async def main(output_file: str = "demo/example.md"):
     )
 
     # Build the configuration the same way as the API server
-    ollama_model = os.getenv("OLM_D_RCH_OLLAMA_MODEL", "llama3.2:3b")
-    ollama_host = os.getenv("OLLAMA_HOST")
-    mlx_model = os.getenv(
-        "OLM_D_RCH_MLX_MODEL", "mlx-community/Llama-3.1-8B-Instruct-4bit"
-    )
-
-    if backend == "mlx":
-        configurable_settings = {"mlx_model": mlx_model}
-    else:
-        if not ollama_host:
-            raise RuntimeError(
-                "OLLAMA_HOST must be set in the environment to run the demo"
-            )
-        configurable_settings = {
-            "ollama_model": ollama_model,
-            "ollama_host": ollama_host,
-        }
-
-    config = {"configurable": configurable_settings}
+    config = {}
 
     try:
         # Build graph with injected services
-        graph = build_graph(
-            prompt_service, research_service, llm_client, backend=backend
-        )
+        graph = build_graph(prompt_service, research_service, llm_client)
 
         # Execute the graph (research process) asynchronously
         result = await graph.ainvoke({"research_topic": research_topic}, config=config)

@@ -1,6 +1,6 @@
 import logging
 
-from olm_d_rch.state import SummaryState
+from starprobe.state import SummaryState
 
 logger = logging.getLogger(__name__)
 

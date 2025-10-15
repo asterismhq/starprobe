@@ -1,6 +1,6 @@
-# Ollama Deep Researcher API
+# Starprobe API
 
-Ollama Deep Researcher is a fully local web research and summarization API service that leverages pluggable local LLM backends (Ollama by default, MLX on Apple Silicon). Given a topic, it autonomously generates web search queries, collects and summarizes search results, and iteratively conducts additional research to fill knowledge gaps, ultimately providing a final summary and reference sources.
+Starprobe is a web research and summarization API service that leverages pluggable local LLM backends (Ollama by default, MLX on Apple Silicon). Given a topic, it autonomously generates web search queries, collects and summarizes search results, and iteratively conducts additional research to fill knowledge gaps, ultimately providing a final summary and reference sources.
 
 ## 🏗️ Architecture Overview
 
@@ -8,7 +8,7 @@ The project introduces a Dependency Injection (DI) container called `DependencyC
 
 ## What's New
 
-- **stl-conn SDK v1.2.0** is now consumed directly: LangChain message inputs and tool binding are handled in the SDK, allowing this project to drop its local adapter wrapper.
+-   **`dependencies.py`**: Dependency injection that provides services and clients. Uses `STARPROBE_USE_MOCK_*` env vars to toggle between real and mock implementations. Instantiates the stl-conn SDK directly (v1.2.0) with `response_format="langchain"`.
 
 ### Stella Connector Integration
 
@@ -25,8 +25,8 @@ The application now consumes the **stl-conn SDK v1.2.0** directly. The LangChain
 1. **Clone and setup:**
 
     ```shell
-    git clone https://github.com/langchain-ai/olm-d-rch.git
-    cd olm-d-rch
+    git clone https://github.com/Astra-Teams/starprobe.git
+    cd starprobe
     just setup
     ```
 
@@ -53,11 +53,11 @@ The application now consumes the **stl-conn SDK v1.2.0** directly. The LangChain
 1. **Build and run:**
 
     ```shell
-    docker build -t olm-d-rch-api .
+    docker build -t starprobe-api .
     docker run --rm -it -p 8000:8000 \
       -e OLLAMA_HOST="http://host.docker.internal:11434" \
-      -e OLM_D_RCH_OLLAMA_MODEL="llama3.2:3b" \
-      olm-d-rch-api
+      -e STARPROBE_OLLAMA_MODEL="llama3.2:3b" \
+      starprobe-api
     ```
 
 2. **Or use docker compose:**
@@ -137,9 +137,9 @@ Once the service is running, the following endpoints are available.
 
 ### Selecting an LLM Backend
 
-- Set `OLM_D_RCH_LLM_BACKEND` in your environment to define the default backend (`ollama` or `mlx`).
+- Set `STARPROBE_LLM_BACKEND` in your environment to define the default backend (`ollama` or `mlx`).
 - Override the backend for a single request by providing the optional `backend` field in the `POST /research` payload.
-- When using the MLX backend, ensure you are on Apple Silicon with [`mlx-lm`](https://pypi.org/project/mlx-lm/) installed or enable `USE_MOCK_MLX=true` for testing.
+- When using the MLX backend, ensure you are on Apple Silicon with [`mlx-lm`](https://pypi.org/project/mlx-lm/) installed or enable `STARPROBE_USE_MOCK_STL_CONN=true` for testing.
 
 ### Health Check
 
@@ -163,23 +163,22 @@ The application's behavior can be controlled via the following environment varia
 
 ### API Configuration
 
-  * `OLM_D_RCH_BIND_IP`: IP address to bind the API server to. Default is `127.0.0.1`.
-  * `OLM_D_RCH_BIND_PORT`: Port to bind the API server to. Default is `8000`.
-  * `OLM_D_RCH_PROJECT_NAME`: Name of the project. Default is `olm-d-rch`.
+  * `STARPROBE_BIND_IP`: IP address to bind the API server to. Default is `127.0.0.1`.
+  * `STARPROBE_BIND_PORT`: Port to bind the API server to. Default is `8000`.
+  * `STARPROBE_PROJECT_NAME`: Name of the project. Default is `starprobe`.
 
 ### LLM Backend Configuration
 
-  * `OLM_D_RCH_LLM_BACKEND`: Default backend used when a request does not specify one. Valid options are `ollama` and `mlx`. Default is `ollama`.
+  * `STARPROBE_LLM_BACKEND`: Default backend used when a request does not specify one. Valid options are `ollama` and `mlx`. Default is `ollama`.
 
 ### Ollama Configuration
 
   * `OLLAMA_HOST`: (Required when using the Ollama backend) The endpoint URL for the Ollama API.
-  * `OLM_D_RCH_OLLAMA_MODEL`: The name of the Ollama model to use for research. Default is `llama3.2:3b`.
+  * `STARPROBE_OLLAMA_MODEL`: The name of the Ollama model to use for research. Default is `llama3.2:3b`.
 
 ### MLX Configuration
 
-  * `OLM_D_RCH_MLX_MODEL`: Default MLX model identifier. Recommended default is `mlx-community/Llama-3.1-8B-Instruct-4bit`.
-  * `USE_MOCK_MLX`: When set to `true`, the MLX mock client is used instead of the real implementation (helpful for CI or when MLX is unavailable).
+  * `STARPROBE_MLX_MODEL`: Default MLX model identifier. Recommended default is `mlx-community/Llama-3.1-8B-Instruct-4bit`.
 
 ### Workflow Configuration
 
@@ -205,14 +204,13 @@ The service uses DuckDuckGo for web searches via the [`ddgs`](https://pypi.org/p
 
 For testing and development, you can enable mock implementations for various components:
 
-  * `USE_MOCK_OLLAMA`: Use mock Ollama client instead of real implementation. Default is `false`.
-  * `USE_MOCK_MLX`: Use mock MLX client instead of real implementation. Default is `false`.
-  * `USE_MOCK_SEARCH`: Use mock search client instead of real DuckDuckGo search. Default is `false`.
-  * `USE_MOCK_SCRAPING`: Use mock scraping service instead of real web scraping. Default is `false`.
+  * `STARPROBE_USE_MOCK_STL_CONN`: Use mock Stella Connector client instead of real implementation. Default is `false`.
+  * `STARPROBE_USE_MOCK_SEARCH`: Use mock search client instead of real DuckDuckGo search. Default is `false`.
+  * `STARPROBE_USE_MOCK_SCRAPING`: Use mock scraping service instead of real web scraping. Default is `false`.
 
 ## SDK
 
-This repository includes a Python SDK for interacting with the olm-d-rch API.
+This repository includes a Python SDK for interacting with the starprobe API.
 
 ### Installation
 
@@ -225,7 +223,7 @@ poetry install --extras sdk
 ### Usage
 
 ```python
-from olm_d_rch_sdk import ResearchApiClient
+from starprobe_sdk import ResearchApiClient
 
 client = ResearchApiClient(base_url="http://localhost:8001")
 response = client.research(topic="Example research topic")
