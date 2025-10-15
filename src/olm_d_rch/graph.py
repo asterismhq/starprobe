@@ -1,5 +1,5 @@
 from langchain_core.runnables import RunnableConfig
-from langgraph.graph import START, StateGraph
+from langgraph.graph import END, START, StateGraph
 
 from olm_d_rch.nodes import (
     conduct_web_search,
@@ -72,6 +72,7 @@ class ResearchGraph:
         builder.add_edge("refine_query", "conduct_web_search")
         builder.add_edge("conduct_web_search", "summarize_sources")
         builder.add_edge("summarize_sources", "finalize_summary")
+        builder.add_edge("finalize_summary", END)
 
         return builder.compile()
 

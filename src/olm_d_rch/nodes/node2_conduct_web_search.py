@@ -37,15 +37,15 @@ async def conduct_web_search(
         diagnostic = f"Web research node failed: {exc}"
         logger.exception(diagnostic)
         return {
-            "web_research_results": web_research_results,
-            "sources_gathered": sources_gathered,
+            "web_research_results": [],
+            "sources_gathered": [],
             "research_loop_count": research_loop_count + 1,
             "errors": [diagnostic],
         }
 
     return {
-        "web_research_results": web_research_results + [results],
-        "sources_gathered": sources_gathered + [sources],
+        "web_research_results": [results],
+        "sources_gathered": [sources],
         "research_loop_count": research_loop_count + 1,
         "errors": errors,
     }
