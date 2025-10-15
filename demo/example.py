@@ -1,5 +1,4 @@
 import asyncio
-import os
 from pprint import pprint
 
 from dotenv import load_dotenv
@@ -10,7 +9,6 @@ from starprobe.dependencies import (
     _create_research_service,
     _create_scraping_service,
     _create_search_client,
-    get_app_settings,
     get_ddgs_settings,
     get_scraping_settings,
     get_stl_conn_settings,
@@ -31,7 +29,6 @@ async def main(output_file: str = "demo/example.md"):
     print(f"Starting research on the topic '{research_topic}'...")
 
     # Get services using dependency injection
-    app_settings = get_app_settings()
     stl_conn_settings = get_stl_conn_settings()
     workflow_settings = get_workflow_settings()
 
@@ -48,9 +45,7 @@ async def main(output_file: str = "demo/example.md"):
 
     try:
         # Build graph with injected services
-        graph = build_graph(
-            prompt_service, research_service, llm_client
-        )
+        graph = build_graph(prompt_service, research_service, llm_client)
 
         # Execute the graph (research process) asynchronously
         result = await graph.ainvoke({"research_topic": research_topic}, config=config)
