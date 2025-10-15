@@ -139,7 +139,7 @@ Once the service is running, the following endpoints are available.
 
 - Set `STARPROBE_LLM_BACKEND` in your environment to define the default backend (`ollama` or `mlx`).
 - Override the backend for a single request by providing the optional `backend` field in the `POST /research` payload.
-- When using the MLX backend, ensure you are on Apple Silicon with [`mlx-lm`](https://pypi.org/project/mlx-lm/) installed or enable `STARPROBE_USE_MOCK_MLX=true` for testing.
+- When using the MLX backend, ensure you are on Apple Silicon with [`mlx-lm`](https://pypi.org/project/mlx-lm/) installed or enable `STARPROBE_USE_MOCK_STL_CONN=true` for testing.
 
 ### Health Check
 
@@ -179,7 +179,6 @@ The application's behavior can be controlled via the following environment varia
 ### MLX Configuration
 
   * `STARPROBE_MLX_MODEL`: Default MLX model identifier. Recommended default is `mlx-community/Llama-3.1-8B-Instruct-4bit`.
-  * `USE_MOCK_MLX`: When set to `true`, the MLX mock client is used instead of the real implementation (helpful for CI or when MLX is unavailable).
 
 ### Workflow Configuration
 
@@ -205,8 +204,7 @@ The service uses DuckDuckGo for web searches via the [`ddgs`](https://pypi.org/p
 
 For testing and development, you can enable mock implementations for various components:
 
-  * `STARPROBE_USE_MOCK_OLLAMA`: Use mock Ollama client instead of real implementation. Default is `false`.
-  * `STARPROBE_USE_MOCK_MLX`: Use mock MLX client instead of real implementation. Default is `false`.
+  * `STARPROBE_USE_MOCK_STL_CONN`: Use mock Stella Connector client instead of real implementation. Default is `false`.
   * `STARPROBE_USE_MOCK_SEARCH`: Use mock search client instead of real DuckDuckGo search. Default is `false`.
   * `STARPROBE_USE_MOCK_SCRAPING`: Use mock scraping service instead of real web scraping. Default is `false`.
 
