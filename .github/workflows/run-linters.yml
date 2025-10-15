@@ -6,6 +6,8 @@ on:
 jobs:
   run-linters:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     env:
       UV_CACHE_DIR: ./.uv-cache
     steps:

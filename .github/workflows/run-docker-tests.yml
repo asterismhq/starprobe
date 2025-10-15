@@ -9,6 +9,8 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     env:
       UV_CACHE_DIR: ./.uv-cache
       STARPROBE_TOKEN: ${{ secrets.STARPROBE_TOKEN }}
