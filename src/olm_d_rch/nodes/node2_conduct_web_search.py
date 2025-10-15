@@ -1,11 +1,16 @@
 import logging
 
 from olm_d_rch.services.research_service import ResearchService
-from olm_d_rch.state import SummaryState
 
 
-async def web_research(state: SummaryState, research_service: ResearchService):
-    """LangGraph node that performs web research using the generated search query.
+async def conduct_web_search(
+    search_query: str,
+    research_loop_count: int,
+    web_research_results: list[str],
+    sources_gathered: list[str],
+    research_service: ResearchService,
+):
+    """LangGraph node that conducts web search using the generated search query.
 
     Executes a web search using the configured search API (tavily, perplexity,
     duckduckgo, or searxng) and formats the results for further processing.
@@ -13,7 +18,10 @@ async def web_research(state: SummaryState, research_service: ResearchService):
     Includes comprehensive error handling to ensure graceful degradation.
 
     Args:
-        state: Current graph state containing the search query and research loop count
+        search_query: The query to search for
+        research_loop_count: Current loop count
+        web_research_results: List of previous research results
+        sources_gathered: List of previous sources
         research_service: Injected research service instance
 
     Returns:
@@ -23,21 +31,21 @@ async def web_research(state: SummaryState, research_service: ResearchService):
 
     try:
         results, sources, errors = await research_service.search_and_scrape(
-            query=state.search_query, loop_count=state.research_loop_count
+            query=search_query, loop_count=research_loop_count
         )
     except Exception as exc:  # pragma: no cover - defensive guard
         diagnostic = f"Web research node failed: {exc}"
         logger.exception(diagnostic)
         return {
-            "web_research_results": state.web_research_results,
-            "sources_gathered": state.sources_gathered,
-            "research_loop_count": state.research_loop_count + 1,
+            "web_research_results": [],
+            "sources_gathered": [],
+            "research_loop_count": research_loop_count + 1,
             "errors": [diagnostic],
         }
 
     return {
-        "web_research_results": state.web_research_results + [results],
-        "sources_gathered": state.sources_gathered + [sources],
-        "research_loop_count": state.research_loop_count + 1,
+        "web_research_results": [results],
+        "sources_gathered": [sources],
+        "research_loop_count": research_loop_count + 1,
         "errors": errors,
     }

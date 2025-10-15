@@ -1,14 +1,11 @@
 from langchain_core.runnables import RunnableConfig
 from langgraph.graph import END, START, StateGraph
 
-from olm_d_rch.config.workflow_settings import WorkflowSettings
 from olm_d_rch.nodes import (
+    conduct_web_search,
     finalize_summary,
-    generate_query,
-    reflect_on_summary,
-    route_research,
+    refine_query,
     summarize_sources,
-    web_research,
 )
 from olm_d_rch.protocols import LLMClientProtocol
 from olm_d_rch.services import PromptService, ResearchService
@@ -31,20 +28,28 @@ class ResearchGraph:
         self.research_service = research_service
         self.llm_client = llm_client
 
-    async def generate_query(self, state: SummaryState, config: RunnableConfig):
-        return await generate_query(state, self.prompt_service, self.llm_client)
+    async def refine_query(self, state: SummaryState, config: RunnableConfig):
+        return await refine_query(
+            state.research_topic, self.prompt_service, self.llm_client
+        )
 
-    async def web_research(self, state: SummaryState, config: RunnableConfig):
-        return await web_research(state, self.research_service)
+    async def conduct_web_search(self, state: SummaryState, config: RunnableConfig):
+        return await conduct_web_search(
+            state.search_query,
+            state.research_loop_count,
+            state.web_research_results,
+            state.sources_gathered,
+            self.research_service,
+        )
 
     async def summarize_sources(self, state: SummaryState, config: RunnableConfig):
-        return await summarize_sources(state, self.prompt_service, self.llm_client)
-
-    async def reflect_on_summary(self, state: SummaryState, config: RunnableConfig):
-        return await reflect_on_summary(state, self.prompt_service, self.llm_client)
-
-    def route_research(self, state: SummaryState, config: RunnableConfig):
-        return route_research(state, WorkflowSettings.from_runnable_config(config))
+        return await summarize_sources(
+            state.research_topic,
+            state.running_summary,
+            state.web_research_results,
+            self.prompt_service,
+            self.llm_client,
+        )
 
     def finalize_summary(self, state: SummaryState, config: RunnableConfig):
         return finalize_summary(state)
@@ -57,18 +62,16 @@ class ResearchGraph:
             output_schema=SummaryStateOutput,
         )
 
-        builder.add_node("generate_query", self.generate_query)
-        builder.add_node("web_research", self.web_research)
+        builder.add_node("refine_query", self.refine_query)
+        builder.add_node("conduct_web_search", self.conduct_web_search)
         builder.add_node("summarize_sources", self.summarize_sources)
-        builder.add_node("reflect_on_summary", self.reflect_on_summary)
         builder.add_node("finalize_summary", self.finalize_summary)
 
         # Add edges
-        builder.add_edge(START, "generate_query")
-        builder.add_edge("generate_query", "web_research")
-        builder.add_edge("web_research", "summarize_sources")
-        builder.add_edge("summarize_sources", "reflect_on_summary")
-        builder.add_conditional_edges("reflect_on_summary", self.route_research)
+        builder.add_edge(START, "refine_query")
+        builder.add_edge("refine_query", "conduct_web_search")
+        builder.add_edge("conduct_web_search", "summarize_sources")
+        builder.add_edge("summarize_sources", "finalize_summary")
         builder.add_edge("finalize_summary", END)
 
         return builder.compile()

@@ -3,7 +3,7 @@ name: Run Docker Tests
 on:
   workflow_call:
     secrets:
-      OLLAMA_HOST:
+      OLM_D_RCH_TOKEN:
         required: true
 
 jobs:
@@ -11,8 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       UV_CACHE_DIR: ./.uv-cache
-      OLLAMA_HOST: ${{ secrets.OLLAMA_HOST }}
-      OLM_D_RCH_OLLAMA_MODEL: "tinyllama:1.1b"
+      OLM_D_RCH_TOKEN: ${{ secrets.OLM_D_RCH_TOKEN }}
     strategy:
       matrix:
         test_target: [build-test, e2e-test]
@@ -29,6 +28,16 @@ jobs:
 
       - name: Install uv
         run: pipx install uv
+
+      - name: Configure Git for private repositories
+        env:
+          AUTH_TOKEN: ${{ secrets.OLM_D_RCH_TOKEN }}
+        run: |
+          if [ -z "$AUTH_TOKEN" ]; then
+            echo "OLM_D_RCH_TOKEN secret is required to access private repositories." >&2
+            exit 1
+          fi
+          git config --global url."https://oauth2:${AUTH_TOKEN}@github.com/".insteadOf "https://github.com/"
 
       - name: Install dependencies
         run: uv sync --frozen

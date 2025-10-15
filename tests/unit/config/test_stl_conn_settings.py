@@ -6,8 +6,9 @@ from src.olm_d_rch.config.stl_conn_settings import StlConnSettings
 class TestStlConnSettings:
     """Test cases for StlConnSettings."""
 
-    def test_default_values(self):
+    def test_default_values(self, monkeypatch):
         """Test that default values are set correctly."""
+        monkeypatch.delenv("USE_MOCK_STL_CONN", raising=False)
         settings = StlConnSettings()
         assert settings.stl_conn_base_url == "http://localhost:8000"
         assert settings.stl_conn_timeout == 30.0
