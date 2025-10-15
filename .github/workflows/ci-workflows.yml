@@ -13,10 +13,8 @@ jobs:
 
   run-local-tests:
     uses: ./.github/workflows/run-local-tests.yml
-    secrets:
-      OLLAMA_HOST: ${{ secrets.OLLAMA_HOST }}
 
   run-docker-tests:
     uses: ./.github/workflows/run-docker-tests.yml
     secrets:
-      OLLAMA_HOST: ${{ secrets.OLLAMA_HOST }}
+      OLM_D_RCH_TOKEN: ${{ secrets.OLM_D_RCH_TOKEN }}
