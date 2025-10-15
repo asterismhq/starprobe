@@ -1,5 +1,5 @@
 [project]
-name = "olm-d-rch"
+name = "starprobe"
 version = "0.0.1"
 description = "A FastAPI service for web research and summarization."
 authors = [
@@ -41,7 +41,7 @@ build-backend = "hatchling.build"
 allow-direct-references = true
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/olm_d_rch", "sdk/olm_d_rch_sdk"]
+packages = ["src/starprobe", "sdk/starprobe_sdk"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

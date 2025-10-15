@@ -5,8 +5,8 @@ from langchain_core.messages import HumanMessage, SystemMessage
 from langchain_core.tools import tool
 from pydantic import BaseModel, Field
 
-from olm_d_rch.config.workflow_settings import WorkflowSettings
-from olm_d_rch.prompts.components import (
+from starprobe.config.workflow_settings import WorkflowSettings
+from starprobe.prompts.components import (
     json_mode_query_instructions,
     json_mode_reflection_instructions,
     query_writer_instructions,
@@ -22,7 +22,7 @@ class PromptService:
 
     Dependencies:
     - WorkflowSettings: For configuration
-    - olm_d_rch.prompts: For prompt templates and instructions
+    - starprobe.prompts: For prompt templates and instructions
     """
 
     @staticmethod
@@ -33,7 +33,7 @@ class PromptService:
     def __init__(self, configurable: WorkflowSettings):
         self.configurable = configurable
         self.template_env = jinja2.Environment(
-            loader=jinja2.FileSystemLoader("src/olm_d_rch/prompts/templates")
+            loader=jinja2.FileSystemLoader("src/starprobe/prompts/templates")
         )
 
     def generate_query_prompt(self, research_topic: str) -> list:

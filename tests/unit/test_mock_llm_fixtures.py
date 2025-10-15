@@ -4,11 +4,11 @@ import json
 
 import pytest
 
-from src.olm_d_rch.config.workflow_settings import WorkflowSettings
-from src.olm_d_rch.nodes.node1_refine_query import refine_query
-from src.olm_d_rch.nodes.node3_summarize_sources import summarize_sources
-from src.olm_d_rch.services.prompt_service import PromptService
-from src.olm_d_rch.services.text_processing_service import TextProcessingService
+from src.starprobe.config.workflow_settings import WorkflowSettings
+from src.starprobe.nodes.node1_refine_query import refine_query
+from src.starprobe.nodes.node3_summarize_sources import summarize_sources
+from src.starprobe.services.prompt_service import PromptService
+from src.starprobe.services.text_processing_service import TextProcessingService
 
 
 class TestLLMMockFixtures:

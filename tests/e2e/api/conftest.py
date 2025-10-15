@@ -35,7 +35,7 @@ def api_config():
     to ensure consistent testing across all E2E tests.
     """
     host_port = os.getenv("TEST_PORT", "8002")
-    model_name = os.getenv("OLM_D_RCH_OLLAMA_MODEL", "llama3.2:3b").split(",")[0]
+    model_name = os.getenv("STARPROBE_OLLAMA_MODEL", "llama3.2:3b").split(",")[0]
 
     return {
         "base_url": f"http://localhost:{host_port}",
@@ -57,20 +57,20 @@ def e2e_setup() -> Generator[None, None, None]:
 
     # Prepare environment variables for docker compose
     compose_env = os.environ.copy()
-    compose_env["OLM_D_RCH_BIND_IP"] = host_bind_ip
-    compose_env["OLM_D_RCH_BIND_PORT"] = test_port
-    compose_env["USE_MOCK_STL_CONN"] = (
+    compose_env["STARPROBE_BIND_IP"] = host_bind_ip
+    compose_env["STARPROBE_BIND_PORT"] = test_port
+    compose_env["STARPROBE_USE_MOCK_STL_CONN"] = (
         "True"  # Because an external private server needs to be started
     )
-    compose_env["USE_MOCK_SEARCH"] = "False"
-    compose_env["USE_MOCK_SCRAPING"] = "False"
+    compose_env["STARPROBE_USE_MOCK_SEARCH"] = "False"
+    compose_env["STARPROBE_USE_MOCK_SCRAPING"] = "False"
 
     # Define compose commands (simplified - no override files needed)
     compose_up_command = [
         "docker",
         "compose",
         "--project-name",
-        "olm-d-rch-test",
+        "starprobe-test",
         "up",
         "-d",
         "--build",
@@ -79,7 +79,7 @@ def e2e_setup() -> Generator[None, None, None]:
         "docker",
         "compose",
         "--project-name",
-        "olm-d-rch-test",
+        "starprobe-test",
         "down",
         "-v",
     ]
@@ -123,7 +123,7 @@ def e2e_setup() -> Generator[None, None, None]:
                 "docker",
                 "compose",
                 "--project-name",
-                "olm-d-rch-test",
+                "starprobe-test",
                 "logs",
             ]
             log_result = subprocess.run(

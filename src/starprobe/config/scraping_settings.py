@@ -26,5 +26,5 @@ class ScrapingSettings(BaseSettings):
         default=False,
         title="Use Mock Scraping Service",
         description="Use the mock scraping service instead of the real implementation",
-        alias="USE_MOCK_SCRAPING",
+        alias="STARPROBE_USE_MOCK_SCRAPING",
     )

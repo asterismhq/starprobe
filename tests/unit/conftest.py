@@ -12,12 +12,14 @@ def set_unit_test_env(monkeypatch):
     Note: Monkeypatch only works for in-process code execution.
     For subprocess-based tests (intg/e2e), use subprocess env parameter.
     """
-    monkeypatch.setenv("OLM_D_RCH_OLLAMA_MODEL", "test-model")
+    monkeypatch.setenv("STARPROBE_OLLAMA_MODEL", "test-model")
     monkeypatch.setenv("OLLAMA_HOST", "http://mock-ollama:11434")
-    monkeypatch.setenv("USE_MOCK_OLLAMA", "True")
-    monkeypatch.setenv("USE_MOCK_SEARCH", "True")
-    monkeypatch.setenv("USE_MOCK_SCRAPING", "True")
-    monkeypatch.setenv("USE_MOCK_STL_CONN", "True")  # Enable mock LLM for unit tests
+    monkeypatch.setenv("STL_CONN_USE_MOCK_OLLAMA", "True")
+    monkeypatch.setenv("STARPROBE_USE_MOCK_SEARCH", "True")
+    monkeypatch.setenv("STARPROBE_USE_MOCK_SCRAPING", "True")
+    monkeypatch.setenv(
+        "STARPROBE_USE_MOCK_STL_CONN", "True"
+    )  # Enable mock LLM for unit tests
 
 
 @pytest.fixture

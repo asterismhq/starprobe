@@ -4,7 +4,7 @@ from pprint import pprint
 
 from dotenv import load_dotenv
 
-from olm_d_rch.dependencies import (
+from starprobe.dependencies import (
     _create_llm_client,
     _create_prompt_service,
     _create_research_service,
@@ -17,7 +17,7 @@ from olm_d_rch.dependencies import (
     get_scraping_settings,
     get_workflow_settings,
 )
-from olm_d_rch.graph import build_graph
+from starprobe.graph import build_graph
 
 load_dotenv()
 
@@ -32,7 +32,7 @@ async def main(output_file: str = "demo/example.md"):
     print(f"Starting research on the topic '{research_topic}'...")
 
     # Get services using dependency injection
-    backend = os.getenv("OLM_D_RCH_LLM_BACKEND")
+    backend = os.getenv("STARPROBE_LLM_BACKEND")
     app_settings = get_app_settings()
     ollama_settings = get_ollama_settings()
     mlx_settings = get_mlx_settings()
@@ -49,10 +49,10 @@ async def main(output_file: str = "demo/example.md"):
     )
 
     # Build the configuration the same way as the API server
-    ollama_model = os.getenv("OLM_D_RCH_OLLAMA_MODEL", "llama3.2:3b")
+    ollama_model = os.getenv("STARPROBE_OLLAMA_MODEL", "llama3.2:3b")
     ollama_host = os.getenv("OLLAMA_HOST")
     mlx_model = os.getenv(
-        "OLM_D_RCH_MLX_MODEL", "mlx-community/Llama-3.1-8B-Instruct-4bit"
+        "STARPROBE_MLX_MODEL", "mlx-community/Llama-3.1-8B-Instruct-4bit"
     )
 
     if backend == "mlx":

@@ -1,6 +1,6 @@
 from dev.mocks.mock_search_client import MockSearchClient
-from olm_d_rch.clients.ddgs_client import DdgsClient
-from olm_d_rch.config.ddgs_settings import DDGSSettings
+from starprobe.clients.ddgs_client import DdgsClient
+from starprobe.config.ddgs_settings import DDGSSettings
 
 
 async def test_real_client_with_mocked_ddgs(mocker):
@@ -19,7 +19,7 @@ async def test_real_client_with_mocked_ddgs(mocker):
     ]
 
     mocker.patch(
-        "olm_d_rch.clients.ddgs_client.DDGS",
+        "starprobe.clients.ddgs_client.DDGS",
         return_value=mock_ddgs_instance,
     )
     settings = DDGSSettings()

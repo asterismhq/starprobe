@@ -37,7 +37,7 @@ jobs:
       - name: Configure environment variables
         run: |
           echo "OLLAMA_HOST=${{ secrets.OLLAMA_HOST }}" >> .env
-          echo "OLM_D_RCH_OLLAMA_MODEL=${{ env.OLM_D_RCH_OLLAMA_MODEL }}" >> .env
+          echo "STARPROBE_OLLAMA_MODEL=${{ env.STARPROBE_OLLAMA_MODEL }}" >> .env
 
       - name: Run tests
         run: |

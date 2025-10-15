@@ -5,19 +5,19 @@ import time
 
 from fastapi import APIRouter, Depends
 
-from olm_d_rch.api.logger import logger
-from olm_d_rch.api.schemas import (
+from starprobe.api.logger import logger
+from starprobe.api.schemas import (
     HealthResponse,
     ResearchRequest,
     ResearchResponse,
 )
-from olm_d_rch.dependencies import (
+from starprobe.dependencies import (
     get_llm_client,
     get_prompt_service,
     get_research_service,
 )
-from olm_d_rch.graph import build_graph
-from olm_d_rch.services import PromptService, ResearchService
+from starprobe.graph import build_graph
+from starprobe.services import PromptService, ResearchService
 
 router = APIRouter()
 

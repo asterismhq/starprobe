@@ -3,7 +3,7 @@ from typing import Any, Dict, List
 
 import tiktoken
 
-from olm_d_rch.config.workflow_settings import WorkflowSettings
+from starprobe.config.workflow_settings import WorkflowSettings
 
 
 class TextProcessingService:

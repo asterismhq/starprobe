@@ -2,8 +2,8 @@
 
 import tiktoken
 
-from src.olm_d_rch.config import workflow_settings
-from src.olm_d_rch.services.text_processing_service import (
+from src.starprobe.config import workflow_settings
+from src.starprobe.services.text_processing_service import (
     TextProcessingService,
 )
 

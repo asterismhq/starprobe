@@ -5,8 +5,8 @@ from typing import List, Optional
 from langchain_core.tools import tool
 from pydantic import BaseModel, Field
 
-from olm_d_rch.protocols.llm_client_protocol import LLMClientProtocol
-from olm_d_rch.services.prompt_service import PromptService
+from starprobe.protocols.llm_client_protocol import LLMClientProtocol
+from starprobe.services.prompt_service import PromptService
 
 
 async def refine_query(

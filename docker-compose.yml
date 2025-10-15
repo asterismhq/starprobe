@@ -1,14 +1,14 @@
 services:
-  olm-d-rch:
+  starprobe:
     build:
       target: production
     ports:
-      - "${OLM_D_RCH_BIND_IP:-0.0.0.0}:${OLM_D_RCH_BIND_PORT:-8000}:8000"
+      - "${STARPROBE_BIND_IP:-0.0.0.0}:${STARPROBE_BIND_PORT:-8000}:8000"
     env_file:
       - .env
     environment:
       - CONTAINER_ENV=production
       # Mock settings - these override .env file when passed from environment
-      - USE_MOCK_STL_CONN=${USE_MOCK_STL_CONN}
-      - USE_MOCK_SEARCH=${USE_MOCK_SEARCH}
-      - USE_MOCK_SCRAPING=${USE_MOCK_SCRAPING}
+      - STARPROBE_USE_MOCK_STL_CONN=${STARPROBE_USE_MOCK_STL_CONN}
+      - STARPROBE_USE_MOCK_SEARCH=${STARPROBE_USE_MOCK_SEARCH}
+      - STARPROBE_USE_MOCK_SCRAPING=${STARPROBE_USE_MOCK_SCRAPING}

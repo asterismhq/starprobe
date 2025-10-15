@@ -34,5 +34,5 @@ class DDGSSettings(BaseSettings):
         default=False,
         title="Use Mock Search Client",
         description="Use the mock search client instead of the real implementation",
-        alias="USE_MOCK_SEARCH",
+        alias="STARPROBE_USE_MOCK_SEARCH",
     )

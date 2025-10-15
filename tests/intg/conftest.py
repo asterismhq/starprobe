@@ -11,8 +11,8 @@ from dotenv import load_dotenv
 # Load .env file to get port configuration
 load_dotenv()
 
-TEST_HOST = os.getenv("OLM_D_RCH_BIND_IP", "127.0.0.1")
-TEST_PORT = int(os.getenv("OLM_D_RCH_PORT", "8080"))
+TEST_HOST = os.getenv("STARPROBE_BIND_IP", "127.0.0.1")
+TEST_PORT = int(os.getenv("STARPROBE_PORT", "8080"))
 
 
 @pytest.fixture
@@ -41,16 +41,16 @@ def start_server():
         # Start server in subprocess instead of thread for proper cleanup
         # Prepare environment variables for subprocess
         env = os.environ.copy()
-        env["USE_MOCK_STL_CONN"] = "True"
-        env["USE_MOCK_SEARCH"] = "True"
-        env["USE_MOCK_SCRAPING"] = "True"
+        env["STARPROBE_USE_MOCK_STL_CONN"] = "True"
+        env["STARPROBE_USE_MOCK_SEARCH"] = "True"
+        env["STARPROBE_USE_MOCK_SCRAPING"] = "True"
 
         process = subprocess.Popen(
             [
                 sys.executable,
                 "-m",
                 "uvicorn",
-                "olm_d_rch.api.main:app",
+                "starprobe.api.main:app",
                 "--host",
                 TEST_HOST,
                 "--port",

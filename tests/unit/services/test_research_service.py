@@ -2,7 +2,7 @@
 
 import pytest
 
-from src.olm_d_rch.dependencies import (
+from src.starprobe.dependencies import (
     _create_research_service,
     _create_scraping_service,
     _create_search_client,

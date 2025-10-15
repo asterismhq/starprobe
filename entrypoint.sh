@@ -13,12 +13,12 @@ else
     echo "Starting server on 0.0.0.0:8000..."
     # Use --reload in development, controlled by CONTAINER_ENV. Defaults to production behavior.
     if [ "${CONTAINER_ENV:-production}" = "development" ]; then
-        exec uvicorn olm_d_rch.api.main:app \
+        exec uvicorn starprobe.api.main:app \
             --host "0.0.0.0" \
             --port "8000" \
             --reload
     else
-        exec uvicorn olm_d_rch.api.main:app \
+        exec uvicorn starprobe.api.main:app \
             --host "0.0.0.0" \
             --port "8000"
     fi

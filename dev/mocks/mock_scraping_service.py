@@ -1,4 +1,4 @@
-from olm_d_rch.protocols.scraping_service_protocol import (
+from starprobe.protocols.scraping_service_protocol import (
     ScrapingServiceProtocol,
 )
 

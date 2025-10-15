@@ -1,6 +1,6 @@
 import logging
 
-from olm_d_rch.services.research_service import ResearchService
+from starprobe.services.research_service import ResearchService
 
 
 async def conduct_web_search(
