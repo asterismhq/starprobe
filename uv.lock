@@ -1760,7 +1760,7 @@ wheels = [
 [[package]]
 name = "nexus"
 version = "1.2.0"
-source = { git = "https://github.com/asterismhq/nexus.git#8a77412a8fff65a8dfc911e150afe139e058c201" }
+source = { git = "https://github.com/asterismhq/nexus.git#12aaacdcd192fb38803ccd0337d59e7aea3b24c2" }
 dependencies = [
     { name = "fastapi" },
     { name = "httpx" },

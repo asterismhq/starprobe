@@ -16,7 +16,7 @@ The agent's logic is built as a state machine using LangGraph. It repeats the fo
 
 ## Main Components
 
--   **`dependencies.py`**: Dependency injection that provides services and clients. Uses `USE_MOCK_*` env vars to toggle between real and mock implementations. Instantiates the nexus SDK directly (v2.0.1) with `response_format="langchain"`.
+-   **`dependencies.py`**: Dependency injection that provides services and clients. Uses `USE_MOCK_*` env vars to toggle between real and mock implementations. Instantiates the nexus SDK directly with `response_format="langchain"`.
 -   **Services (`services/`)**:
     -   `ResearchService`: Manages searching and scraping.
     -   `PromptService`: Generates LLM prompts.
@@ -66,5 +66,5 @@ Provides a unified interface for connecting to various Large Language Models, ha
 
 ## Development Notes
 
--   **nexus submodule**: We now edit `submodules/nexus` in tandem with this repo to keep SDK changes synchronized. Ensure version numbers stay aligned (`pyproject.toml` references v2.0.1).
+-   **nexus submodule**: We now edit `submodules/nexus` in tandem with this repo to keep SDK changes synchronized. Ensure version numbers stay aligned (`pyproject.toml` references the latest version).
 -   **Dependencies**: Actual libraries used in production are installed from Git repositories specified in `pyproject.toml`. Keep the git reference updated when releasing a new nexus version.
