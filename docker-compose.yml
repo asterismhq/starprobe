@@ -9,6 +9,6 @@ services:
     environment:
       - CONTAINER_ENV=production
       # Mock settings - these override .env file when passed from environment
-      - STARPROBE_USE_MOCK_STL_CONN=${STARPROBE_USE_MOCK_STL_CONN}
+      - STARPROBE_USE_MOCK_NEXUS=${STARPROBE_USE_MOCK_NEXUS}
       - STARPROBE_USE_MOCK_SEARCH=${STARPROBE_USE_MOCK_SEARCH}
       - STARPROBE_USE_MOCK_SCRAPING=${STARPROBE_USE_MOCK_SCRAPING}

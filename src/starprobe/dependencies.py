@@ -1,14 +1,14 @@
 from functools import lru_cache
 
 from fastapi import Depends
-from stl_conn_sdk.stl_conn_client import MockStlConnClient, StlConnClient
+from nexus_sdk import MockNexusClient, NexusClient
 
 from .clients import DdgsClient
 from .config import (
     AppSettings,
     DDGSSettings,
+    NexusSettings,
     ScrapingSettings,
-    StlConnSettings,
     WorkflowSettings,
 )
 from .protocols import DDGSClientProtocol, LLMClientProtocol, ScrapingServiceProtocol
@@ -21,8 +21,8 @@ def get_app_settings() -> AppSettings:
 
 
 @lru_cache()
-def get_stl_conn_settings() -> StlConnSettings:
-    return StlConnSettings()
+def get_nexus_settings() -> NexusSettings:
+    return NexusSettings()
 
 
 @lru_cache()
@@ -40,20 +40,20 @@ def get_workflow_settings() -> WorkflowSettings:
     return WorkflowSettings()
 
 
-def _create_llm_client(stl_conn_settings: StlConnSettings) -> LLMClientProtocol:
-    if stl_conn_settings.use_mock_stl_conn:
-        return MockStlConnClient(response_format="langchain")
-    return StlConnClient(
-        base_url=stl_conn_settings.stl_conn_base_url,
+def _create_llm_client(nexus_settings: NexusSettings) -> LLMClientProtocol:
+    if nexus_settings.use_mock_nexus:
+        return MockNexusClient(response_format="langchain")
+    return NexusClient(
+        base_url=nexus_settings.nexus_base_url,
         response_format="langchain",
-        timeout=stl_conn_settings.stl_conn_timeout,
+        timeout=nexus_settings.nexus_timeout,
     )
 
 
 def get_llm_client(
-    stl_conn_settings: StlConnSettings = Depends(get_stl_conn_settings),
+    nexus_settings: NexusSettings = Depends(get_nexus_settings),
 ) -> LLMClientProtocol:
-    return _create_llm_client(stl_conn_settings)
+    return _create_llm_client(nexus_settings)
 
 
 def _create_search_client(ddgs_settings: DDGSSettings) -> DDGSClientProtocol:

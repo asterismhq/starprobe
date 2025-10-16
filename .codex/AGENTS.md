@@ -2,7 +2,7 @@
 
 ## Overview
 
-Starprobe API is an AI agent that autonomously conducts detailed research on a specified topic and generates a comprehensive report. It starts with initial research, identifies knowledge gaps, and iteratively refines the summary through additional investigations. It delegates LLM invocation to the Stella Connector API service.
+Starprobe API is an AI agent that autonomously conducts detailed research on a specified topic and generates a comprehensive report. It starts with initial research, identifies knowledge gaps, and iteratively refines the summary through additional investigations. It delegates LLM invocation to the Nexus API service.
 
 ## Architecture and Workflow
 
@@ -16,7 +16,7 @@ The agent's logic is built as a state machine using LangGraph. It repeats the fo
 
 ## Main Components
 
--   **`dependencies.py`**: Dependency injection that provides services and clients. Uses `USE_MOCK_*` env vars to toggle between real and mock implementations. Instantiates the stl-conn SDK directly (v1.2.0) with `response_format="langchain"`.
+-   **`dependencies.py`**: Dependency injection that provides services and clients. Uses `USE_MOCK_*` env vars to toggle between real and mock implementations. Instantiates the nexus SDK directly (v2.0.1) with `response_format="langchain"`.
 -   **Services (`services/`)**:
     -   `ResearchService`: Manages searching and scraping.
     -   `PromptService`: Generates LLM prompts.
@@ -45,10 +45,10 @@ The agent's logic is built as a state machine using LangGraph. It repeats the fo
 -   Send POST request to `/research` endpoint
 
 **LLM Configuration:**
--   LLM invocation is delegated to the Stella Connector API service.
--   Configure the Stella Connector endpoint via `STL_CONN_BASE_URL` (default: `http://localhost:8000`).
--   Backend selection (Ollama/MLX) is configured at the Stella Connector service level, not in this project.
--   Requires Stella Connector service to be running and accessible.
+-   LLM invocation is delegated to the Nexus API service.
+-   Configure the Nexus endpoint via `NEXUS_BASE_URL` (default: `http://localhost:8000`).
+-   Backend selection (Ollama/MLX) is configured at the Nexus service level, not in this project.
+-   Requires Nexus service to be running and accessible.
 
 ## Configuration Management
 
@@ -61,10 +61,10 @@ Non-sensitive configuration values are defined as defaults in `settings.py`. Onl
 
 This project uses Git submodules to manage external dependencies. Submodules are located in the `submodules/` directory and should never be edited directly. If changes are required, please contact the respective repository maintainers or request updates from the user.
 
-### stl-conn (submodules/stl-conn)
-Provides a unified interface for connecting to various Large Language Models, handling authentication, and managing API interactions as the Stella Connector for LLM integration.
+### nexus (submodules/nexus)
+Provides a unified interface for connecting to various Large Language Models, handling authentication, and managing API interactions as the Nexus for LLM integration.
 
 ## Development Notes
 
--   **stl-conn submodule**: We now edit `submodules/stl-conn` in tandem with this repo to keep SDK changes synchronized. Ensure version numbers stay aligned (`pyproject.toml` references v1.2.0).
--   **Dependencies**: Actual libraries used in production are installed from Git repositories specified in `pyproject.toml`. Keep the git reference updated when releasing a new stl-conn version.
+-   **nexus submodule**: We now edit `submodules/nexus` in tandem with this repo to keep SDK changes synchronized. Ensure version numbers stay aligned (`pyproject.toml` references v2.0.1).
+-   **Dependencies**: Actual libraries used in production are installed from Git repositories specified in `pyproject.toml`. Keep the git reference updated when releasing a new nexus version.

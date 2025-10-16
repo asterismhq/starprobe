@@ -10,7 +10,7 @@ def set_sdk_test_env(monkeypatch):
     For subprocess-based tests (intg/e2e), use subprocess env parameter.
     """
     # Set environment variables to use mocks for SDK testing
-    monkeypatch.setenv("STL_CONN_USE_MOCK_OLLAMA", "True")
+    monkeypatch.setenv("STARPROBE_USE_MOCK_NEXUS", "True")
     monkeypatch.setenv("STARPROBE_USE_MOCK_SEARCH", "True")
     monkeypatch.setenv("STARPROBE_USE_MOCK_SCRAPING", "True")
     # Add any other necessary mock flags

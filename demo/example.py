@@ -10,8 +10,8 @@ from starprobe.dependencies import (
     _create_scraping_service,
     _create_search_client,
     get_ddgs_settings,
+    get_nexus_settings,
     get_scraping_settings,
-    get_stl_conn_settings,
     get_workflow_settings,
 )
 from starprobe.graph import build_graph
@@ -29,10 +29,10 @@ async def main(output_file: str = "demo/example.md"):
     print(f"Starting research on the topic '{research_topic}'...")
 
     # Get services using dependency injection
-    stl_conn_settings = get_stl_conn_settings()
+    nexus_settings = get_nexus_settings()
     workflow_settings = get_workflow_settings()
 
-    llm_client = _create_llm_client(stl_conn_settings)
+    llm_client = _create_llm_client(nexus_settings)
     prompt_service = _create_prompt_service(workflow_settings)
     research_service = _create_research_service(
         workflow_settings,
