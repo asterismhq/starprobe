@@ -59,7 +59,7 @@ def e2e_setup() -> Generator[None, None, None]:
     compose_env = os.environ.copy()
     compose_env["STARPROBE_BIND_IP"] = host_bind_ip
     compose_env["STARPROBE_BIND_PORT"] = test_port
-    compose_env["STARPROBE_USE_MOCK_STL_CONN"] = (
+    compose_env["STARPROBE_USE_MOCK_NEXUS"] = (
         "True"  # Because an external private server needs to be started
     )
     compose_env["STARPROBE_USE_MOCK_SEARCH"] = "False"

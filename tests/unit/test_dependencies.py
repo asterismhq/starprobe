@@ -10,8 +10,8 @@ from src.starprobe.dependencies import (
     _create_search_client,
     get_app_settings,
     get_ddgs_settings,
+    get_nexus_settings,
     get_scraping_settings,
-    get_stl_conn_settings,
     get_workflow_settings,
 )
 
@@ -27,12 +27,12 @@ class TestDependencyProviders:
         settings2 = get_app_settings()
         assert settings is settings2
 
-    def test_get_stl_conn_settings_returns_settings_instance(self):
-        """Test that get_stl_conn_settings returns a StlConnSettings instance."""
-        settings = get_stl_conn_settings()
+    def test_get_nexus_settings_returns_settings_instance(self):
+        """Test that get_nexus_settings returns a NexusSettings instance."""
+        settings = get_nexus_settings()
         assert settings is not None
         # Should be cached
-        settings2 = get_stl_conn_settings()
+        settings2 = get_nexus_settings()
         assert settings is settings2
 
     def test_get_ddgs_settings_returns_settings_instance(self):
@@ -60,9 +60,9 @@ class TestDependencyProviders:
         assert settings is settings2
 
     def test_create_llm_client_returns_client(self):
-        """Test that _create_llm_client returns an LLM client from stl-conn SDK."""
-        stl_conn_settings = get_stl_conn_settings()
-        client = _create_llm_client(stl_conn_settings)
+        """Test that _create_llm_client returns an LLM client from nexus SDK."""
+        nexus_settings = get_nexus_settings()
+        client = _create_llm_client(nexus_settings)
         assert client is not None
         assert hasattr(client, "invoke")
         assert hasattr(client, "bind_tools")
@@ -109,13 +109,13 @@ class TestDependencyProviders:
     def test_create_llm_client_respects_mock_settings(self, monkeypatch, use_mock):
         """Test that _create_llm_client switches between mock and real based on settings."""
         if use_mock:
-            monkeypatch.setenv("USE_MOCK_STL_CONN", "true")
+            monkeypatch.setenv("USE_MOCK_NEXUS", "true")
         else:
-            monkeypatch.setenv("USE_MOCK_STL_CONN", "false")
-        get_stl_conn_settings.cache_clear()
-        stl_conn_settings = get_stl_conn_settings()  # Re-get to pick up env change
+            monkeypatch.setenv("USE_MOCK_NEXUS", "false")
+        get_nexus_settings.cache_clear()
+        nexus_settings = get_nexus_settings()  # Re-get to pick up env change
 
-        client = _create_llm_client(stl_conn_settings)
+        client = _create_llm_client(nexus_settings)
         assert client is not None
 
     @pytest.mark.parametrize("use_mock", [True, False])

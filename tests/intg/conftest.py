@@ -41,7 +41,7 @@ def start_server():
         # Start server in subprocess instead of thread for proper cleanup
         # Prepare environment variables for subprocess
         env = os.environ.copy()
-        env["STARPROBE_USE_MOCK_STL_CONN"] = "True"
+        env["STARPROBE_USE_MOCK_NEXUS"] = "True"
         env["STARPROBE_USE_MOCK_SEARCH"] = "True"
         env["STARPROBE_USE_MOCK_SCRAPING"] = "True"
 

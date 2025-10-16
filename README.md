@@ -8,11 +8,11 @@ The project introduces a Dependency Injection (DI) container called `DependencyC
 
 ## What's New
 
--   **`dependencies.py`**: Dependency injection that provides services and clients. Uses `STARPROBE_USE_MOCK_*` env vars to toggle between real and mock implementations. Instantiates the stl-conn SDK directly (v1.2.0) with `response_format="langchain"`.
+-   **`dependencies.py`**: Dependency injection that provides services and clients. Uses `STARPROBE_USE_MOCK_*` env vars to toggle between real and mock implementations. Instantiates the nexus SDK directly with `response_format="langchain"`.
 
-### Stella Connector Integration
+### Nexus Integration
 
-The application now consumes the **stl-conn SDK v1.2.0** directly. The LangChain adapter layer that previously lived in this repo has been removed because the SDK now:
+The application now consumes the **nexus SDK** directly. The LangChain adapter layer that previously lived in this repo has been removed because the SDK now:
 
 - Accepts LangChain message objects (`AIMessage`, `HumanMessage`, etc.) without extra serialization.
 - Exposes `bind_tools()` on both real and mock clients so LangChain tool calling can be chained natively.
@@ -139,7 +139,7 @@ Once the service is running, the following endpoints are available.
 
 - Set `STARPROBE_LLM_BACKEND` in your environment to define the default backend (`ollama` or `mlx`).
 - Override the backend for a single request by providing the optional `backend` field in the `POST /research` payload.
-- When using the MLX backend, ensure you are on Apple Silicon with [`mlx-lm`](https://pypi.org/project/mlx-lm/) installed or enable `STARPROBE_USE_MOCK_STL_CONN=true` for testing.
+- When using the MLX backend, ensure you are on Apple Silicon with [`mlx-lm`](https://pypi.org/project/mlx-lm/) installed or enable `STARPROBE_USE_MOCK_NEXUS=true` for testing.
 
 ### Health Check
 
@@ -204,7 +204,7 @@ The service uses DuckDuckGo for web searches via the [`ddgs`](https://pypi.org/p
 
 For testing and development, you can enable mock implementations for various components:
 
-  * `STARPROBE_USE_MOCK_STL_CONN`: Use mock Stella Connector client instead of real implementation. Default is `false`.
+  * `STARPROBE_USE_MOCK_NEXUS`: Use mock Nexus client instead of real implementation. Default is `false`.
   * `STARPROBE_USE_MOCK_SEARCH`: Use mock search client instead of real DuckDuckGo search. Default is `false`.
   * `STARPROBE_USE_MOCK_SCRAPING`: Use mock scraping service instead of real web scraping. Default is `false`.
 
