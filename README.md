@@ -8,11 +8,11 @@ The project introduces a Dependency Injection (DI) container called `DependencyC
 
 ## What's New
 
--   **`dependencies.py`**: Dependency injection that provides services and clients. Uses `STARPROBE_USE_MOCK_*` env vars to toggle between real and mock implementations. Instantiates the nexus SDK directly with `response_format="langchain"`.
+-   **`dependencies.py`**: Dependency injection that provides services and clients. Uses `STARPROBE_USE_MOCK_*` env vars to toggle between real and mock implementations and instantiates the backend-specific nexus SDK clients with `response_format="langchain"`.
 
 ### Nexus Integration
 
-The application now consumes the **nexus SDK** directly. The LangChain adapter layer that previously lived in this repo has been removed because the SDK now:
+The application now consumes the **nexus SDK** directly. Dependency wiring selects the backend-aware client class—`NexusOllamaClient` or `NexusMLXClient`—based on the `STARPROBE_LLM_BACKEND` environment variable, while `STARPROBE_USE_MOCK_NEXUS` swaps in `MockNexusClient` configured with the same backend hint. The LangChain adapter layer that previously lived in this repo has been removed because the SDK now:
 
 - Accepts LangChain message objects (`AIMessage`, `HumanMessage`, etc.) without extra serialization.
 - Exposes `bind_tools()` on both real and mock clients so LangChain tool calling can be chained natively.

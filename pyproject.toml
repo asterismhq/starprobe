@@ -20,7 +20,7 @@ dependencies = [
     "tiktoken>=0.7.0",
     "jinja2>=3.1.0",
     "ddgs>=6.0.0",
-    "nexus @ git+https://github.com/asterismhq/nexus.git#v2.0.2",
+    "nexus @ git+https://github.com/asterismhq/nexus.git#v3.0.1",
 ]
 
 [dependency-groups]

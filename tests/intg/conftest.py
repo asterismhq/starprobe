@@ -12,7 +12,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 TEST_HOST = os.getenv("STARPROBE_BIND_IP", "127.0.0.1")
-TEST_PORT = int(os.getenv("STARPROBE_PORT", "8080"))
+TEST_PORT = int(os.getenv("STARPROBE_TEST_PORT", "8002"))
 
 
 @pytest.fixture

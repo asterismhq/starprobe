@@ -1,7 +1,7 @@
 from functools import lru_cache
 
 from fastapi import Depends
-from nexus_sdk import MockNexusClient, NexusClient
+from nexus_sdk import MockNexusClient, NexusMLXClient, NexusOllamaClient
 
 from .clients import DdgsClient
 from .config import (
@@ -40,10 +40,23 @@ def get_workflow_settings() -> WorkflowSettings:
     return WorkflowSettings()
 
 
+_BACKEND_CLIENTS: dict[str, type] = {
+    "ollama": NexusOllamaClient,
+    "mlx": NexusMLXClient,
+}
+
+
 def _create_llm_client(nexus_settings: NexusSettings) -> LLMClientProtocol:
+    backend = nexus_settings.nexus_backend.lower()
+
     if nexus_settings.use_mock_nexus:
-        return MockNexusClient(response_format="langchain")
-    return NexusClient(
+        return MockNexusClient(response_format="langchain", backend=backend)
+
+    client_cls = _BACKEND_CLIENTS.get(backend)
+    if client_cls is None:
+        raise ValueError(f"Unsupported Nexus backend '{nexus_settings.nexus_backend}'")
+
+    return client_cls(
         base_url=nexus_settings.nexus_base_url,
         response_format="langchain",
         timeout=nexus_settings.nexus_timeout,
