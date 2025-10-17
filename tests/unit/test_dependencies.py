@@ -1,6 +1,8 @@
 """Unit tests for dependency injection providers."""
 
 import pytest
+from nexus_sdk import NexusMLXClient, NexusOllamaClient
+from pydantic import ValidationError
 
 from src.starprobe.dependencies import (
     _create_llm_client,
@@ -67,6 +69,19 @@ class TestDependencyProviders:
         assert hasattr(client, "invoke")
         assert hasattr(client, "bind_tools")
 
+    def test_nexus_settings_rejects_unknown_backend(self, monkeypatch):
+        """Unknown backend values should fail validation for Nexus settings."""
+
+        monkeypatch.setenv("STARPROBE_LLM_BACKEND", "unknown")
+        get_nexus_settings.cache_clear()
+
+        with pytest.raises(ValidationError):
+            get_nexus_settings()
+
+        # Reset the cache for downstream tests to use default configuration.
+        monkeypatch.delenv("STARPROBE_LLM_BACKEND", raising=False)
+        get_nexus_settings.cache_clear()
+
     def test_create_search_client_returns_client(self):
         """Test that _create_search_client returns a search client."""
         ddgs_settings = get_ddgs_settings()
@@ -109,14 +124,35 @@ class TestDependencyProviders:
     def test_create_llm_client_respects_mock_settings(self, monkeypatch, use_mock):
         """Test that _create_llm_client switches between mock and real based on settings."""
         if use_mock:
-            monkeypatch.setenv("USE_MOCK_NEXUS", "true")
+            monkeypatch.setenv("STARPROBE_USE_MOCK_NEXUS", "true")
         else:
-            monkeypatch.setenv("USE_MOCK_NEXUS", "false")
+            monkeypatch.setenv("STARPROBE_USE_MOCK_NEXUS", "false")
+        monkeypatch.setenv("STARPROBE_LLM_BACKEND", "ollama")
         get_nexus_settings.cache_clear()
         nexus_settings = get_nexus_settings()  # Re-get to pick up env change
 
         client = _create_llm_client(nexus_settings)
         assert client is not None
+
+    def test_create_llm_client_uses_backend_setting(self, monkeypatch):
+        """Ensure _create_llm_client instantiates the correct backend client."""
+
+        monkeypatch.setenv("STARPROBE_USE_MOCK_NEXUS", "false")
+        monkeypatch.setenv("STARPROBE_LLM_BACKEND", "mlx")
+        get_nexus_settings.cache_clear()
+
+        nexus_settings = get_nexus_settings()
+        client = _create_llm_client(nexus_settings)
+
+        assert isinstance(client, NexusMLXClient)
+
+        monkeypatch.setenv("STARPROBE_LLM_BACKEND", "ollama")
+        get_nexus_settings.cache_clear()
+
+        nexus_settings = get_nexus_settings()
+        client = _create_llm_client(nexus_settings)
+
+        assert isinstance(client, NexusOllamaClient)
 
     @pytest.mark.parametrize("use_mock", [True, False])
     def test_create_search_client_respects_mock_settings(self, monkeypatch, use_mock):

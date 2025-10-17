@@ -17,6 +17,7 @@ def set_unit_test_env(monkeypatch):
     monkeypatch.setenv("STARPROBE_USE_MOCK_NEXUS", "True")
     monkeypatch.setenv("STARPROBE_USE_MOCK_SEARCH", "True")
     monkeypatch.setenv("STARPROBE_USE_MOCK_SCRAPING", "True")
+    monkeypatch.setenv("STARPROBE_LLM_BACKEND", "ollama")
 
 
 @pytest.fixture
@@ -24,7 +25,9 @@ def mock_llm_json():
     """Mock LLM client that returns JSON string content (for JSON-mode nodes)."""
     json_content = json.dumps({"query": "test query", "rationale": "test rationale"})
     strategy = SimpleResponseStrategy(content=json_content)
-    return MockNexusClient(response_format="langchain", strategy=strategy)
+    return MockNexusClient(
+        response_format="langchain", strategy=strategy, backend="ollama"
+    )
 
 
 @pytest.fixture
@@ -39,7 +42,9 @@ def mock_llm_tool():
             }
         ],
     )
-    return MockNexusClient(response_format="langchain", strategy=strategy)
+    return MockNexusClient(
+        response_format="langchain", strategy=strategy, backend="ollama"
+    )
 
 
 @pytest.fixture
@@ -47,4 +52,6 @@ def mock_llm_summary():
     """Mock LLM client that returns summary content (for summarization nodes)."""
     summary_content = "This is a comprehensive test summary of the research results that provides detailed insights and analysis of the topic under investigation, ensuring it exceeds the minimum length requirements for validation."
     strategy = SimpleResponseStrategy(content=summary_content)
-    return MockNexusClient(response_format="langchain", strategy=strategy)
+    return MockNexusClient(
+        response_format="langchain", strategy=strategy, backend="ollama"
+    )
