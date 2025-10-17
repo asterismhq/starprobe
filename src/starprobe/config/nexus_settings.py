@@ -46,4 +46,5 @@ class NexusSettings(BaseSettings):
             normalized = value.strip().lower()
             if normalized in _SUPPORTED_BACKENDS:
                 return normalized
-        raise ValueError("nexus_backend must be one of 'ollama' or 'mlx'.")
+        supported_backends_str = "', '".join(sorted(_SUPPORTED_BACKENDS))
+        raise ValueError(f"nexus_backend must be one of '{supported_backends_str}'.")
