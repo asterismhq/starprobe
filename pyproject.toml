@@ -1,6 +1,6 @@
 [project]
 name = "starprobe"
-version = "0.0.1"
+version = "2.0.2"
 description = "A FastAPI service for web research and summarization."
 authors = [
     { name = "akitorahayashi" }

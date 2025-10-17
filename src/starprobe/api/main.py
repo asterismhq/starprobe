@@ -1,6 +1,7 @@
 """FastAPI application entry point."""
 
 from contextlib import asynccontextmanager
+from importlib import metadata
 
 from fastapi import FastAPI
 
@@ -19,7 +20,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title="Ollama Deep Researcher API",
     description="Production-ready research agent API",
-    version="1.0.0",
+    version=metadata.version("starprobe"),
     lifespan=lifespan,
 )
 
